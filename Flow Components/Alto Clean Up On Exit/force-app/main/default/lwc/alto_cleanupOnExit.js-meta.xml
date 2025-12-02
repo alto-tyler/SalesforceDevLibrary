@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Cleanup On Exit</masterLabel>
+    <description>Automatically deletes a record when the user navigates away or closes the page. Useful for cleaning up temporary/draft records. Note: Validation errors will prevent navigation and deletion.</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="recordId" type="String" label="Record ID to Delete" description="The ID of the record to delete when exiting" required="true" />
+            <property name="deleteOnNavigate" type="Boolean" label="Delete On Navigate" description="Delete record when user navigates away using back button, next button, or changes screens" default="false" />
+            <property name="deleteOnPageClose" type="Boolean" label="Delete On Page Close" description="Delete record when user closes browser tab/window or refreshes the page" default="false" />
+            <property name="cascadeDelete" type="Boolean" label="Cascade Delete Children" description="Automatically delete Master-Detail child records before deleting this record. Only affects true parent-child relationships, not lookups." default="false" />
+            <property name="lookupChildRelationships" type="String" label="Lookup Child Relationships" description="Comma-separated list of child relationship API names ending in __r (e.g., 'Contacts,Custom_Children__r,namespace__Custom_Objects__r'). Find these in the child object's lookup field under 'Child Relationship Name'." />
+            <property name="showDebugMessages" type="Boolean" label="Show Debug Messages" description="Enable console logging for debugging" default="false" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
