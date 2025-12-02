@@ -1,0 +1,11 @@
+# Ignore Salesforce DX local workspace files
+# .sfdx contains local scratch/sandbox auth, org state, and CLI caches
+.sfdx/
+
+# Ignore common local IDE / node files (optional)
+.vscode/
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
