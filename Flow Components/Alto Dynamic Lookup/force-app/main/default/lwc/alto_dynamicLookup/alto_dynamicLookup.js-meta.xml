@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Dynamic Lookup</masterLabel>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <!-- Display Section -->
+            <property name="label" type="String" label="I01_Display_Label" description="Display: Label shown above the lookup field" />
+            <property name="placeholder" type="String" label="I02_Display_Placeholder" default="Search..." description="Display: Placeholder text in the search input" />
+            <property name="iconName" type="String" label="I03_Display_IconName" default="standard:account" description="Display: SLDS icon (e.g., standard:account, utility:search)" />
+            
+            <!-- Object Configuration Section -->
+            <property name="objectApiName" type="String" label="I04_Object_ObjectApiName" description="Object Config: API name of the object to search (e.g., Account, Contact)" />
+            <property name="displayFieldName" type="String" label="I05_Object_DisplayFieldName" default="Name" description="Object Config: Field to display in results (e.g., Name)" />
+            <property name="fieldApiName" type="String" label="I06_Object_SearchFieldApiName" default="Name" description="Object Config: Field to search on (leave empty to search display field)" />
+            <property name="valueFieldName" type="String" label="I07_Object_ValueFieldName" default="Id" description="Object Config: Field to use as the value (typically Id)" />
+            
+            <!-- Query Configuration Section -->
+            <property name="maxResults" type="Integer" label="I08_Query_MaxResults" default="200" description="Query Config: Maximum number of records to return (1-2000)" />
+            <property name="whereClause" type="String" label="I09_Query_WhereClause" default="" description="Query Config: Additional WHERE conditions (e.g., Type = 'Customer')" />
+            <property name="sortBy" type="String" label="I10_Query_SortBy" default="" description="Query Config: Field to sort results by (e.g., Name, CreatedDate)" />
+            <property name="sortDirection" type="String" label="I11_Query_SortDirection" default="asc" description="Query Config: Sort direction (asc or desc)" />
+            <property name="valueMatchType" type="String" label="I12_Query_ValueMatchType" datasource="exact,partial" default="partial" description="Query Config: How to match initial value (exact = equals, partial = contains)" />
+            
+            <!-- Parent Filter Section -->
+            <property name="parentInitialized" type="Boolean" label="I13_Parent_ParentInitialized" default="false" description="Parent Filter: Set to true when parent component has loaded" />
+            <property name="parentFilterField" type="String" label="I14_Parent_ParentFilterField" default="" description="Parent Filter: Field on child object to filter by (e.g., AccountId)" />
+            <property name="parentFilterValue" type="String" label="I15_Parent_ParentFilterValue" default="" description="Parent Filter: Value from parent to filter on (e.g., {!Account.Id})" />
+            <property name="parentFilterOperator" type="String" label="I16_Parent_ParentFilterOperator" default="=" description="Parent Filter: Comparison operator (=, !=, IN, LIKE). Use comma-separated values for IN" />
+            <property name="disableOnNoParentValue" type="Boolean" label="I17_Parent_DisableOnNoParentValue" default="false" description="Parent Filter: Disable this lookup when parent value is empty" />
+            
+            <!-- Behavior Section -->
+            <property name="required" type="Boolean" label="I18_Behavior_Required" default="false" description="Behavior: Make this field required for flow progression" />
+            <property name="disabled" type="Boolean" label="I19_Behavior_Disabled" default="false" description="Behavior: Disable the lookup field" />
+            <property name="allowDisplayFieldMatch" type="Boolean" label="I20_Behavior_AllowDisplayFieldMatch" default="false" description="Behavior: Allow searching on display field even when search field is different" />
+            <property name="relativeDropdown" type="Boolean" label="I21_Behavior_RelativeDropdown" default="false" description="Behavior: Make dropdown position relative to screen (not input field)" />
+            <property name="populateOnTab" type="Boolean" label="I22_Behavior_PopulateOnTab" default="false" description="Behavior: When true, pressing Tab will wait for records to load and then select the first result" />
+            
+            <!-- Barcode Scanning Section -->
+            <property name="allowBarcodeScanning" type="Boolean" label="I23_Scan_AllowBarcodeScanning" default="false" description="Barcode: Enable barcode scanning button" />
+            <property name="scanButtonIcon" type="String" label="I24_Scan_ScanButtonIcon" default="utility:scan" description="Barcode: Icon for the scan button (e.g., utility:scan, utility:photo)" />
+            
+            <!-- Initial Value Section -->
+            <property name="value" type="String" label="I25_Value_InitialValue" description="Initial Value: Pre-populate with a specific value on component load" />
+            <property name="selectedValue" type="String" label="I26_Value_SelectedValue / O1_selectedValue" description="Initial Value: Use {!ComponentName.selectedValue} to remember value on validation | Output: The value of the selected record" />
+            
+            <!-- Outputs -->
+            <property name="recordId" type="String" label="O2_recordId" role="outputOnly" description="Output: The Id of the selected record" />
+            <property name="componentInitialized" type="Boolean" label="O3_componentInitialized" role="outputOnly" description="Output: True when component has finished initializing" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

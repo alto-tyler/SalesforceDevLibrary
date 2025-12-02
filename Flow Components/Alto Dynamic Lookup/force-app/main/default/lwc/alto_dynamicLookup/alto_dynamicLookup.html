@@ -1,0 +1,78 @@
+<template>
+    <div class="slds-form-element slds-m-bottom_x-small">
+        <div class="slds-grid slds-wrap slds-grid_align-spread">
+            <label data-id="mainLabel" class="slds-form-element__label slds-p-around_none">
+            <template if:true={hasLabel}><abbr if:true={required} class="slds-required" title="required" aria-hidden="true">* </abbr></template>{label}</label>
+
+            <div if:true={showClearText} data-id="clearMeta" class={clearMetaClass}>
+                <template if:false={isSalesforceMobileApp}>Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to clear. </template>Double-<template if:false={isSalesforceMobileApp}>click</template><template if:true={isSalesforceMobileApp}>tap</template> to edit.
+            </div>
+        </div>
+        <div class="slds-form-element__control">
+            <div class={containerClass}>
+                <div class={dropDownClass}>
+                    <template if:true={componentInitialized}>
+                        <template if:false={selectedRecord}>
+                            <div class="slds-grid slds-grid_vertical-align-center">
+                                <div class="slds-col slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+                                    <input if:true={showInput} type="text" class="slds-input slds-combobox__input" role="combobox" placeholder={placeholder} oninput={handleInput} onclick={handleInputClick} onpointerdown={handleInputPointerDown} onkeydown={handleInputKeydown} onblur={handleInputBlur} onfocus={handleInputFocus} value={searchValue} disabled={disabled} required={required} />
+                                    <lightning-icon icon-name="utility:search" alternative-text="Search" size="x-small" class="slds-input__icon slds-input__icon_right"></lightning-icon>
+                                </div>
+                                <lightning-button-icon class="slds-m-left_x-small" icon-name={scanButtonIcon} alternative-text="Scan" size="medium" variant="brand" onclick={handleScanClick} if:true={showScanButton} disabled={disabled}></lightning-button-icon>
+                            </div>
+                        </template>
+                        <div if:true={selectedRecord} class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_left-right" role="none">
+                            <span class="slds-icon_container slds-combobox__input-entity-icon">
+                                <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                            </span>
+                            <a href="javascript:void(0)" role="combobox" tabindex="0" class="selection-container_combobox slds-input_faux slds-combobox__input slds-combobox__input-value slds-button slds-text-color_default" onkeydown={handleComboboxKeydown} onfocus={handleSelectionFocus} onblur={handleSelectionBlur} onclick={handleSelectionClick} ondblclick={handleSelectionDblClick} aria-haspopup="listbox">
+                                <span class="slds-truncate">{selectedDisplayValue}</span>
+                            </a>
+                            <button class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title="Remove selected option" onclick={handleRemoveSelection} tabindex="-1">
+                                <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                            </button>
+                        </div>
+                    </template>
+                    <template if:false={componentInitialized}>
+                        <div class="slds-combobox__form-element" role="none">
+                            <div role="combobox" class="slds-input_faux slds-combobox__input slds-combobox__input-value slds-button slds-is-relative" aria-haspopup="listbox" tabindex="-1" style="overflow:hidden;user-select:none;">
+                                {loadingMessage}
+                                <lightning-spinner alternative-text="Loading" size="x-small" variant="brand"></lightning-spinner>
+                            </div>
+                        </div>
+                    </template>
+                    <div class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid" role="listbox" tabindex="-1" style={mobileAppOverrideStyle} if:true={dropDownOpen}>
+                        <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+                            <li if:true={showDropdownSpinner} role="presentation" class="slds-listbox__item listbox-spinner slds-grid_vertical-align-center">
+                                <div class="slds-media slds-listbox__option slds-listbox__option_entity" role="option">
+                                    <span class="slds-media__body">
+                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">Retrieving records...</span>
+                                    </span>
+                                </div>
+                                <lightning-spinner alternative-text="Loading" size="small" variant="brand"></lightning-spinner>
+                            </li>
+                            <template for:each={results} for:item="record"  for:index="index">
+                                <li role="presentation" class="slds-listbox__item" onmousedown={handleSelect} onmouseup={handleMouseUp} data-value={record.Id} key={record.Id}>
+                                    <div class={record.class} role="option">
+                                        <span class="slds-media__figure slds-listbox__option-icon">
+                                            <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                                        </span>
+                                        <span class="slds-media__body">
+                                            <span class="slds-listbox__option-text slds-listbox__option-text_entity" style="text-wrap: auto;">{record.DisplayField}</span>
+                                            <span class="slds-listbox__option-meta slds-listbox__option-meta_entity">{sObjectName}</span>
+                                        </span>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <template if:true={showLogMessages}>
+        <pre style="max-height:200px;overflow:auto;background:#f4f4f4;padding:8px;font-size:12px;">
+            {logMessages}
+        </pre>
+    </template>
+</template>

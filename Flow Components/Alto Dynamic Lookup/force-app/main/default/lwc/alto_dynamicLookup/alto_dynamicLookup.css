@@ -1,0 +1,23 @@
+.listbox-spinner {
+    height: 36px;
+    width:100%;
+}
+
+.slds-spinner_container {
+    z-index:1000!important;
+}
+
+:host .clear-meta.clear-inline {
+    margin-left: auto;
+    display: inline-block;
+}
+
+:host .clear-meta.clear-full {
+    margin-left: 0 !important;
+    display: block;
+    width: 100%;
+}
+
+:host .clear-meta kbd {
+    font-family: inherit;
+}
