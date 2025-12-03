@@ -2,56 +2,6 @@
 
 A collection of reusable Salesforce Flow components and actions to enhance your Flow Builder experience.
 
-## Repository Structure
-
-```
-SalesforceDevLibrary/
-├── README.md
-├── .gitignore
-├── Flow Actions/
-│   ├── Alto Execute SOQL/
-│   │   ├── README.md
-│   │   ├── force-app/
-│   │   └── manifest/package.xml
-│   └── Alto Rollup Numbers (Action)/
-│       ├── README.md
-│       ├── force-app/
-│       └── manifest/package.xml
-└── Flow Screen Components/
-    ├── Alto Clean Up On Exit/
-    │   ├── README.md
-    │   ├── force-app/
-    │   └── manifest/package.xml
-    ├── Alto Datatable/
-    │   ├── README.md
-    │   ├── force-app/
-    │   └── manifest/package.xml
-    ├── Alto Document Job Monitor/
-    │   ├── README.md
-    │   ├── force-app/
-    │   └── manifest/package.xml
-    ├── Alto Dynamic Lookup/
-    │   ├── README.md
-    │   ├── force-app/
-    │   └── manifest/package.xml
-    ├── Alto Flow Footer/
-    │   ├── README.md
-    │   ├── force-app/
-    │   └── manifest/package.xml
-    ├── Alto Flow Header/
-    │   ├── README.md
-    │   ├── force-app/
-    │   └── manifest/package.xml
-    ├── Alto Multi Dynamic Lookup/
-    │   ├── README.md
-    │   ├── force-app/
-    │   └── manifest/package.xml
-    └── Alto Rollup Numbers/
-        ├── README.md
-        ├── force-app/
-        └── manifest/package.xml
-```
-
 ## Components
 
 ### Flow Actions
