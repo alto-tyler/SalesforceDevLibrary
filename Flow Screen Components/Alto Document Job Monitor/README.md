@@ -159,31 +159,7 @@ The component displays different content based on the document job status:
 
 ---
 
-### Example 4: Multi-Document Package Generation
-
-**Scenario:** Generate a document package that creates multiple files (e.g., Quote, Terms & Conditions, Attachments).
-
-**Setup:**
-
-1. **Decision** - Check if Quote is Approved
-   - Outcome 1: `{!Quote.Status__c}` Equals `Approved`
-
-2. **Create Records** - Create Document Job for Package
-   - Create a document job record using Rootforms for the multi-document package
-   - Store the record Id in: `{!DocJobId}`
-
-3. **Screen** - Document Package Status
-   - Add **Alto Document Job Monitor**
-     - **Document Job Id**: `{!DocJobId}`
-     - **Custom Header Text**: `Quote Package Generation`
-     - **Generated Items Label**: `Generated Files`
-     - **Generating Message**: `Generating your quote package (Quote, T&Cs, and Attachments). This may take a moment...`
-
-**Result:** All documents from the package are displayed in a list when complete. Users can preview each document individually by clicking "View" buttons.
-
----
-
-### Example 5: Simple Document Generation (Minimal Configuration)
+### Example 4: Simple Document Generation (Minimal Configuration)
 
 **Scenario:** Quick setup with default labels.
 
