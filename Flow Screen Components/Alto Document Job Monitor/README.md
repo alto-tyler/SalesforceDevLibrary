@@ -45,7 +45,7 @@ A Flow screen component that monitors Rootforms document generation jobs in real
 
 The component displays different content based on the document job status:
 
-**Queued / In Progress:**
+**Not Started / In Progress:**
 - Shows spinner with custom generating message
 - Polls every 3 seconds for status changes
 - Users remain on the screen while waiting
@@ -184,7 +184,7 @@ The component displays different content based on the document job status:
 Override the default header (which uses the job name) with custom text:
 - "Generating Your Contract"
 - "Please Wait - Creating Invoice"
-- "{!RecordName} Document Package"
+- "{!RecordName} Document"
 
 ### Generated Items Label
 Customize the section header for the document list:
@@ -258,11 +258,11 @@ Customize the waiting message:
 - Check that the running user has read access to the Document Job object
 - Confirm Rootforms is installed and configured in the org
 
-### Status never changes from "Queued" or "In Progress"
+### Status never changes from "Not Started" or "In Progress"
 - Check the Rootforms Job Monitor page (click "View Job Monitor" button)
-- Verify the document package is properly configured
+- Verify the document is properly configured
 - Ensure the related record (e.g., Opportunity, Account) has required data
-- Check Rootforms configuration for the document package
+- Check Rootforms configuration for the document
 
 ### No files displayed after "Completed" status
 - Check if document attachment fields are populated on the Document Job record
@@ -328,8 +328,8 @@ Use Display Text elements to provide additional information:
 - What to do if there's an error
 
 ### 5. Handle Large Document Jobs
-For document packages with many files or large files:
-- Set expectations in the generating message: "Complex package may take 1-2 minutes"
+For document with many files or large files:
+- Set expectations in the generating message: "Complex document may take 1-2 minutes"
 - Consider showing the component on a dedicated screen
 - Provide a "Continue Later" option if appropriate
 
@@ -338,10 +338,9 @@ Give users time to preview documents before moving to the next screen:
 - Add "Next" button (not "Finish") so users can review
 - Mention in Display Text: "Review your documents above, then click Next"
 
-### 7. Test with Different Document Packages
-- Single document packages
-- Multi-document packages
-- Large file sizes
+### 7. Test with Different Document Types
+- Single document
+- Multi-document
 - Document generation that may fail (test error handling)
 
 ---
@@ -424,8 +423,7 @@ For issues or questions:
 
 ### Document Automation
 - Contract generation with immediate preview
-- Invoice generation for batch processing
-- Quote packages with multiple documents
+- Invoice generation
 - Report generation with status updates
 
 ### User Experience
