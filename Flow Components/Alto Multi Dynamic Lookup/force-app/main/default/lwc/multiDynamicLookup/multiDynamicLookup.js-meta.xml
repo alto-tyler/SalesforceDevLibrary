@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Multi Dynamic Lookup</masterLabel>
+    <description>Search and select multiple records using Dynamic Lookup, displays selected items with remove capability</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <!-- Display Section -->
+            <property name="label" type="String" label="I01_Display_Label" default="Search and Select" description="Display: Label shown above the entire multi-select component" />
+            <property name="placeholder" type="String" label="I02_Display_Placeholder" default="Search..." description="Display: Placeholder text in the lookup search input field" />
+            <property name="iconName" type="String" label="I03_Display_IconName" default="standard:account" description="Display: SLDS icon shown in the lookup search field (e.g., standard:account, utility:search)" />
+            
+            <!-- Object Configuration Section -->
+            <property name="objectApiName" type="String" label="I04_Object_ObjectApiName" description="Lookup Search: API name of the object to search (e.g., Account, Contact)" required="true" />
+            <property name="displayFieldName" type="String" label="I05_Object_DisplayFieldName" default="Name" description="Lookup Search: Field to display in search results and selected pills (e.g., Name)" required="true" />
+            <property name="fieldApiName" type="String" label="I06_Object_SearchFieldApiName" default="Name" description="Lookup Search: Field to search on when typing (e.g., Name)" required="true" />
+            <property name="valueFieldName" type="String" label="I07_Object_ValueFieldName" default="Id" description="Lookup Search: Field to use as the value in output (typically Id, but can be any unique field)" />
+            
+            <!-- Query Configuration Section -->
+            <property name="maxResults" type="Integer" label="I08_Query_MaxResults" default="200" description="Lookup Search: Maximum number of records to show in search dropdown (1-2000)" />
+            <property name="whereClause" type="String" label="I09_Query_WhereClause" description="Lookup Search: Additional WHERE conditions to filter search results (e.g., Type = 'Customer')" />
+            <property name="sortBy" type="String" label="I10_Query_SortBy" description="Lookup Search: Field to sort search results by (e.g., Name, CreatedDate)" />
+            <property name="sortDirection" type="String" label="I11_Query_SortDirection" default="asc" description="Lookup Search: Sort direction for search results (asc or desc)" />
+            <property name="valueMatchType" type="String" label="I12_Query_ValueMatchType" datasource="exact,partial" default="partial" description="Lookup Search: How to match search text (exact = equals, partial = contains)" />
+            
+            <!-- Parent Filter Section -->
+            <property name="parentInitialized" type="Boolean" label="I13_Parent_ParentInitialized" default="false" description="Lookup Search: Set to true when parent component has loaded (enables parent filtering)" />
+            <property name="parentFilterField" type="String" label="I14_Parent_ParentFilterField" description="Lookup Search: Field on child object to filter by parent (e.g., AccountId for Contacts)" />
+            <property name="parentFilterValue" type="String" label="I15_Parent_ParentFilterValue" description="Lookup Search: Value from parent to filter on (e.g., {!Account.Id})" />
+            <property name="parentFilterOperator" type="String" label="I16_Parent_ParentFilterOperator" default="=" description="Lookup Search: Comparison operator for parent filter (=, !=, IN, LIKE). Use comma-separated values for IN" />
+            <property name="disableOnNoParentValue" type="Boolean" label="I17_Parent_DisableOnNoParentValue" default="false" description="Lookup Search: Disable the lookup field when parent value is empty" />
+            
+            <!-- Behavior Section -->
+            <property name="required" type="Boolean" label="I18_Behavior_Required" default="false" description="Selected Pills: Make at least one selection required for flow progression (validates on Next)" />
+            <property name="disabled" type="Boolean" label="I19_Behavior_Disabled" default="false" description="Lookup Search: Disable the entire lookup component" />
+            <property name="allowDisplayFieldMatch" type="Boolean" label="I20_Behavior_AllowDisplayFieldMatch" default="false" description="Lookup Search: Allow searching on display field even when search field is different" />
+            <property name="relativeDropdown" type="Boolean" label="I21_Behavior_RelativeDropdown" default="false" description="Lookup Search: Make dropdown position relative to screen instead of input field" />
+            <property name="populateOnTab" type="Boolean" label="I22_Behavior_PopulateOnTab" default="false" description="Lookup Search: When true, pressing Tab will wait for records to load and then select the first result" />
+            
+            <!-- Barcode Scanning Section -->
+            <property name="allowBarcodeScanning" type="Boolean" label="I23_Scan_AllowBarcodeScanning" default="false" description="Lookup Search: Enable barcode scanning button in lookup field" />
+            <property name="scanButtonIcon" type="String" label="I24_Scan_ScanButtonIcon" default="utility:scan" description="Lookup Search: Icon for the barcode scan button (e.g., utility:scan, utility:photo)" />
+            
+            <!-- Output -->
+            <property name="selectedValues" type="String" label="O1_selectedValues" description="Output: Semicolon-separated list of selected values from pills (based on Value Field Name setting)" />
+            <property name="selectedValuesCollection" type="String[]" label="O2_selectedValuesCollection" description="Output: Array of selected values from pills for loop processing in Flow" />
+            <property name="selectedNames" type="String" label="O3_selectedNames" description="Output: Semicolon-separated list of selected names from pills (based on Display Field Name setting)" />
+            <property name="selectedNamesCollection" type="String[]" label="O4_selectedNamesCollection" description="Output: Array of selected names from pills for loop processing in Flow" />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

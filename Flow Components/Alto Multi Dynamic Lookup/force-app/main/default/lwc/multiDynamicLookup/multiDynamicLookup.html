@@ -1,0 +1,63 @@
+<template>
+    <div class="slds-form-element slds-m-bottom_x-small">
+        <div class="slds-form-element__control">
+            <label class="slds-form-element__label"><abbr lwc:if={required} class="slds-required" title="required" aria-hidden="true">* </abbr>{label}</label>
+            <c-alto_dynamic-lookup
+                placeholder={placeholder}
+                icon-name={iconName}
+                object-api-name={objectApiName}
+                display-field-name={displayFieldName}
+                field-api-name={fieldApiName}
+                value-field-name={valueFieldName}
+                max-results={maxResults}
+                where-clause={whereClause}
+                sort-by={sortBy}
+                sort-direction={sortDirection}
+                value-match-type={valueMatchType}
+                parent-initialized={parentInitialized}
+                parent-filter-field={parentFilterField}
+                parent-filter-value={parentFilterValue}
+                parent-filter-operator={parentFilterOperator}
+                disable-on-no-parent-value={disableOnNoParentValue}
+                disabled={disabled}
+                allow-display-field-match={allowDisplayFieldMatch}
+                relative-dropdown={relativeDropdown}
+                allow-barcode-scanning={allowBarcodeScanning}
+                scan-button-icon={scanButtonIcon}
+                onrecordselected={handleLookupSelect}>
+            </c-alto_dynamic-lookup>
+                <div class="slds-m-top_small">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small">
+                        <div class="slds-col">
+                            <div class="slds-form-element__label slds-text-title_caps">
+                                Selected Items
+                            </div>
+                        </div>
+                        <div class="slds-col_bump-left">
+                            <lightning-button
+                                label="Clear All"
+                                variant="destructive-text"
+                                onclick={handleClearAll}
+                                class="slds-text-body_small">
+                            </lightning-button>
+                        </div>
+                    </div>
+                    
+                    <ul class="slds-listbox slds-listbox_horizontal slds-p-around_x-small" role="listbox" aria-label="Selected Items" style="border: 1px solid #d8dde6; border-radius: 0.25rem; width: 100%; min-height: 3rem;">
+                        <template if:true={hasSelectedItems}>
+                            <template for:each={selectedItems} for:item="item">
+                                <li key={item.value} class="slds-listbox-item" role="presentation">
+                                    <lightning-pill
+                                        label={item.displayValue}
+                                        name={item.value}
+                                        onremove={handleRemove}>
+                                        <lightning-icon icon-name={iconName}></lightning-icon>
+                                    </lightning-pill>
+                                </li>
+                            </template>
+                        </template>
+                    </ul>
+                </div>
+        </div>
+    </div>
+</template>

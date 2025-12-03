@@ -2,6 +2,16 @@
 
 A collection of reusable Salesforce Flow components and actions to enhance your Flow Builder experience.
 
+## Components
+
+### Flow Components
+- **[Alto Clean Up On Exit](Flow%20Components/Alto%20Clean%20Up%20On%20Exit/)** - Automatically delete records when users exit a Flow screen
+- **[Alto Datatable](Flow%20Components/Alto%20Datatable/)** - Display, select, filter, search, and inline edit records in a customizable datatable (based on Eric Smith's component with reactivity enhancements)
+- **[Alto Dynamic Lookup](Flow%20Components/Alto%20Dynamic%20Lookup/)** - Configurable lookup component with parent filtering, barcode scanning, and validation
+- **[Alto Multi Dynamic Lookup](Flow%20Components/Alto%20Multi%20Dynamic%20Lookup/)** - Multi-select lookup with pill display (requires Dynamic Lookup)
+- **[Alto Flow Header](Flow%20Components/Alto%20Flow%20Header/)** - Header component with Rootstock company info and customizable action buttons
+- **[Alto Flow Footer](Flow%20Components/Alto%20Flow%20Footer/)** - Footer component with customizable action buttons and alignment options
+
 ## How to Deploy Components to Your Org
 
 ### Prerequisites
@@ -69,9 +79,20 @@ cd MyProject
 xcopy "..\SalesforceDevLibrary\Flow Components\Alto Clean Up On Exit\force-app" "force-app" /E /I /Y
 ```
 
+**For Datatable:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Components\Alto Datatable\force-app" "force-app" /E /I /Y
+```
+
 **For Dynamic Lookup:**
 ```powershell
 xcopy "..\SalesforceDevLibrary\Flow Components\Alto Dynamic Lookup\force-app" "force-app" /E /I /Y
+```
+
+**For Multi Dynamic Lookup:**
+```powershell
+# Requires Dynamic Lookup to be deployed first
+xcopy "..\SalesforceDevLibrary\Flow Components\Alto Multi Dynamic Lookup\force-app" "force-app" /E /I /Y
 ```
 
 **For Flow Header:**
@@ -107,7 +128,9 @@ You'll see output showing the deployment progress. Wait for the message: `Deploy
 3. Add a **Screen** element
 4. In the component panel on the left, search for the component name:
    - "Alto Clean Up On Exit"
-   - "Alto Dynamic Lookup"  
+   - "Alto Datatable"
+   - "Alto Dynamic Lookup"
+   - "Alto Multi Dynamic Lookup"
    - "Alto Flow Header"
    - "Alto Flow Footer"
 5. The component should appear in the list
@@ -133,7 +156,9 @@ git clone https://github.com/alto-tyler/SalesforceDevLibrary.git
 # Copy all component folders
 cd MyProject
 xcopy "..\SalesforceDevLibrary\Flow Components\Alto Clean Up On Exit\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Components\Alto Datatable\force-app" "force-app" /E /I /Y
 xcopy "..\SalesforceDevLibrary\Flow Components\Alto Dynamic Lookup\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Components\Alto Multi Dynamic Lookup\force-app" "force-app" /E /I /Y
 xcopy "..\SalesforceDevLibrary\Flow Components\Alto Flow Header\force-app" "force-app" /E /I /Y
 xcopy "..\SalesforceDevLibrary\Flow Components\Alto Flow Footer\force-app" "force-app" /E /I /Y
 
@@ -169,7 +194,9 @@ After deployment, components are immediately available in Flow Builder:
 2. Add a **Screen** element
 3. In the component sidebar, search for the component name:
    - "Alto Clean Up On Exit"
+   - "Alto Datatable"
    - "Alto Dynamic Lookup"
+   - "Alto Multi Dynamic Lookup"
    - "Alto Flow Header"
    - "Alto Flow Footer"
 4. Drag the component onto your screen
@@ -198,6 +225,10 @@ After deployment, components are immediately available in Flow Builder:
 ---
 
 ## Component Requirements
+
+### Multi Dynamic Lookup Component
+**⚠️ Requires Alto Dynamic Lookup**  
+This component is a wrapper around the Dynamic Lookup component and cannot function without it. Deploy Alto Dynamic Lookup before deploying Multi Dynamic Lookup.
 
 ### Flow Header Component
 **⚠️ Requires Rootstock ERP**  
