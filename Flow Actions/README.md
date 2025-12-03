@@ -5,12 +5,11 @@ Salesforce Flow Actions are Apex invocable methods that can be used directly in 
 ## Available Actions
 
 ### Alto Execute SOQL
-Execute dynamic SOQL queries with automatic date/datetime formatting
+Execute dynamic SOQL queries from Flow
 
 **Key Features:**
 - Execute any valid SOQL query dynamically from Flow
-- Automatic date and datetime formatting (supports DATE_LITERAL, ISO, en_US formats)
-- Subquery support with recursive formatting
+- Supports subqueries and complex WHERE clauses
 - Returns SObject collection for use in Flow
 - Without sharing context for maximum query flexibility
 
@@ -18,9 +17,9 @@ Execute dynamic SOQL queries with automatic date/datetime formatting
 
 **Use Cases:**
 - Dynamic record retrieval based on runtime conditions
-- Complex queries with date filtering
+- Complex queries beyond Get Records element capabilities
 - Queries requiring subqueries or aggregate functions
-- Scenarios where Get Records element limitations are too restrictive
+- Building WHERE clauses with runtime variables
 
 [View Full Documentation](Alto%20Execute%20SOQL/)
 

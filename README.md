@@ -5,7 +5,7 @@ A collection of reusable Salesforce Flow components and actions to enhance your 
 ## Components
 
 ### Flow Actions
-- **[Alto Execute SOQL](Flow%20Actions/Alto%20Execute%20SOQL/)** - Execute dynamic SOQL queries with automatic date/datetime formatting
+- **[Alto Execute SOQL](Flow%20Actions/Alto%20Execute%20SOQL/)** - Execute dynamic SOQL queries from Flow
 - **[Alto Rollup Numbers (Action)](Flow%20Actions/Alto%20Rollup%20Numbers%20(Action)/)** - Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record collections
 - **[Alto Flow Collection Comparator](Flow%20Actions/Alto%20Flow%20Collection%20Comparator/)** - Compare two record collections based on field values and return matching/non-matching records
 - **[Alto Flow Collection Filter](Flow%20Actions/Alto%20Flow%20Collection%20Filter/)** - Filter a collection based on field value criteria with exact, partial, and inverted match support
