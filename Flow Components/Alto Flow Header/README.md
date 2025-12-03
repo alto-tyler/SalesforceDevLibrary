@@ -2,6 +2,8 @@
 
 This component provides a professional header for Flow screens with customizable action buttons, company/division information display, and flexible navigation options. Perfect for creating branded, enterprise-ready Flow experiences.
 
+**⚠️ Important:** This component **requires Rootstock ERP** to be installed in your Salesforce org. The Apex controller depends on Rootstock objects and fields. This component will not work in orgs without Rootstock.
+
 **Use Cases:**
 - Add custom header with branding to Flow screens
 - Create Help, Cancel, or custom action buttons
@@ -63,6 +65,7 @@ This component provides a professional header for Flow screens with customizable
 
 ### **Custom Title/Meta?**
 - When `True`, use custom title/meta instead of fetching Rootstock data
+- Allows customization of header title and meta text
 - Default: `False`
 
 ### **Custom Page Title**

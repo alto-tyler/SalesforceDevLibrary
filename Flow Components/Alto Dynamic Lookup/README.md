@@ -308,7 +308,8 @@ I23_Scan_AllowBarcodeScanning: True
 ## Advanced Tips
 
 ### Debugging
-Press **Ctrl+Shift+L** in the browser console to toggle debug logging (developer feature).
+- Press **Ctrl+Shift+L** in the browser console to toggle debug logging (developer feature)
+- Press **Ctrl+D** while focused in the lookup input field to show debug logs directly on the Flow screen (no browser console needed)
 
 ### Remembering Selection After Validation Errors
 **Recommended Method (Easiest):**
