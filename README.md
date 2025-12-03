@@ -240,7 +240,7 @@ For issues, questions, or feature requests:
 
 ## Component Documentation
 
-Each component has its own detailed README with:
+Each component has its own detailed README (only available in SalesforceDevLibrary and not deployable with components) with:
 - Property descriptions (exact XML labels as they appear in Flow Builder)
 - Flow setup examples
 - JSON configuration examples (for Header/Footer)
