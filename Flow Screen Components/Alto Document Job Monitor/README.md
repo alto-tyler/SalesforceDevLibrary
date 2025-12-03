@@ -17,7 +17,7 @@ A Flow screen component that monitors Rootforms document generation jobs in real
 
 ## How It Works
 
-1. Create a `DOX__Document_Job__c` record in your Flow with `DOX__Generate_On_Create__c = True`
+1. Create a document job record in your Flow using Rootforms
 2. Pass the Document Job Id to this component's **Document Job Id** input
 3. Component polls the Document Job record every 3 seconds
 4. When status changes to "Completed", generated documents are retrieved and displayed
@@ -26,29 +26,13 @@ A Flow screen component that monitors Rootforms document generation jobs in real
 
 **Note:** This component requires Rootforms to be installed in your org.
 
-### Creating Document Jobs in Flow
-
-Use the **Create Records** element to create a `DOX__Document_Job__c` record:
-
-**Required Fields:**
-- `DOX__Document_Package__c` - Id of the document package to use
-- `DOX__Records_to_Process__c` - Comma-separated list of record Ids to process
-- `DOX__Generate_On_Create__c` - Set to `True` to trigger generation immediately
-
-**Optional Fields:**
-- `DOX__Object_Id__c` - Primary record Id (for single record jobs)
-- Other Rootforms-specific fields as needed
-
-**For Batch Processing:**
-Build a comma-separated list of Ids using a Loop + Assignment, then pass to `DOX__Records_to_Process__c`.
-
 ---
 
 ## Input Properties
 
 | Property | Type | Label | Required | Description |
 |----------|------|-------|----------|-------------|
-| **Document Job Id** | String | `Document Job Id` | ✅ Yes | The Id of the `DOX__Document_Job__c` record to monitor (typically from a Rootforms action output) |
+| **Document Job Id** | String | `Document Job Id` | ✅ Yes | The Id of the document job record to monitor (typically from a create records output) |
 | **Custom Header Text** | String | `Custom Header Text` | No | Optional custom header text (defaults to the document job name if not provided) |
 | **Generated Items Label** | String | `Generated Items Label` | No | Label for the generated files section (default: "Generated Documents") |
 | **Generating Message** | String | `Generating Message` | No | Message shown while generation is in progress (default: "Document generation in progress. This page will update automatically.") |
@@ -79,7 +63,7 @@ The component displays different content based on the document job status:
 
 ### Document Retrieval
 
-- Reads `DOX__Attachment_Id__c` (single document) and `DOX__multipleAttachmentIDs__c` (multiple documents)
+- Reads document attachment fields from the document job record
 - Implements retry logic: attempts up to 5 times with 1-second delays to handle asynchronous file creation
 - Removes duplicate document IDs automatically
 - Fetches ContentVersion details including title and ContentDocumentId
@@ -100,7 +84,7 @@ The component displays different content based on the document job status:
    - Store in variables: `{!ContractTerms}`, `{!EffectiveDate}`
 
 2. **Create Records** - Create Document Job
-   - Create a `DOX__Document_Job__c` record with appropriate field values
+   - Create a document job record using Rootforms
    - Store the record Id in: `{!DocumentJobId}`
 
 3. **Screen** - Document Status Screen
@@ -135,7 +119,7 @@ The component displays different content based on the document job status:
    - Value: `{!CurrentInvoice.Id},{!InvoiceIdList}`
 
 4. **Create Records** - Create Document Job for Batch
-   - Create a `DOX__Document_Job__c` record, passing `{!InvoiceIdList}` for batch processing
+   - Create a document job record using Rootforms for batch processing with the ID list
    - Store the record Id in: `{!DocumentJobId}`
    
 5. **Screen** - Status Monitor
@@ -156,7 +140,7 @@ The component displays different content based on the document job status:
 **Setup:**
 
 1. **Create Records** - Create Document Job
-   - Create a `DOX__Document_Job__c` record for the proposal
+   - Create a document job record using Rootforms for the proposal
    - Store the record Id in: `{!DocumentJobId}`
 
 2. **Screen** - Monitor Document Generation
@@ -185,7 +169,7 @@ The component displays different content based on the document job status:
    - Outcome 1: `{!Quote.Status__c}` Equals `Approved`
 
 2. **Create Records** - Create Document Job for Package
-   - Create a `DOX__Document_Job__c` record for the multi-document package
+   - Create a document job record using Rootforms for the multi-document package
    - Store the record Id in: `{!DocJobId}`
 
 3. **Screen** - Document Package Status
@@ -206,7 +190,7 @@ The component displays different content based on the document job status:
 **Setup:**
 
 1. **Create Records** - Create Document Job
-   - Create a `DOX__Document_Job__c` record
+   - Create a document job record using Rootforms
    - Store the record Id in: `{!JobId}`
 
 2. **Screen** - View Document
@@ -270,7 +254,7 @@ Customize the waiting message:
 ## Technical Details
 
 ### Polling Mechanism
-- Polls `DOX__Document_Job__c` record every 3 seconds using `setInterval`
+- Polls the document job record every 3 seconds using `setInterval`
 - Uses `refreshApex` to re-query record data
 - Automatically stops polling when:
   - Status = "Completed"
@@ -278,8 +262,7 @@ Customize the waiting message:
   - Component is removed from screen
 
 ### Document Retrieval
-- Queries `DOX__Attachment_Id__c` (single document field)
-- Queries `DOX__multipleAttachmentIDs__c` (comma-separated IDs)
+- Queries document attachment fields from the document job record
 - Implements 5-retry logic with 1-second delays (handles async file creation)
 - Fetches ContentVersion records via Apex with SECURITY_ENFORCED
 - Appends file extensions to titles if missing
@@ -295,7 +278,7 @@ Customize the waiting message:
 ## Troubleshooting
 
 ### Component shows "Error loading document job"
-- Verify the **Document Job Id** is a valid `DOX__Document_Job__c` record Id
+- Verify the **Document Job Id** is a valid document job record Id
 - Check that the running user has read access to the Document Job object
 - Confirm Rootforms is installed and configured in the org
 
@@ -306,8 +289,8 @@ Customize the waiting message:
 - Check Rootforms configuration for the document package
 
 ### No files displayed after "Completed" status
-- Check if `DOX__Attachment_Id__c` or `DOX__multipleAttachmentIDs__c` fields are populated on the Document Job
-- Verify ContentVersion records exist for the IDs
+- Check if document attachment fields are populated on the Document Job record
+- Verify ContentVersion records exist for the attachment IDs
 - Check user has access to the ContentVersion records
 - Look for errors in browser console (Developer Tools)
 
@@ -334,13 +317,13 @@ Customize the waiting message:
 ### 1. Store Document Job Id Immediately
 Always capture the Document Job Id when creating the document job record:
 ```
-Create Records → DOX__Document_Job__c
+Create Records → Document Job
   Store record Id in: {!DocumentJobId}
 ```
 
 ### 2. Use Batch Processing for Multiple Records
-Instead of creating document jobs inside loops, build a comma-separated list of record Ids:
-- ✅ Get Records → Loop to build CSV → Create single Document Job with `DOX__Records_to_Process__c`
+Instead of creating document jobs inside loops, build a comma-separated list of record Ids and use Rootforms batch processing capabilities:
+- ✅ Get Records → Loop to build CSV → Create single Document Job with batch processing
 - ❌ Loop → Create Document Job for each record (inefficient, creates many jobs)
 
 **Example CSV Building:**
@@ -348,7 +331,7 @@ Instead of creating document jobs inside loops, build a comma-separated list of 
 Loop through records:
   Assignment: {!IdList} = {!CurrentRecord.Id},{!IdList}
   
-Then pass {!IdList} to DOX__Records_to_Process__c
+Then pass {!IdList} to the document job record for batch processing
 ```
 
 ### 3. Use Descriptive Custom Header Text
@@ -391,8 +374,8 @@ Give users time to preview documents before moving to the next screen:
 
 ### Rootforms Dependency
 - **Requires Rootforms** installed in the org
-- Cannot be used without the `DOX__Document_Job__c` object
-- Relies on Rootforms field structure (`DOX__Status__c`, `DOX__Attachment_Id__c`, etc.)
+- Cannot be used without the Rootforms document job object
+- Relies on Rootforms field structure for document job records
 
 ### Polling Frequency
 - Polls every 3 seconds (not configurable)
@@ -432,7 +415,7 @@ Built with **Salesforce API version 62.0**.
 - `DocumentJobMonitorHelperTest` - Test coverage (100%)
 
 ### Salesforce Objects
-- `DOX__Document_Job__c` - Rootforms document job object (must exist)
+- Rootforms document job object (must exist)
 - `ContentVersion` - Salesforce file storage
 - `ContentDocument` - Salesforce file metadata
 
@@ -446,17 +429,17 @@ To deploy this component:
 2. Deploy the LWC bundle and Apex classes together
 3. See the main repository README for deployment instructions
 
-**Note:** This component will not function without Drawloop installed.
+**Note:** This component will not function without Rootforms installed.
 
 ---
 
 ## Support
 
 For issues or questions:
-- Verify Drawloop is installed and configured
+- Verify Rootforms is installed and configured
 - Check user permissions for Document Job and ContentVersion objects
 - Review browser console for JavaScript errors
-- Use the "View Job Monitor" button to access Drawloop's native monitoring page
+- Use the "View Job Monitor" button to access Rootforms native monitoring page
 - Test document generation outside of Flow to isolate issues
 
 ---
