@@ -209,7 +209,7 @@ Customize the waiting message:
 
 ### Status Badge
 - Shows current job status with visual badge component
-- Common statuses: "Queued", "In Progress", "Completed", "Exception"
+- Common statuses: "No Started", "In Progress", "Completed", "Exception"
 
 ### Loading States
 - **Initial Load:** Spinner with "Checking document job status..."
