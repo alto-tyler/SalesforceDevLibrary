@@ -25,6 +25,7 @@ This component provides a customizable footer for Flow screens with action butto
 - Define custom action buttons using JSON array
 - Each action can navigate, open URLs, or trigger Flow logic
 - **Format:** JSON array of action objects (see examples below)
+- **Important:** When using Flow formulas or text templates, set the resource to **"Plain Text"** mode (not Rich Text) before passing to this property
 
 ### **Show Next/Finish Button**
 - Shows the Next or Finish button (auto-detected based on Flow position)
@@ -92,9 +93,9 @@ Each action in the JSON array can have these properties:
 | `url` | String | External URL to open. Use with `target` property. |
 | `target` | String | URL target: `_blank` (new tab), `_self` (same window). Used with `url`. |
 | `pageReference` | Object | Navigation mixin object for internal Salesforce navigation. |
-| `navigate` | String | Flow navigation: `next`, `previous`, or `finish`. |
+| `navigate` | String | Flow navigation: `next`, `previous`, `finish`, or `back`. Use `next` or `finish` interchangeably - the component intelligently dispatches whichever navigation action (NEXT or FINISH) is available in your Flow. |
 
-**Note:** Actions with `navigate`, `url`, or `pageReference` execute immediately. Actions without these properties fire the "Action Clicked" output for custom Flow logic.
+**Note:** Actions with `navigate`, `url`, or `pageReference` execute immediately. Actions without these properties fire the "Action Clicked" output for custom Flow logic, but **you must add a `navigate` property** (e.g., `"navigate": "next"`) to allow the Flow to progress after handling the action.
 
 ---
 
@@ -108,7 +109,8 @@ Each action in the JSON array can have these properties:
     "name": "save_draft",
     "label": "Save Draft",
     "iconName": "utility:save",
-    "variant": "neutral"
+    "variant": "neutral",
+    "navigate": "next"
   }
 ]
 ```
@@ -116,6 +118,7 @@ Each action in the JSON array can have these properties:
 **In Flow:**
 1. Store `{!FooterComponent.actionClicked}` in variable: `{!varActionClicked}`
 2. Add Decision: If `{!varActionClicked}` equals `"save_draft"`, create draft record
+3. The `"navigate": "next"` property allows the Flow to progress to the Decision element
 
 ### Example 2: Cancel and Submit Buttons
 
@@ -125,13 +128,15 @@ Each action in the JSON array can have these properties:
     "name": "cancel",
     "label": "Cancel",
     "iconName": "utility:close",
-    "variant": "destructive-text"
+    "variant": "destructive-text",
+    "navigate": "next"
   },
   {
     "name": "submit",
     "label": "Submit for Approval",
     "iconName": "utility:approval",
-    "variant": "brand"
+    "variant": "brand",
+    "navigate": "next"
   }
 ]
 ```
@@ -237,9 +242,9 @@ Display Buttons as Group: True
 
 Action Links (JSON):
 [
-  {"name":"cancel","label":"Cancel","variant":"neutral"},
-  {"name":"save_draft","label":"Save Draft","iconName":"utility:save","variant":"neutral"},
-  {"name":"submit","label":"Submit","iconName":"utility:check","variant":"brand"}
+  {"name":"cancel","label":"Cancel","variant":"neutral","navigate":"next"},
+  {"name":"save_draft","label":"Save Draft","iconName":"utility:save","variant":"neutral","navigate":"next"},
+  {"name":"submit","label":"Submit","iconName":"utility:check","variant":"brand","navigate":"next"}
 ]
 ```
 
@@ -336,7 +341,9 @@ Next Button Variant: brand
 
 Build JSON dynamically using Text Template or Formula:
 
-**Text Template Example:**
+**Important:** When creating a Text Template or Formula resource, set it to **"Plain Text"** (not Rich Text) to ensure proper JSON formatting.
+
+**Text Template Example:****
 ```
 [
   {

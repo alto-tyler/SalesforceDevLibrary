@@ -27,6 +27,7 @@ This component provides a professional header for Flow screens with customizable
 - Define custom action buttons using JSON array
 - Each action can navigate, open URLs, or trigger Flow logic
 - **Format:** JSON array of action objects (see examples below)
+- **Important:** When using Flow formulas or text templates, set the resource to **"Plain Text"** mode (not Rich Text) before passing to this property
 
 ### **Max Visible Actions**
 - Maximum number of actions to show as buttons before moving to overflow menu
@@ -96,9 +97,9 @@ Each action in the JSON array can have these properties:
 | `url` | String | External URL to open. Use with `target` property. |
 | `target` | String | URL target: `_blank` (new tab), `_self` (same window). Used with `url`. |
 | `pageReference` | Object | Navigation mixin object for internal Salesforce navigation. |
-| `navigate` | String | Flow navigation: `next`, `previous`, or `finish`. |
+| `navigate` | String | Flow navigation: `next`, `previous`, `finish`, or `back`. Use `next` or `finish` interchangeably - the component intelligently dispatches whichever navigation action (NEXT or FINISH) is available in your Flow. |
 
-**Note:** Actions with `navigate`, `url`, or `pageReference` execute immediately. Actions without these properties fire the "Action Clicked" output for custom Flow logic.
+**Note:** Actions with `navigate`, `url`, or `pageReference` execute immediately. Actions without these properties fire the "Action Clicked" output for custom Flow logic, but **you must add a `navigate` property** (e.g., `"navigate": "next"`) to allow the Flow to progress after handling the action.
 
 ---
 
@@ -127,7 +128,8 @@ Each action in the JSON array can have these properties:
     "name": "cancel",
     "label": "Cancel",
     "iconName": "utility:close",
-    "variant": "destructive-text"
+    "variant": "destructive-text",
+    "navigate": "next"
   }
 ]
 ```
@@ -136,6 +138,7 @@ Each action in the JSON array can have these properties:
 1. Store `{!HeaderComponent.actionClicked}` in a text variable: `{!varActionClicked}`
 2. Add a Decision element after the screen:
    - If `{!varActionClicked}` equals `"cancel"`, route to cancellation logic
+   - The `"navigate": "next"` property allows the Flow to progress to the Decision element
 
 ### Example 3: Multiple Actions with Conditional Visibility
 
@@ -210,13 +213,15 @@ Each action in the JSON array can have these properties:
   {
     "name": "save_draft",
     "label": "Save Draft",
-    "iconName": "utility:save"
+    "iconName": "utility:save",
+    "navigate": "next"
   },
   {
     "name": "submit_for_approval",
     "label": "Submit for Approval",
     "iconName": "utility:approval",
-    "variant": "brand"
+    "variant": "brand",
+    "navigate": "next"
   }
 ]
 ```
@@ -241,7 +246,7 @@ Show Previous Button: True
 **Component Configuration:**
 ```
 Action Links (JSON):
-[{"name":"cancel","label":"Cancel","iconName":"utility:close","variant":"destructive-text"},{"name":"save","label":"Save & Continue","iconName":"utility:check","variant":"brand"}]
+[{"name":"cancel","label":"Cancel","iconName":"utility:close","variant":"destructive-text","navigate":"next"},{"name":"save","label":"Save & Continue","iconName":"utility:check","variant":"brand","navigate":"next"}]
 
 Show Next/Finish Button: False
 Show Previous Button: True
@@ -313,6 +318,8 @@ Action Links (JSON):
 ### Dynamic JSON with Flow Variables
 
 You can build the JSON dynamically in Flow using Text Template or Formula resources:
+
+**Important:** When creating a Text Template or Formula resource, set it to **"Plain Text"** (not Rich Text) to ensure proper JSON formatting.
 
 **Text Template Example:**
 ```
