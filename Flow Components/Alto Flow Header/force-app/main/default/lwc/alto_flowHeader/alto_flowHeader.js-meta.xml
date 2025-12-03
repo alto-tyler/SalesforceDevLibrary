@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Header</masterLabel>
+    <description>Page header with company/division info and customizable action buttons for Flow navigation</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen,lightning__AppPage,lightning__RecordPage">
+            <property name="actionLinks" type="String" label="Action Links (JSON)" description="JSON array for custom actions only. Options: 1) pageReference for Navigation mixin, 2) url string (opens in new tab if target:'_blank'), 3) actionClicked output for custom logic, 4) visible:true/false for conditional display. Standard Next/Previous buttons use checkboxes below. Example: [{&quot;label&quot;:&quot;Help&quot;,&quot;name&quot;:&quot;help&quot;,&quot;url&quot;:&quot;https://help.com&quot;,&quot;target&quot;:&quot;_blank&quot;}]" />
+            <property name="maxVisibleActions" type="Integer" label="Max Visible Actions" default="3" description="Maximum number of actions to show as buttons. Additional actions appear in overflow menu. Ignored if Custom Actions In Dropdown is enabled." />
+            <property name="customActionsInDropdown" type="Boolean" label="Custom Actions In Dropdown" default="false" description="When enabled, only Previous/Next buttons show as visible buttons. All custom actions appear in overflow dropdown menu." />
+            <property name="showNext" type="Boolean" label="Show Next/Finish Button" default="true" description="Shows Next/Finish button. Label auto-detected based on Flow position, or use Next Button Label to override." />
+            <property name="nextLabel" type="String" label="Next/Finish Button Label" description="Custom label for Next/Finish button. Leave blank for auto-detection (Next/Finish based on Flow position)." />
+            <property name="nextVariant" type="String" label="Next/Finish Button Variant" default="neutral" description="Button style variant for Next/Finish button." />
+            <property name="showPrevious" type="Boolean" label="Show Previous Button" default="true" description="Shows Previous button. Use Previous Button Label to override default 'Previous' text." />
+            <property name="previousLabel" type="String" label="Previous Button Label" description="Custom label for Previous button. Leave blank to use 'Previous'." />
+            <property name="previousVariant" type="String" label="Previous Button Variant" default="neutral" description="Button style variant for Previous button." />
+            <property name="useCustomTitle" type="Boolean" label="Custom Title/Meta?" default="false" description="When true, use the provided custom title and meta and skip fetching Rootstock data."/>
+            <property name="pageTitleInput" type="String" label="Custom Page Title" description="Custom title to show when Use custom title/meta = true."/>
+            <property name="pageMetaInput" type="String" label="Custom Page Meta" description="Custom meta line to show when Use custom title/meta = true."/>
+            <property name="actionClicked" type="String" label="Action Clicked" description="Output: Name of action clicked (only for custom actions without navigate/url/pageReference). Use in Decision to route Flow." />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

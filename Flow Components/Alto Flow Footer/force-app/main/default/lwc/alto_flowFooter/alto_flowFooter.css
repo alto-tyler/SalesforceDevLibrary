@@ -1,0 +1,32 @@
+.footer-container {
+    display: flex;
+    padding: 1rem 0;
+}
+
+.footer-container.slds-align_absolute-right {
+    justify-content: flex-end;
+}
+
+.footer-container.slds-align_absolute-center {
+    justify-content: center;
+}
+
+.footer-container.slds-align_absolute-left {
+    justify-content: flex-start;
+}
+
+.footer-meta {
+    display: flex;
+    align-items: start;
+    font-size: 0.875rem;
+}
+
+.footer-buttons {
+    display: flex;
+    align-items: center;
+}
+
+/* When footer meta is shown, place meta and buttons on opposite sides */
+.footer-container.meta-opposite {
+    justify-content: space-between;
+}

@@ -1,0 +1,53 @@
+<template>
+    <template if:true={hasActions}>
+        <div class={containerClass}>
+            <template if:true={metaOnLeft}>
+                <lightning-formatted-rich-text class="footer-meta slds-m-right_small" value={footerMeta}></lightning-formatted-rich-text>
+            </template>
+
+            <div class="footer-buttons">
+                <template if:true={displayAsGroup}>
+                    <ul class="slds-button-group-row">
+                        <template for:each={parsedActions} for:item="action">
+                            <li key={action.key} class="slds-button-group-item">
+                                <button
+                                    class={action.buttonClass}
+                                    data-name={action.name}
+                                    onclick={handleActionClick}>
+                                    <template if:true={action.showIconLeft}>
+                                        <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_left"></lightning-icon>
+                                    </template>
+                                    {action.label}
+                                    <template if:true={action.showIconRight}>
+                                        <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_right"></lightning-icon>
+                                    </template>
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+                <template if:false={displayAsGroup}>
+                    <template for:each={parsedActions} for:item="action">
+                        <button
+                            key={action.key}
+                            class={action.buttonClassWithMargin}
+                            data-name={action.name}
+                            onclick={handleActionClick}>
+                            <template if:true={action.showIconLeft}>
+                                <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_left"></lightning-icon>
+                            </template>
+                            {action.label}
+                            <template if:true={action.showIconRight}>
+                                <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_right"></lightning-icon>
+                            </template>
+                        </button>
+                    </template>
+                </template>
+            </div>
+
+            <template if:true={metaOnRight}>
+                <lightning-formatted-rich-text class="footer-meta slds-m-left_small" value={footerMeta}></lightning-formatted-rich-text>
+            </template>
+        </div>
+    </template>
+</template>

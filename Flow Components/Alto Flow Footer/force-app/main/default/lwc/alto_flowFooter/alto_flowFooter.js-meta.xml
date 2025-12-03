@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Flow Footer</masterLabel>
+    <description>A customizable footer with action buttons for Flow screens.</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="actionLinks" type="String" label="Action Links (JSON)" 
+                      description="JSON array of action buttons with properties: name, label, variant, iconName, iconPosition, navigate, url, target, visible"/>
+            <property name="showNext" type="Boolean" label="Show Next/Finish Button" default="true"
+                      description="Show auto-generated Next or Finish button"/>
+            <property name="showPrevious" type="Boolean" label="Show Previous Button" default="true"
+                      description="Show auto-generated Previous button"/>
+            <property name="nextLabel" type="String" label="Next Button Label"
+                      description="Custom label for Next/Finish button (defaults to 'Next' or 'Finish')"/>
+            <property name="previousLabel" type="String" label="Previous Button Label"
+                      description="Custom label for Previous button (defaults to 'Previous')"/>
+            <property name="nextVariant" type="String" label="Next Button Variant" default="brand"
+                      description="Button variant: base, neutral, brand, brand-outline, destructive, destructive-text, inverse, success"/>
+            <property name="previousVariant" type="String" label="Previous Button Variant" default="neutral"
+                      description="Button variant: base, neutral, brand, brand-outline, destructive, destructive-text, inverse, success"/>
+            <property name="alignment" type="String" label="Button Alignment" default="right"
+                      description="Alignment of buttons: left, center, or right"/>
+            <property name="actionClicked" type="String" role="outputOnly" label="Action Clicked"
+                      description="Output: Name of the action button that was clicked"/>
+            <property name="displayAsGroup" type="Boolean" label="Display Buttons as Group" default="false"
+                      description="When enabled, buttons are displayed as a grouped set."/>
+            <property name="footerMeta" type="String" label="Footer Meta Text" description="Optional meta text to display in the footer."/>
+            <property name="showFooterMeta" type="Boolean" label="Show Footer Meta" default="false"
+                      description="When enabled, displays the footer meta text if provided."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

@@ -1,0 +1,119 @@
+<template>
+    <div>
+        <template if:false={isLoading}>
+            <div class="slds-page-header">
+                <div class="slds-page-header__row slds-wrap" style="justify-content: center;align-items: center;">
+                    <div class="slds-page-header__col-title slds-col">
+                        <div class="slds-media slds-media_center">
+                            <template if:true={hasLogo}>
+                                <div class="slds-media__figure">
+                                    <div class="logo-wrapper">
+                                        <img src={logoUrl} alt="Company Logo" class="company-logo" />
+                                    </div>
+                                </div>
+                            </template>
+                            <div class="slds-media__body">
+                                <template if:true={showHeaderTitle}>
+                                    <div class="slds-page-header__name">
+                                        <div class="slds-page-header__name-title">
+                                            <h1>
+                                                <lightning-formatted-rich-text class="slds-page-header__title" title={pageTitleText} value={pageTitle}></lightning-formatted-rich-text>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                    <template if:true={pageMeta}>
+                                        <p class="slds-page-header__name-meta" style="text-wrap: auto;"><lightning-formatted-rich-text value={pageMeta}></lightning-formatted-rich-text></p>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <template if:true={hasActions}>
+                        <div class="slds-page-header__col-actions" style="align-self: center;margin-top: var(--lwc-spacingXSmall, 0.5rem);">
+                            <div class="slds-page-header__controls">
+                                <div class="slds-page-header__control">
+                                    <!-- Button Group (with overflow dropdown) -->
+                                    <template if:true={hasOverflow}>
+                                        <div class="slds-button-group" role="group">
+                                            <template for:each={visibleActions} for:item="action">
+                                                <button 
+                                                    key={action.key}
+                                                    class={action.buttonClass}
+                                                    data-name={action.name}
+                                                    onclick={handleActionClick}>
+                                                    <template if:true={action.showIconLeft}>
+                                                        <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_left"></lightning-icon>
+                                                    </template>
+                                                    {action.label}
+                                                    <template if:true={action.showIconRight}>
+                                                        <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_right"></lightning-icon>
+                                                    </template>
+                                                </button>
+                                            </template>
+                                            <div class={dropdownTriggerClass}>
+                                                <button class="slds-button slds-button_icon slds-button_icon-border-filled" 
+                                                        aria-haspopup="true" 
+                                                        title="More Actions"
+                                                        onclick={handleDropdownToggle}>
+                                                    <lightning-icon icon-name="utility:down" size="x-small" alternative-text="More Actions"></lightning-icon>
+                                                    <span class="slds-assistive-text">More Actions</span>
+                                                </button>
+                                                <div class="slds-dropdown slds-dropdown_right slds-dropdown_actions">
+                                                    <ul class="slds-dropdown__list" role="menu">
+                                                        <template for:each={overflowActions} for:item="action">
+                                                            <li key={action.key} class="slds-dropdown__item" role="presentation">
+                                                                <a role="menuitem" 
+                                                                   tabindex="0"
+                                                                   data-name={action.name}
+                                                                   onclick={handleActionClick}>
+                                                                    <span class="slds-truncate" title={action.label}>
+                                                                        <template if:true={action.iconName}>
+                                                                            <lightning-icon icon-name={action.iconName} size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                                                        </template>
+                                                                        {action.label}
+                                                                    </span>
+                                                                </a>
+                                                            </li>
+                                                        </template>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- Button Row (no overflow) -->
+                                    <template if:false={hasOverflow}>
+                                        <ul class="slds-button-group-row">
+                                            <template for:each={visibleActions} for:item="action">
+                                                <li key={action.key} class="slds-button-group-item">
+                                                    <button 
+                                                        class={action.buttonClass}
+                                                        data-name={action.name}
+                                                        onclick={handleActionClick}>
+                                                        <template if:true={action.showIconLeft}>
+                                                            <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_left"></lightning-icon>
+                                                        </template>
+                                                        {action.label}
+                                                        <template if:true={action.showIconRight}>
+                                                            <lightning-icon icon-name={action.iconName} size="x-small" class="slds-button__icon slds-button__icon_right"></lightning-icon>
+                                                        </template>
+                                                    </button>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+        
+        <template if:true={isLoading}>
+            <div class="slds-align_absolute-center slds-p-vertical_large">
+                <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+            </div>
+        </template>
+    </div>
+</template>
