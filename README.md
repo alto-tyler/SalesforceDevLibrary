@@ -2,15 +2,83 @@
 
 A collection of reusable Salesforce Flow components and actions to enhance your Flow Builder experience.
 
+## Repository Structure
+
+```
+SalesforceDevLibrary/
+├── README.md
+├── .gitignore
+├── Flow Actions/
+│   ├── Alto Execute SOQL/
+│   │   ├── README.md
+│   │   ├── force-app/
+│   │   └── manifest/package.xml
+│   └── Alto Rollup Numbers (Action)/
+│       ├── README.md
+│       ├── force-app/
+│       └── manifest/package.xml
+└── Flow Screen Components/
+    ├── Alto Clean Up On Exit/
+    │   ├── README.md
+    │   ├── force-app/
+    │   └── manifest/package.xml
+    ├── Alto Datatable/
+    │   ├── README.md
+    │   ├── force-app/
+    │   └── manifest/package.xml
+    ├── Alto Document Job Monitor/
+    │   ├── README.md
+    │   ├── force-app/
+    │   └── manifest/package.xml
+    ├── Alto Dynamic Lookup/
+    │   ├── README.md
+    │   ├── force-app/
+    │   └── manifest/package.xml
+    ├── Alto Flow Footer/
+    │   ├── README.md
+    │   ├── force-app/
+    │   └── manifest/package.xml
+    ├── Alto Flow Header/
+    │   ├── README.md
+    │   ├── force-app/
+    │   └── manifest/package.xml
+    ├── Alto Multi Dynamic Lookup/
+    │   ├── README.md
+    │   ├── force-app/
+    │   └── manifest/package.xml
+    └── Alto Rollup Numbers/
+        ├── README.md
+        ├── force-app/
+        └── manifest/package.xml
+```
+
 ## Components
 
-### Flow Components
-- **[Alto Clean Up On Exit](Flow%20Components/Alto%20Clean%20Up%20On%20Exit/)** - Automatically delete records when users exit a Flow screen
-- **[Alto Datatable](Flow%20Components/Alto%20Datatable/)** - Display, select, filter, search, and inline edit records in a customizable datatable (based on Eric Smith's component with reactivity enhancements)
-- **[Alto Dynamic Lookup](Flow%20Components/Alto%20Dynamic%20Lookup/)** - Configurable lookup component with parent filtering, barcode scanning, and validation
-- **[Alto Multi Dynamic Lookup](Flow%20Components/Alto%20Multi%20Dynamic%20Lookup/)** - Multi-select lookup with pill display (requires Dynamic Lookup)
-- **[Alto Flow Header](Flow%20Components/Alto%20Flow%20Header/)** - Header component with Rootstock company info and customizable action buttons
-- **[Alto Flow Footer](Flow%20Components/Alto%20Flow%20Footer/)** - Footer component with customizable action buttons and alignment options
+### Flow Actions
+- **[Alto Execute SOQL](Flow%20Actions/Alto%20Execute%20SOQL/)** - Execute dynamic SOQL queries with automatic date/datetime formatting
+- **[Alto Rollup Numbers (Action)](Flow%20Actions/Alto%20Rollup%20Numbers%20(Action)/)** - Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record collections
+- **[Alto Flow Collection Comparator](Flow%20Actions/Alto%20Flow%20Collection%20Comparator/)** - Compare two record collections based on field values and return matching/non-matching records
+- **[Alto Flow Collection Filter](Flow%20Actions/Alto%20Flow%20Collection%20Filter/)** - Filter a collection based on field value criteria with exact, partial, and inverted match support
+- **[Alto Flow Field Extractor](Flow%20Actions/Alto%20Flow%20Field%20Extractor/)** - Extract field values from a collection and return as both a string collection and CSV
+
+### Flow Screen Components
+- **[Alto Clean Up On Exit](Flow%20Screen%20Components/Alto%20Clean%20Up%20On%20Exit/)** - Automatically delete records when users exit a Flow screen
+- **[Alto Datatable](Flow%20Screen%20Components/Alto%20Datatable/)** - Display, select, filter, search, and inline edit records in a customizable datatable (based on Eric Smith's component with reactivity enhancements)
+- **[Alto Document Job Monitor](Flow%20Screen%20Components/Alto%20Document%20Job%20Monitor/)** - Monitor Drawloop document generation jobs in real-time and display generated documents (requires Drawloop/Nintex DocGen)
+- **[Alto Dynamic Lookup](Flow%20Screen%20Components/Alto%20Dynamic%20Lookup/)** - Configurable lookup component with parent filtering, barcode scanning, and validation
+- **[Alto Multi Dynamic Lookup](Flow%20Screen%20Components/Alto%20Multi%20Dynamic%20Lookup/)** - Multi-select lookup with pill display (requires Dynamic Lookup)
+- **[Alto Flow Header](Flow%20Screen%20Components/Alto%20Flow%20Header/)** - Header component with Rootstock company info and customizable action buttons
+- **[Alto Flow Footer](Flow%20Screen%20Components/Alto%20Flow%20Footer/)** - Footer component with customizable action buttons and alignment options
+- **[Alto Rollup Numbers](Flow%20Screen%20Components/Alto%20Rollup%20Numbers/)** - Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record collections without displaying UI
+
+### Reactive Screen Support
+
+**⚠️ Important:** Most of these components leverage reactive screen functionality, which requires **Flow API version 59.0 or higher**. Reactive screens allow components to automatically update other components on the same screen when their output values change, without requiring navigation to another screen.
+
+To use reactive features:
+1. Ensure your Flow's API version is set to 59.0 or higher
+2. Place reactive components on the same screen as components that consume their outputs
+3. Outputs will automatically update dependent components in real-time
 
 ## How to Deploy Components to Your Org
 
@@ -73,36 +141,76 @@ Navigate to your Salesforce project and copy the component folder you want to de
 cd MyProject
 ```
 
+**Flow Actions:**
+
+**For Execute SOQL:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Execute SOQL\force-app" "force-app" /E /I /Y
+```
+
+**For Rollup Numbers (Action):**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Rollup Numbers (Action)\force-app" "force-app" /E /I /Y
+```
+
+**For Flow Collection Comparator:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Flow Collection Comparator\force-app" "force-app" /E /I /Y
+```
+
+**For Flow Collection Filter:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Flow Collection Filter\force-app" "force-app" /E /I /Y
+```
+
+**For Flow Field Extractor:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Flow Field Extractor\force-app" "force-app" /E /I /Y
+```
+
+**Flow Screen Components:**
+
 **For Clean Up On Exit:**
 ```powershell
 # Copy the entire force-app folder contents
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Clean Up On Exit\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Clean Up On Exit\force-app" "force-app" /E /I /Y
 ```
 
 **For Datatable:**
 ```powershell
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Datatable\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Datatable\force-app" "force-app" /E /I /Y
+```
+
+**For Document Job Monitor:**
+```powershell
+# Requires Drawloop/Nintex DocGen installed in target org
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Document Job Monitor\force-app" "force-app" /E /I /Y
 ```
 
 **For Dynamic Lookup:**
 ```powershell
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Dynamic Lookup\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Dynamic Lookup\force-app" "force-app" /E /I /Y
 ```
 
 **For Multi Dynamic Lookup:**
 ```powershell
 # Requires Dynamic Lookup to be deployed first
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Multi Dynamic Lookup\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Multi Dynamic Lookup\force-app" "force-app" /E /I /Y
 ```
 
 **For Flow Header:**
 ```powershell
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Flow Header\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Header\force-app" "force-app" /E /I /Y
 ```
 
 **For Flow Footer:**
 ```powershell
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Flow Footer\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Footer\force-app" "force-app" /E /I /Y
+```
+
+**For Rollup Numbers:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Rollup Numbers\force-app" "force-app" /E /I /Y
 ```
 
 **Note:** If you want to deploy multiple components, run multiple copy commands before deploying.
@@ -123,17 +231,31 @@ You'll see output showing the deployment progress. Wait for the message: `Deploy
 
 #### 6. Verify Deployment
 
+**Flow Actions:**
 1. Log in to your Salesforce org
 2. Go to **Setup** → **Flows** → **New Flow** (or edit an existing Flow)
-3. Add a **Screen** element
-4. In the component panel on the left, search for the component name:
-   - "Alto Clean Up On Exit"
+3. Add an **Action** element
+4. In the action search, look for:
+   - "Execute SOQL Query"
+   - "Rollup Numbers"
+   - "Compare Record Collections"
+   - "Filter Record Collection"
+   - "Extract Field Values"
+5. The actions should appear in the action list
+
+**Flow Screen Components:**
+1. Go to **Setup** → **Flows** → **New Flow** (or edit an existing Flow)
+2. Add a **Screen** element
+3. In the component panel on the left, search for the component name:
+   - "Cleanup On Exit"
    - "Alto Datatable"
+   - "Alto Document Job Monitor"
    - "Alto Dynamic Lookup"
    - "Alto Multi Dynamic Lookup"
-   - "Alto Flow Header"
+   - "Alto Header"
    - "Alto Flow Footer"
-5. The component should appear in the list
+   - "Alto Rollup Record Numbers"
+4. The components should appear in the list
 
 ---
 
@@ -155,12 +277,23 @@ git clone https://github.com/alto-tyler/SalesforceDevLibrary.git
 
 # Copy all component folders
 cd MyProject
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Clean Up On Exit\force-app" "force-app" /E /I /Y
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Datatable\force-app" "force-app" /E /I /Y
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Dynamic Lookup\force-app" "force-app" /E /I /Y
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Multi Dynamic Lookup\force-app" "force-app" /E /I /Y
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Flow Header\force-app" "force-app" /E /I /Y
-xcopy "..\SalesforceDevLibrary\Flow Components\Alto Flow Footer\force-app" "force-app" /E /I /Y
+
+# Flow Actions
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Execute SOQL\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Rollup Numbers (Action)\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Flow Collection Comparator\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Flow Collection Filter\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Actions\Alto Flow Field Extractor\force-app" "force-app" /E /I /Y
+
+# Flow Screen Components
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Clean Up On Exit\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Datatable\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Document Job Monitor\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Dynamic Lookup\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Multi Dynamic Lookup\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Header\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Footer\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Rollup Numbers\force-app" "force-app" /E /I /Y
 
 # Deploy everything
 sf project deploy start --source-dir force-app
@@ -174,6 +307,14 @@ Each component includes Apex test classes. After deployment:
 
 1. **Run tests via Salesforce CLI**
    ```powershell
+   # Flow Actions
+   sf apex run test --class-names ExecuteSOQLTest --target-org MyOrg --result-format human
+   sf apex run test --class-names RollupNumberHelperTest --target-org MyOrg --result-format human
+   sf apex run test --class-names FlowCollectionComparatorTest --target-org MyOrg --result-format human
+   sf apex run test --class-names FlowCollectionFilterTest --target-org MyOrg --result-format human
+   sf apex run test --class-names FlowFieldExtractorTest --target-org MyOrg --result-format human
+   
+   # Flow Screen Components
    sf apex run test --class-names CleanupOnExitControllerTest --target-org MyOrg --result-format human
    sf apex run test --class-names DynamicLookupQueryBuilderTest --target-org MyOrg --result-format human
    sf apex run test --class-names FlowHeaderControllerTest --target-org MyOrg --result-format human
@@ -188,17 +329,33 @@ Each component includes Apex test classes. After deployment:
 
 ## Using Components in Flows
 
-After deployment, components are immediately available in Flow Builder:
+After deployment, components are immediately available in Flow Builder.
+
+### Flow Actions
+
+1. Open **Flow Builder** (Setup > Flows > New Flow or edit existing)
+2. Add an **Action** element
+3. In the action search, look for:
+   - "Execute SOQL Query"
+   - "Rollup Numbers"
+   - "Compare Record Collections"
+   - "Filter Record Collection"
+   - "Extract Field Values"
+4. Select the action and configure input parameters as documented in each action's README
+
+### Flow Screen Components
 
 1. Open **Flow Builder** (Setup > Flows > New Flow or edit existing)
 2. Add a **Screen** element
 3. In the component sidebar, search for the component name:
-   - "Alto Clean Up On Exit"
+   - "Cleanup On Exit"
    - "Alto Datatable"
+   - "Alto Document Job Monitor"
    - "Alto Dynamic Lookup"
    - "Alto Multi Dynamic Lookup"
-   - "Alto Flow Header"
+   - "Alto Header"
    - "Alto Flow Footer"
+   - "Alto Rollup Record Numbers"
 4. Drag the component onto your screen
 5. Configure properties as documented in each component's README
 
@@ -225,6 +382,10 @@ After deployment, components are immediately available in Flow Builder:
 ---
 
 ## Component Requirements
+
+### Document Job Monitor Component
+**⚠️ Requires Drawloop/Nintex DocGen**  
+This component monitors Drawloop document generation jobs and depends on the `DOX__Document_Job__c` object and related Drawloop fields. It will not function in orgs without Drawloop (Nintex DocGen) installed.
 
 ### Multi Dynamic Lookup Component
 **⚠️ Requires Alto Dynamic Lookup**  

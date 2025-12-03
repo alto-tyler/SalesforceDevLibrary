@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Document Job Monitor</masterLabel>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="documentJobId" type="String" label="Document Job Id" description="The Id of the DOX__Document_Job__c record to monitor" required="true"/>
+            <property name="headerText" type="String" label="Custom Header Text" description="Optional custom header text (defaults to job name if not provided)"/>
+            <property name="generatedItemsLabel" type="String" label="Generated Items Label" description="Label for the generated files section (default: 'Generated Documents')" default="Generated Documents"/>
+            <property name="generatingText" type="String" label="Generating Message" description="Message shown while generation is in progress" default="Document generation in progress. This page will update automatically."/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
