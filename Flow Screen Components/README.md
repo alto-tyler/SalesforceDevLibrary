@@ -32,6 +32,7 @@ Display, select, filter, search, and inline edit records in a customizable datat
 - Row selection (single or multi-select)
 - Search and filter capabilities
 - Pagination support
+- Outputs all records (edited and unedited) - unlike the original which only outputs edited and selected rows
 - Reactive screen support (outputs update other components automatically)
 - Based on Eric Smith's component with enhancements
 
@@ -46,14 +47,14 @@ Display, select, filter, search, and inline edit records in a customizable datat
 ---
 
 ### Alto Document Job Monitor
-Monitor Drawloop document generation jobs in real-time and display generated documents
+Monitor document generation jobs in real-time and display generated documents
 
 **Key Features:**
 - Real-time monitoring of document generation progress
 - Display generated document links
 - Auto-refresh status
 - Configurable appearance
-- **Requires Drawloop/Nintex DocGen**
+- **Requires DOX__Document_Job__c object from Rootforms**
 
 **Use Cases:**
 - Show users document generation progress
@@ -203,7 +204,7 @@ See the [main repository README](../) for detailed deployment instructions.
 
 ### Components Requiring External Packages
 
-- **Alto Document Job Monitor** - Requires Drawloop/Nintex DocGen
+- **Alto Document Job Monitor** - Requires Rootforms
 - **Alto Flow Header** - Requires Rootstock ERP
 - **Alto Multi Dynamic Lookup** - Requires Alto Dynamic Lookup
 

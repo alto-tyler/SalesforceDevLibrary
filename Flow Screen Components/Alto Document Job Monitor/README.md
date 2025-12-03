@@ -1,6 +1,6 @@
 # Alto Document Job Monitor
 
-A Flow screen component that monitors Drawloop (now Nintex DocGen) document generation jobs in real-time and displays generated documents with preview functionality.
+A Flow screen component that monitors Rootforms document generation jobs in real-time and displays generated documents with preview functionality.
 
 ## Features
 
@@ -10,7 +10,7 @@ A Flow screen component that monitors Drawloop (now Nintex DocGen) document gene
 - **Multiple Document Support** - Handles jobs that generate single or multiple documents
 - **Customizable Labels** - Configure header text, section labels, and messaging
 - **Status Indicators** - Visual status badges and error handling
-- **Link to Job Monitor** - Quick access to the full Drawloop Job Monitor page
+- **Link to Job Monitor** - Quick access to the full Rootforms Job Monitor page
 - **Retry Logic** - Attempts up to 5 times to retrieve generated files if they're not immediately available
 
 ---
@@ -24,7 +24,7 @@ A Flow screen component that monitors Drawloop (now Nintex DocGen) document gene
 5. Users can click "View" buttons to preview documents in Salesforce's file preview
 6. Polling stops automatically when job completes or encounters an exception
 
-**Note:** This component requires Drawloop (Nintex DocGen) to be installed in your org.
+**Note:** This component requires Rootforms to be installed in your org.
 
 ### Creating Document Jobs in Flow
 
@@ -37,7 +37,7 @@ Use the **Create Records** element to create a `DOX__Document_Job__c` record:
 
 **Optional Fields:**
 - `DOX__Object_Id__c` - Primary record Id (for single record jobs)
-- Other Drawloop-specific fields as needed
+- Other Rootforms-specific fields as needed
 
 **For Batch Processing:**
 Build a comma-separated list of Ids using a Loop + Assignment, then pass to `DOX__Records_to_Process__c`.
@@ -48,7 +48,7 @@ Build a comma-separated list of Ids using a Loop + Assignment, then pass to `DOX
 
 | Property | Type | Label | Required | Description |
 |----------|------|-------|----------|-------------|
-| **Document Job Id** | String | `Document Job Id` | ✅ Yes | The Id of the `DOX__Document_Job__c` record to monitor (typically from a Drawloop action output) |
+| **Document Job Id** | String | `Document Job Id` | ✅ Yes | The Id of the `DOX__Document_Job__c` record to monitor (typically from a Rootforms action output) |
 | **Custom Header Text** | String | `Custom Header Text` | No | Optional custom header text (defaults to the document job name if not provided) |
 | **Generated Items Label** | String | `Generated Items Label` | No | Label for the generated files section (default: "Generated Documents") |
 | **Generating Message** | String | `Generating Message` | No | Message shown while generation is in progress (default: "Document generation in progress. This page will update automatically.") |
@@ -91,7 +91,7 @@ The component displays different content based on the document job status:
 
 ### Example 1: Generate and Display Contract Document
 
-**Scenario:** Generate a contract document using Drawloop and show it to the user when complete.
+**Scenario:** Generate a contract document using Rootforms and show it to the user when complete.
 
 **Setup:**
 
@@ -245,7 +245,7 @@ Customize the waiting message:
 
 ### Header Section
 - **Left Side:** Header text (custom or job name) + status badge
-- **Right Side:** "View Job Monitor" button (opens Drawloop Job Monitor in new tab)
+- **Right Side:** "View Job Monitor" button (opens Rootforms Job Monitor in new tab)
 
 ### Status Badge
 - Shows current job status with visual badge component
@@ -297,13 +297,13 @@ Customize the waiting message:
 ### Component shows "Error loading document job"
 - Verify the **Document Job Id** is a valid `DOX__Document_Job__c` record Id
 - Check that the running user has read access to the Document Job object
-- Confirm Drawloop is installed and configured in the org
+- Confirm Rootforms is installed and configured in the org
 
 ### Status never changes from "Queued" or "In Progress"
-- Check the Drawloop Job Monitor page (click "View Job Monitor" button)
+- Check the Rootforms Job Monitor page (click "View Job Monitor" button)
 - Verify the document package is properly configured
 - Ensure the related record (e.g., Opportunity, Account) has required data
-- Check Drawloop configuration for the document package
+- Check Rootforms configuration for the document package
 
 ### No files displayed after "Completed" status
 - Check if `DOX__Attachment_Id__c` or `DOX__multipleAttachmentIDs__c` fields are populated on the Document Job
@@ -389,10 +389,10 @@ Give users time to preview documents before moving to the next screen:
 
 ## Limitations
 
-### Drawloop Dependency
-- **Requires Drawloop/Nintex DocGen** installed in the org
+### Rootforms Dependency
+- **Requires Rootforms** installed in the org
 - Cannot be used without the `DOX__Document_Job__c` object
-- Relies on Drawloop's field structure (`DOX__Status__c`, `DOX__Attachment_Id__c`, etc.)
+- Relies on Rootforms field structure (`DOX__Status__c`, `DOX__Attachment_Id__c`, etc.)
 
 ### Polling Frequency
 - Polls every 3 seconds (not configurable)
@@ -425,14 +425,14 @@ Built with **Salesforce API version 62.0**.
 ## Dependencies
 
 ### Required Packages
-- **Drawloop (Nintex DocGen)** - Document generation platform
+- **Rootforms** - Document generation platform
 
 ### Apex Classes
 - `DocumentJobMonitorHelper` - Fetches ContentVersion details
 - `DocumentJobMonitorHelperTest` - Test coverage (100%)
 
 ### Salesforce Objects
-- `DOX__Document_Job__c` - Drawloop document job object (must exist)
+- `DOX__Document_Job__c` - Rootforms document job object (must exist)
 - `ContentVersion` - Salesforce file storage
 - `ContentDocument` - Salesforce file metadata
 
@@ -442,7 +442,7 @@ Built with **Salesforce API version 62.0**.
 
 To deploy this component:
 
-1. Ensure **Drawloop/Nintex DocGen is installed** in your target org
+1. Ensure **Rootforms is installed** in your target org
 2. Deploy the LWC bundle and Apex classes together
 3. See the main repository README for deployment instructions
 

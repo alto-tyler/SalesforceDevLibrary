@@ -13,8 +13,8 @@ A collection of reusable Salesforce Flow components and actions to enhance your 
 
 ### Flow Screen Components
 - **[Alto Clean Up On Exit](Flow%20Screen%20Components/Alto%20Clean%20Up%20On%20Exit/)** - Automatically delete records when users exit a Flow screen
-- **[Alto Datatable](Flow%20Screen%20Components/Alto%20Datatable/)** - Display, select, filter, search, and inline edit records in a customizable datatable (based on Eric Smith's component with reactivity enhancements)
-- **[Alto Document Job Monitor](Flow%20Screen%20Components/Alto%20Document%20Job%20Monitor/)** - Monitor Drawloop document generation jobs in real-time and display generated documents (requires Drawloop/Nintex DocGen)
+- **[Alto Datatable](Flow%20Screen%20Components/Alto%20Datatable/)** - Display, select, filter, search, and inline edit records in a customizable datatable. Outputs all records (edited and unedited) unlike the original which only outputs edited and selected rows (based on Eric Smith's component with reactivity enhancements)
+- **[Alto Document Job Monitor](Flow%20Screen%20Components/Alto%20Document%20Job%20Monitor/)** - Monitor document generation jobs in real-time and display generated documents (requires DOX__Document_Job__c object from Rootforms)
 - **[Alto Dynamic Lookup](Flow%20Screen%20Components/Alto%20Dynamic%20Lookup/)** - Configurable lookup component with parent filtering, barcode scanning, and validation
 - **[Alto Multi Dynamic Lookup](Flow%20Screen%20Components/Alto%20Multi%20Dynamic%20Lookup/)** - Multi-select lookup with pill display (requires Dynamic Lookup)
 - **[Alto Flow Header](Flow%20Screen%20Components/Alto%20Flow%20Header/)** - Header component with Rootstock company info and customizable action buttons
@@ -334,8 +334,8 @@ After deployment, components are immediately available in Flow Builder.
 ## Component Requirements
 
 ### Document Job Monitor Component
-**⚠️ Requires Drawloop/Nintex DocGen**  
-This component monitors Drawloop document generation jobs and depends on the `DOX__Document_Job__c` object and related Drawloop fields. It will not function in orgs without Drawloop (Nintex DocGen) installed.
+**⚠️ Requires Rootforms**  
+This component monitors document generation jobs and depends on the `DOX__Document_Job__c` object and related Rootforms fields. It will not function in orgs without Rootforms installed.
 
 ### Multi Dynamic Lookup Component
 **⚠️ Requires Alto Dynamic Lookup**  
