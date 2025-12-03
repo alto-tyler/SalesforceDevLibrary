@@ -1,100 +1,126 @@
+# Cleanup On Exit — Flow User Guide
 
-# Cleanup On Exit — How to Use
+This component automatically deletes temporary or draft records when users navigate away from your Flow screen or close the browser. Perfect for cleaning up records that shouldn't be saved if the user abandons the Flow.
 
-This guide explains how to use the `alto_cleanupOnExit` component and its supporting Apex controller to remove temporary Salesforce records when a user navigates away or closes a browser tab.
+**Use Case:** Remove temporary records created during a Flow (e.g., draft submissions, preview records, or records created for validation purposes).
 
-**Goal:** Remove ephemeral records automatically when users leave a page (e.g., temporary form submissions or on-the-fly records created during a Flow).
+---
 
-**Files:**
-- Component: `force-app/main/default/lwc/alto_cleanupOnExit/alto_cleanupOnExit.js` and `alto_cleanupOnExit.html`
-- Controller: `force-app/main/default/classes/CleanupOnExitController.cls`
-- Tests: `CleanupOnExitControllerTest.cls`
+## Adding to Your Flow
 
-## Quick Start (3 steps)
+1. In Flow Builder, drag a **Screen** element onto your canvas.
+2. In the left panel under **Components**, search for **"Cleanup On Exit"** and drag it onto your screen.
+3. Configure the properties (see below).
 
-1. Add the component to your page or Flow and provide the `recordId`.
-2. Configure whether you want deletion on navigation, on page close, or both.
-3. Optionally set `cascadeDelete` or `lookupChildRelationships` to remove related records first.
+---
 
-Example quick snippet (LWC in an Aura or App Builder context):
+## Flow Properties (What to Configure)
 
-```
-<c-alto-clean-up-on-exit
-    record-id="{!recordId}"
-    delete-on-navigate="true"
-    delete-on-page-close="true"
-    cascade-delete="false"
-    lookup-child-relationships="My_Custom_Children__r"
-    show-debug-messages="true">
-</c-alto-clean-up-on-exit>
-```
+When you add the component to a Flow screen, you'll see these properties:
 
-## Properties (what to set)
+### **Record ID to Delete** *(required)*
+- The ID of the record you want to delete when the user leaves.
+- Example: `{!TempRecordId}` or `{!CreatedRecord.Id}`
 
-- `recordId` (required for deletion): the Id of the parent record you intend to delete.
-- `deleteOnNavigate` (boolean): perform delete during `disconnectedCallback` (when navigating away inside the app).
-- `deleteOnPageClose` (boolean): attempt delete during `beforeunload` / `pagehide` (when closing tab/browser).
-- `cascadeDelete` (boolean): instructs the Apex controller to attempt to delete Master-Detail child records first.
-- `lookupChildRelationships` (CSV string): names of child relationships (child relationship names from object schema) to delete lookup children for.
-- `showDebugMessages` (boolean): enables browser console logging for debugging.
+### **Delete On Navigate**
+- **When:** User clicks Back, Next, or navigates to another screen within the Flow.
+- **Recommended:** Set to `True` for most Flow use cases.
+- **Default:** False
 
-Tip: Set `showDebugMessages=true` during testing to see lifecycle logs in the browser console.
+### **Delete On Page Close**
+- **When:** User closes the browser tab/window or refreshes the page.
+- **Note:** This is "best effort" — the browser may not always complete the delete before closing.
+- **Recommended:** Use only if you need cleanup on browser close; otherwise rely on "Delete On Navigate".
+- **Default:** False
 
-## Deployment / Installation
+### **Cascade Delete Children**
+- If `True`, the component will automatically delete Master-Detail child records before deleting the parent.
+- Only affects true parent-child (Master-Detail) relationships, not lookups.
+- **Default:** False
 
-1. Deploy the LWC folder and the Apex classes to your org (use your preferred CI or Salesforce CLI):
+### **Lookup Child Relationships**
+- For lookup relationships (not Master-Detail), specify child relationship names to delete.
+- **Format:** Comma-separated list of relationship API names ending in `__r`
+- **Example:** `Contacts,Custom_Children__r,namespace__Custom_Objects__r`
+- **How to find:** On the child object's lookup field, look for "Child Relationship Name".
 
-```powershell
-sfdx force:source:deploy -p "force-app/main/default/lwc/alto_cleanupOnExit" -u <username>
-sfdx force:source:deploy -p "force-app/main/default/classes/CleanupOnExitController.cls" -u <username>
-```
+### **Show Debug Messages**
+- Enable browser console logging for troubleshooting.
+- **Recommended:** Set to `True` during development/testing.
+- **Default:** False
 
-2. Run tests (recommended):
+---
 
-```powershell
-sfdx force:apex:test:run -n CleanupOnExitControllerTest -r human -u <username>
-```
+## Example Flow Setup
 
-3. Add the component to a Lightning record page or include it inside a Flow screen (as an LWC) and wire `recordId` from the current record.
+### Scenario: Create a temporary Account for preview, then delete it if user exits
 
-## Using in a Flow
+1. **Create Records** element:
+   - Create an Account record
+   - Store the ID in `{!TempAccountId}`
 
-- Add `alto_cleanupOnExit` to a Flow Screen as an LWC component.
-- Map the Flow variable containing the record Id to `recordId`.
-- Set `deleteOnNavigate=true` so the Flow will attempt cleanup when the user moves between screens or exits the flow.
+2. **Screen** element:
+   - Add form fields to show/edit the Account
+   - Add **Cleanup On Exit** component with:
+     - **Record ID to Delete:** `{!TempAccountId}`
+     - **Delete On Navigate:** `True`
+     - **Delete On Page Close:** `True`
 
-Example Flow property mapping:
-- `recordId` -> `{!tempRecordId}`
-- `deleteOnNavigate` -> `true`
-- `deleteOnPageClose` -> `false` (optional)
+3. **What happens:**
+   - If user clicks **Next** or **Previous**, the component automatically deletes the record
+   - If user clicks **Finish** or navigates away, the record is deleted
+   - The deletion happens before moving to the next screen
 
-Note: Because Flow screen unload timing can vary, test the flow end-to-end in sandbox.
+---
 
-## Behavior details (what happens under the hood)
+## How It Works (Behind the Scenes)
 
-- The LWC listens to `disconnectedCallback`, `beforeunload`, and `pagehide` and calls the Apex method `CleanupOnExitController.deleteRecord(recordId, cascadeDelete, lookupRelationships)` when configured.
-- The Apex controller validates the Id, confirms record existence, optionally deletes lookup-specified children and Master-Detail children, then deletes the parent record using `Database.delete(recId, false)` (non-atomic; partial failures won't throw an exception).
-- The controller returns plain text status messages prefixed with `SUCCESS:` or `ERROR:` for logging/diagnostics.
+1. The component listens for navigation events (Back, Next, screen changes).
+2. When triggered, it calls Apex to delete the specified record.
+3. If configured, it will:
+   - Delete Master-Detail children (if **Cascade Delete Children** = True)
+   - Delete specified lookup children (via **Lookup Child Relationships**)
+   - Delete the parent record
 
-## Permissions & Safety
+**Important:** The running user must have Delete permission on the target object and child objects.
 
-- The running user must have Delete permission on the target object and on child objects to remove them.
-- The controller uses dynamic queries and describe calls; ensure that the code runs in an org context with appropriate sharing and describe access.
+---
 
-## Reliability and Best Practices
+## Best Practices
 
-- Browser unload events are not guaranteed to complete server calls. Use `deleteOnNavigate` for more reliable in-app navigation cleanup; `deleteOnPageClose` is best-effort.
-- For guaranteed cleanup consider server-side approaches (scheduled jobs, a short-lived flag, or a background process that deletes stale temporary records).
-- Prefer `lookupChildRelationships` to explicitly remove lookup children you control; `cascadeDelete` only deletes relationships that the platform reports as cascade-capable (Master-Detail).
+✅ **Do:**
+- Use **Delete On Navigate** for reliable cleanup within Flows
+- Test in a Sandbox first
+- Enable **Show Debug Messages** during development
+- Use **Cascade Delete Children** for Master-Detail relationships
+- Specify **Lookup Child Relationships** for lookup-based children
+
+❌ **Don't:**
+- Rely solely on **Delete On Page Close** for critical cleanup (browser behavior varies)
+- Forget to grant Delete permissions to users running the Flow
+- Use this for permanent records — only use for temporary/draft records
+
+---
 
 ## Troubleshooting
 
-- If deletes fail silently, enable `showDebugMessages` to view console logs and check Apex debug logs for errors.
-- If parent delete fails due to child records, either enable `cascadeDelete` (when applicable) or add the appropriate lookup relationship names to `lookupChildRelationships`.
-- If you see permission errors in Apex logs, verify the running user's profile/permission sets.
+**Problem:** Record doesn't get deleted
+- Check debug logs (enable **Show Debug Messages**)
+- Verify the user has Delete permission on the object
+- Ensure the Record ID is valid
 
-## Example: Minimal usage for ephemeral record in a Flow
+**Problem:** Parent record fails to delete due to child records
+- Enable **Cascade Delete Children** for Master-Detail relationships
+- Add child relationship names to **Lookup Child Relationships** for lookup relationships
 
-1. Create temporary record in Flow.
-2. Pass its Id into `alto_cleanupOnExit` on every screen where cleanup may be required.
-3. Set `deleteOnNavigate=true` to remove the record when the user leaves the current Flow screen or finishes the Flow.
+**Problem:** Validation errors prevent deletion
+- This is expected behavior — validation rules still apply
+
+---
+
+## Technical Details (for Admins/Developers)
+
+- **Component Name:** `alto_cleanupOnExit`
+- **Apex Controller:** `CleanupOnExitController`
+- **Test Class:** `CleanupOnExitControllerTest`
+- **Deployment:** Deploy via Salesforce CLI or change sets
