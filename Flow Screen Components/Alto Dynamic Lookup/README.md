@@ -2,12 +2,13 @@
 
 This component provides a powerful, configurable lookup field for Flows that can search any Salesforce object with filtering, sorting, and parent-child relationships. Perfect for creating custom search experiences in your Flows.
 
-**Use Cases:**
+**Key Features:**
 - Filter Contacts by Account
 - Search Products by Category
 - Find Cases by Status and Owner
 - Create dependent lookups (select Account first, then Contact)
 - Barcode scanning for inventory/asset lookups (mobile)
+- **Translation Support:** Uses Custom Labels for all UI text, enabling multi-language support
 
 ---
 
@@ -335,6 +336,29 @@ Access the record return via the component's outputs:
 - **Component Name:** `alto_dynamicLookup`
 - **Apex Class:** `DynamicLookupQueryBuilder`
 - **Test Class:** `DynamicLookupQueryBuilderTest`
+- **Custom Labels:** All UI text uses Custom Labels for translation support
 - **Deployment:** Deploy via Salesforce CLI, change sets, or packages
 - **Caching:** Object details are cached (`@AuraEnabled(cacheable=true)`)
+
+### Translation Support
+
+The component uses **Custom Labels** for all user-facing text, enabling multi-language support:
+
+**Available Custom Labels:**
+- `Alto_DynamicLookup_Search` - "Search..." placeholder text
+- `Alto_DynamicLookup_NoRecordsFound` - "No records found" message
+- `Alto_DynamicLookup_Loading` - "Loading..." text
+- `Alto_DynamicLookup_Recent` - "Recent" section header
+- `Alto_DynamicLookup_SearchResults` - "Search Results" header
+- `Alto_DynamicLookup_Clear` - "Clear" button text
+- `Alto_DynamicLookup_Cancel` - "Cancel" button text
+- `Alto_DynamicLookup_ScanBarcode` - "Scan Barcode" button text
+
+**To Add Translations:**
+1. Navigate to **Setup** → **Custom Labels**
+2. Find labels starting with `Alto_DynamicLookup_`
+3. Click **Edit** and add translations for each language
+4. Save and test in a Flow with the desired language enabled
+
+---
 - **Security:** Respects user permissions and field-level security

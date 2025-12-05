@@ -4,6 +4,7 @@ import getSObjectDetails from '@salesforce/apex/DynamicLookupQueryBuilder.getSOb
 import { FlowAttributeChangeEvent } from 'lightning/flowSupport';
 import { getBarcodeScanner } from 'lightning/mobileCapabilities';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { LABELS } from './alto_dynamicLookupUtils';
 
 
 const LOG_PREFIX = '[AltoDynamicLookup]';
@@ -47,7 +48,7 @@ export default class AltoDynamicLookup extends LightningElement {
     // Rely on SLDS wrapping; removed custom inline/full width toggling.
     searchValue = '';
     highlightedIndex = -1;
-    loadingMessage = 'Preparing lookup...';
+    loadingMessage = LABELS.preparing;
     sObjectName;
     showInput = false;
     scannedBarcodes;
@@ -142,12 +143,12 @@ export default class AltoDynamicLookup extends LightningElement {
         if (this.required && !this.selectedRecord) {
             return {
                 isValid: false,
-                errorMessage: 'Field is required.'
+                errorMessage: LABELS.fieldRequired
             };
         } else if (!this.componentInitialized){
             return {
                 isValid: false,
-                errorMessage: 'Lookup was not ready before proceeding.'
+                errorMessage: LABELS.lookupNotReady
             };
         }
         return { isValid: true };
@@ -161,7 +162,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} parentInitialized setter triggered`);
         this._parentInitialized = value;
         this.componentInitialized = false;
-        this.loadingMessage = 'Applying parent values...';
+        this.loadingMessage = LABELS.applyingParent;
         // Re-fetch records based on the new filter value and update selection
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Parent initialized:`, {
             parentInitialized: value,
@@ -368,7 +369,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this.template.addEventListener('focusin', this.handleFocusIn.bind(this));
         this.template.addEventListener('focusout', this.handleFocusOut.bind(this));
         if(!this.parentFilterField) {
-            this.loadingMessage = 'Preparing lookup...';
+            this.loadingMessage = LABELS.preparing;
             const origMaxResults = this.maxResults;
             this.maxResults = null; // Default to 200 if not set
             this.getRecords().then(() => {
@@ -379,7 +380,7 @@ export default class AltoDynamicLookup extends LightningElement {
                 }
             });
         } else {
-            this.loadingMessage = 'Waiting for parent...';
+            this.loadingMessage = LABELS.waitingParent;
             if(this.disableOnNoParentValue && !this.parentFilterValue) {
                 this.disabled = true; // Disable the input if no parent filter value is set
             }
@@ -414,7 +415,7 @@ export default class AltoDynamicLookup extends LightningElement {
 
     async getSObjectDetails() {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} getSObjectDetails triggered`);
-        this.loadingMessage = 'Getting context...';
+        this.loadingMessage = LABELS.gettingContext;
             // Rely on SLDS wrapping; removed ResizeObserver and custom wrap handling.
         try {
             const sObjectDetails = await getSObjectDetails({ objectApiName: this.objectApiName });
@@ -422,7 +423,7 @@ export default class AltoDynamicLookup extends LightningElement {
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} SObject Details:`, sObjectDetails);
         } catch (error) {
             console.error(`${LOG_PREFIX} - ${this.objectApiName} Error fetching SObject details:`, error);
-            this.showErrorToast('Error fetching SObject details: ' + error.body.message);
+            this.showErrorToast(LABELS.errorSObject + ': ' + error.body.message);
         }
     }
 
@@ -483,7 +484,7 @@ export default class AltoDynamicLookup extends LightningElement {
         } catch (error) {
             if (currentRequestId === this._getRecordsRequestId) {
                 console.error(`${LOG_PREFIX} - ${this.objectApiName} Error fetching records:`, error);
-                this.showErrorToast('Error fetching records: ' + error.body.message);
+                this.showErrorToast(LABELS.errorRecords + ': ' + error.body.message);
             }
         };
     }
@@ -499,11 +500,11 @@ export default class AltoDynamicLookup extends LightningElement {
     }
 
     showErrorToast(message) {
-        this.showToast('Error', message, 'error');
+        this.showToast(LABELS.error, message, 'error');
     }
 
     showSuccessToast(message) {
-        this.showToast('Success', message, 'success');
+        this.showToast(LABELS.success, message, 'success');
     }
 
     prepareData(data){
@@ -515,7 +516,7 @@ export default class AltoDynamicLookup extends LightningElement {
 
         if(limitedData.length === 0) {
             let noRecord = {};
-            noRecord["DisplayField"] = "No Records Found";
+            noRecord["DisplayField"] = LABELS.noRecordsFound;
             noRecord["ValueField"] = "";
             noRecord["sObjectName"] = this.sObjectName;
             noRecord["index"] = 0;
@@ -814,7 +815,7 @@ export default class AltoDynamicLookup extends LightningElement {
                 }, 0);
                 
                 this.selectedRecord = null;
-                this.loadingMessage = 'Finding match...';
+                this.loadingMessage = LABELS.findingMatch;
                 this.componentInitialized = false;
 
                 const origMaxResults = this.maxResults;
@@ -1008,7 +1009,7 @@ export default class AltoDynamicLookup extends LightningElement {
                 this.barcodeScanner.dismiss();
             });
         } else {
-        this.appendLog("BarcodeScanner unavailable. Non-mobile device?");
+        this.appendLog(LABELS.barcodeUnavailable);
         }
     }
 
@@ -1016,7 +1017,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this.appendLog(JSON.stringify(barcodes));
         this.scannedBarcodes = this.scannedBarcodes.concat(barcodes);
         this.selectedRecord = null; // Clear selected record before fetching new records
-        this.loadingMessage = 'Processing scanned barcode...';
+        this.loadingMessage = LABELS.processingBarcode;
         this.componentInitialized = false; // Reset component initialization state
 
         const origMaxResults = this.maxResults;
@@ -1051,19 +1052,19 @@ export default class AltoDynamicLookup extends LightningElement {
     processError(error) {
         // Check to see if user ended scanning
         if (error.code == "USER_DISMISSED") {
-        this.appendLog("User terminated scanning session.");
+        this.appendLog(LABELS.userDismissed);
         } else {
         console.error(error);
-        this.showErrorToast('Error during scanning: ' + error.message);
+        this.showErrorToast(LABELS.errorScanning + ': ' + error.message);
         }
     }
 
     handleScan(event){
-        this.showSuccessToast('Scan event received: ' + JSON.stringify(event));
+        this.showSuccessToast(LABELS.scanReceived + ': ' + JSON.stringify(event));
     }
 
     handleScanError(event){
-        this.showErrorToast('Scan error: ' + event.detail.error);
+        this.showErrorToast(LABELS.scanError + ': ' + event.detail.error);
     }
 
     get dropDownClass() {
@@ -1116,6 +1117,25 @@ export default class AltoDynamicLookup extends LightningElement {
             classes += ' slds-is-disabled';
         }
         return classes;
+    }
+
+    get searchLabel() {
+        return LABELS.search;
+    }
+
+    get removeOptionLabel() {
+        return LABELS.removeOption;
+    }
+
+    get retrievingRecordsLabel() {
+        return LABELS.retrievingRecords;
+    }
+
+    get helpTextLabel() {
+        if (this.isSalesforceMobileApp) {
+            return LABELS.helpTextMobile;
+        }
+        return LABELS.helpTextDesktop;
     }
 
     appendLog(message, ...args) {

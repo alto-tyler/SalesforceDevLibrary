@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>alto_DynLookup_ApplyingParent</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Applying Parent</shortDescription>
+        <value>Applying parent values...</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_BarcodeUnavailable</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Barcode Unavailable</shortDescription>
+        <value>BarcodeScanner unavailable. Non-mobile device?</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_Error</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error</shortDescription>
+        <value>Error</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_ErrorRecords</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error Records</shortDescription>
+        <value>Error fetching records</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_ErrorSObject</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error SObject</shortDescription>
+        <value>Error fetching SObject details</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_ErrorScanning</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Error Scanning</shortDescription>
+        <value>Error during scanning</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_FieldRequired</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Field Required</shortDescription>
+        <value>Field is required.</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_FindingMatch</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Finding Match</shortDescription>
+        <value>Finding match...</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_GettingContext</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Getting Context</shortDescription>
+        <value>Getting context...</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_LookupNotReady</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Lookup Not Ready</shortDescription>
+        <value>Lookup was not ready before proceeding.</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_NoRecordsFound</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>No Records Found</shortDescription>
+        <value>No Records Found</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_Preparing</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Preparing</shortDescription>
+        <value>Preparing lookup...</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_ProcessingBarcode</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Processing Barcode</shortDescription>
+        <value>Processing scanned barcode...</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_RemoveOption</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Remove Option</shortDescription>
+        <value>Remove selected option</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_RetrievingRecords</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Retrieving Records</shortDescription>
+        <value>Retrieving records...</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_ScanError</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Scan Error</shortDescription>
+        <value>Scan error</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_ScanReceived</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Scan Received</shortDescription>
+        <value>Scan event received</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_Search</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Search</shortDescription>
+        <value>Search</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_Success</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Success</shortDescription>
+        <value>Success</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_UserDismissed</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>User Dismissed</shortDescription>
+        <value>User terminated scanning session.</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_WaitingParent</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Waiting for Parent</shortDescription>
+        <value>Waiting for parent...</value>
+    </labels>
+</CustomLabels>

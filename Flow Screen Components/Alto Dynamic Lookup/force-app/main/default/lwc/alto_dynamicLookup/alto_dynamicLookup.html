@@ -5,7 +5,7 @@
             <template if:true={hasLabel}><abbr if:true={required} class="slds-required" title="required" aria-hidden="true">* </abbr></template>{label}</label>
 
             <div if:true={showClearTextAndNotDisabled} data-id="clearMeta" class={clearMetaClass}>
-                <template if:false={isSalesforceMobileApp}>Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to clear. </template>Double-<template if:false={isSalesforceMobileApp}>click</template><template if:true={isSalesforceMobileApp}>tap</template> to edit.
+                {helpTextLabel}
             </div>
         </div>
         <div class="slds-form-element__control">
@@ -16,7 +16,7 @@
                             <div class="slds-grid slds-grid_vertical-align-center">
                                 <div class="slds-col slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
                                     <input if:true={showInput} type="text" class="slds-input slds-combobox__input" role="combobox" placeholder={placeholder} oninput={handleInput} onclick={handleInputClick} onpointerdown={handleInputPointerDown} onkeydown={handleInputKeydown} onblur={handleInputBlur} onfocus={handleInputFocus} value={searchValue} disabled={disabled} required={required} />
-                                    <lightning-icon icon-name="utility:search" alternative-text="Search" size="x-small" class="slds-input__icon slds-input__icon_right"></lightning-icon>
+                                    <lightning-icon icon-name="utility:search" alternative-text={searchLabel} size="x-small" class="slds-input__icon slds-input__icon_right"></lightning-icon>
                                 </div>
                                 <lightning-button-icon class="slds-m-left_x-small" icon-name={scanButtonIcon} alternative-text="Scan" size="medium" variant="brand" onclick={handleScanClick} if:true={showScanButton} disabled={disabled}></lightning-button-icon>
                             </div>
@@ -28,7 +28,7 @@
                             <a href="javascript:void(0)" role="combobox" tabindex="0" class={pillClass} onkeydown={handleComboboxKeydown} onfocus={handleSelectionFocus} onblur={handleSelectionBlur} onclick={handleSelectionClick} ondblclick={handleSelectionDblClick} aria-haspopup="listbox">
                                 <span class="slds-truncate">{selectedDisplayValue}</span>
                             </a>
-                            <button if:false={disabled} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title="Remove selected option" onclick={handleRemoveSelection} tabindex="-1">
+                            <button if:false={disabled} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title={removeOptionLabel} onclick={handleRemoveSelection} tabindex="-1">
                                 <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
                             </button>
                         </div>
@@ -46,7 +46,7 @@
                             <li if:true={showDropdownSpinner} role="presentation" class="slds-listbox__item listbox-spinner slds-grid_vertical-align-center">
                                 <div class="slds-media slds-listbox__option slds-listbox__option_entity" role="option">
                                     <span class="slds-media__body">
-                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">Retrieving records...</span>
+                                        <span class="slds-listbox__option-text slds-listbox__option-text_entity">{retrievingRecordsLabel}</span>
                                     </span>
                                 </div>
                                 <lightning-spinner alternative-text="Loading" size="small" variant="brand"></lightning-spinner>
