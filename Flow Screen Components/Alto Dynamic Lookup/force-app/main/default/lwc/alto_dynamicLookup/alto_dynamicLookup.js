@@ -745,6 +745,11 @@ export default class AltoDynamicLookup extends LightningElement {
     @api
     handleRemoveSelection() {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleRemoveSelection triggered`);
+        // Prevent removal if disabled
+        if (this.disabled) {
+            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleRemoveSelection blocked - component is disabled`);
+            return;
+        }
         this.selectedRecord = null; // Clear the selected record
         this.searchValue = ''; // Clear the search input
         this.showClearText = false;
@@ -758,7 +763,12 @@ export default class AltoDynamicLookup extends LightningElement {
     }
 
     handleSelectionDblClick(event) {
-        this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleRemoveSelection triggered`);
+        this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleSelectionDblClick triggered`);
+        // Prevent removal if disabled
+        if (this.disabled) {
+            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleSelectionDblClick blocked - component is disabled`);
+            return;
+        }
         const displayValue = this.selectedDisplayValue || '';
         this.handleRemoveSelection(); // Call the method to remove selection
         this.searchValue = displayValue;
@@ -923,6 +933,12 @@ export default class AltoDynamicLookup extends LightningElement {
 
         // Only trigger if Delete key is pressed and there is a selected value
         if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedRecord) {
+            // Prevent removal if disabled
+            if (this.disabled) {
+                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleComboboxKeydown blocked - component is disabled`);
+                event.preventDefault();
+                return;
+            }
             event.preventDefault();
             this.handleRemoveSelection();
         }
@@ -1088,6 +1104,18 @@ export default class AltoDynamicLookup extends LightningElement {
 
     get mobileAppOverrideStyle() {
         return this.isSalesforceMobileApp || this.relativeDropdown ? 'position:relative!important;' : '';
+    }
+
+    get showClearTextAndNotDisabled() {
+        return this.showClearText && !this.disabled;
+    }
+
+    get pillClass() {
+        let classes = 'selection-container_combobox slds-input_faux slds-combobox__input slds-combobox__input-value slds-button slds-text-color_default';
+        if (this.disabled) {
+            classes += ' slds-is-disabled';
+        }
+        return classes;
     }
 
     appendLog(message, ...args) {

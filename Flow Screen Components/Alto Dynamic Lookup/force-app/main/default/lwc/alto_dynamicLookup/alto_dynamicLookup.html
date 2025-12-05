@@ -4,7 +4,7 @@
             <label data-id="mainLabel" class="slds-form-element__label slds-p-around_none">
             <template if:true={hasLabel}><abbr if:true={required} class="slds-required" title="required" aria-hidden="true">* </abbr></template>{label}</label>
 
-            <div if:true={showClearText} data-id="clearMeta" class={clearMetaClass}>
+            <div if:true={showClearTextAndNotDisabled} data-id="clearMeta" class={clearMetaClass}>
                 <template if:false={isSalesforceMobileApp}>Press <kbd>Delete</kbd> or <kbd>Backspace</kbd> to clear. </template>Double-<template if:false={isSalesforceMobileApp}>click</template><template if:true={isSalesforceMobileApp}>tap</template> to edit.
             </div>
         </div>
@@ -25,10 +25,10 @@
                             <span class="slds-icon_container slds-combobox__input-entity-icon">
                                 <lightning-icon icon-name={iconName} size="small"></lightning-icon>
                             </span>
-                            <a href="javascript:void(0)" role="combobox" tabindex="0" class="selection-container_combobox slds-input_faux slds-combobox__input slds-combobox__input-value slds-button slds-text-color_default" onkeydown={handleComboboxKeydown} onfocus={handleSelectionFocus} onblur={handleSelectionBlur} onclick={handleSelectionClick} ondblclick={handleSelectionDblClick} aria-haspopup="listbox">
+                            <a href="javascript:void(0)" role="combobox" tabindex="0" class={pillClass} onkeydown={handleComboboxKeydown} onfocus={handleSelectionFocus} onblur={handleSelectionBlur} onclick={handleSelectionClick} ondblclick={handleSelectionDblClick} aria-haspopup="listbox">
                                 <span class="slds-truncate">{selectedDisplayValue}</span>
                             </a>
-                            <button class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title="Remove selected option" onclick={handleRemoveSelection} tabindex="-1">
+                            <button if:false={disabled} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title="Remove selected option" onclick={handleRemoveSelection} tabindex="-1">
                                 <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
                             </button>
                         </div>
