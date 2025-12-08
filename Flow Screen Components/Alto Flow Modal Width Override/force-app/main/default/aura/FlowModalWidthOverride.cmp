@@ -1,0 +1,23 @@
+<aura:component implements="lightning:availableForFlowScreens"
+                access="global"
+                description="Override Flow modal width dynamically from Flow inputs">
+
+    <!-- Flow Inputs -->
+    <aura:attribute name="maxWidth" type="String" description="Max width (e.g. 100%, 1200px)" default="100%"/>
+    <aura:attribute name="width" type="String" description="Width (e.g. 90%, 800px)" default="90%"/>
+
+    <!-- Only render if either width or maxWidth is set -->
+    <aura:if isTrue="{!or(not(empty(v.width)), not(empty(v.maxWidth)))}">
+        <aura:html tag="style">
+            .slds-modal__container, .slds-modal_container {
+                <aura:if isTrue="{!not(empty(v.maxWidth))}">
+                    max-width: {!v.maxWidth} !important;
+                </aura:if>
+                <aura:if isTrue="{!not(empty(v.width))}">
+                    width: {!v.width} !important;
+                </aura:if>
+            }
+        </aura:html>
+    </aura:if>
+
+</aura:component>

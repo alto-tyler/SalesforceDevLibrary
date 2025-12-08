@@ -1,0 +1,9 @@
+<design:component>
+	<design:attribute name="maxWidth"
+        label="Max Width"
+        description="Enter the max-width for the Flow modal (e.g. 100%, 1200px)" default="100%" />
+
+    <design:attribute name="width"
+        label="Width"
+        description="Enter the width for the Flow modal (e.g. 90%, 800px)" default="90%" />
+</design:component>

@@ -20,6 +20,7 @@ A collection of reusable Salesforce Flow components and actions to enhance your 
 - **[Alto Flow Header](Flow%20Screen%20Components/Alto%20Flow%20Header/)** - Header component with Rootstock company info and customizable action buttons
 - **[Alto Flow Footer](Flow%20Screen%20Components/Alto%20Flow%20Footer/)** - Footer component with customizable action buttons and alignment options
 - **[Alto Rollup Numbers](Flow%20Screen%20Components/Alto%20Rollup%20Numbers/)** - Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record collections without displaying UI
+- **[Alto Flow Modal Width Override](Flow%20Screen%20Components/Alto%20Flow%20Modal%20Width%20Override/)** - Override the default modal width for Flow screens launched as Quick Actions (in modals), to support wide content such as datatables or large forms.
 
 ### Reactive Screen Support
 

@@ -58,6 +58,23 @@ Monitor document generation jobs in real-time and display generated documents
 
 **Use Cases:**
 - Show users document generation progress
+
+---
+
+### Alto Flow Modal Width Override
+Override the default modal width for Flow screens launched as Quick Actions (in modals), to support wide content such as datatables or large forms.
+
+**Key Features:**
+- Set a custom modal width (e.g., 900px, 80%)
+- Works declaratively in Flow Builder
+- Responsive and supports fixed or percentage widths
+- Only affects the Flow screen where used
+
+**Use Cases:**
+- Make datatables or large forms easier to use
+- Provide more space for custom UI in modal Flows
+
+[View Full Documentation](Alto%20Flow%20Modal%20Width%20Override/)
 - Provide immediate access to generated documents
 - Create document generation workflows with user feedback
 
