@@ -2,11 +2,11 @@
     <div class="slds-form-element slds-m-bottom_x-small">
         <div class="slds-grid slds-wrap slds-grid_align-spread">
             <div class="slds-grid slds-grid_vertical-align-center">
-                <label data-id="mainLabel" class="slds-form-element__label slds-p-around_none">
+                <label data-id="mainLabel" class="slds-form-element__label slds-p-right_none">
                 <template if:true={hasLabel}><abbr if:true={required} class="slds-required" title="required" aria-hidden="true">* </abbr></template>{label}</label>
                 
                 <template if:true={hasHelpText}>
-                    <div class="slds-form-element__icon slds-m-left_x-small" style="position: relative; display: inline-block;">
+                    <div class="slds-form-element__icon slds-m-left_x-small slds-m-bottom_xxx-small" style="position: relative; display: inline-block;">
                         <button class="slds-button slds-button_icon" aria-describedby="help-tooltip" onmouseenter={handleHelpMouseEnter} onmouseleave={handleHelpMouseLeave}>
                             <lightning-icon icon-name="utility:info" size="x-small" alternative-text="Help"></lightning-icon>
                             <span class="slds-assistive-text">Help</span>
@@ -20,7 +20,7 @@
                 </template>
             </div>
 
-            <div if:true={showClearTextAndNotDisabled} data-id="clearMeta" class={clearMetaClass}>
+            <div if:true={showClearTextAndNotDisabled} data-id="clearMeta" class={clearMetaClass} style="align-self:center;">
                 {helpTextLabel}
             </div>
         </div>

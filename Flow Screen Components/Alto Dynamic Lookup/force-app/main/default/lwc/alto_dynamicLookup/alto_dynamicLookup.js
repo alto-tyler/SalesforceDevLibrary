@@ -909,7 +909,7 @@ export default class AltoDynamicLookup extends LightningElement {
 
     // Removed custom clear-meta wrap logic; rely on SLDS styles (e.g. slds-wrap).
     get clearMetaClass() {
-        return 'slds-form-element__label slds-p-around_none slds-text-color_weak clear-meta';
+        return 'slds-form-element__label slds-text-color_weak clear-meta slds-p-right_none';
     }
 
     calculateHighlightedIndex() {
