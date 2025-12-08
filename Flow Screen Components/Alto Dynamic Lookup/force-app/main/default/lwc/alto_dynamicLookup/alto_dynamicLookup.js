@@ -14,9 +14,11 @@ export default class AltoDynamicLookup extends LightningElement {
     barcodeScanner;
 
     logMessages = '';
+    showTooltip = false;
 
     // API properties
     @api label; // Label for the input field
+    @api helpText; // Help text displayed in tooltip
     @api placeholder = 'Search...'; // Placeholder text for the input field
     @api iconName = 'standard:account'; // Icon name for the input field
     @api displayFieldName = 'Name'; // Field to display in the dropdown
@@ -1136,6 +1138,18 @@ export default class AltoDynamicLookup extends LightningElement {
             return LABELS.helpTextMobile;
         }
         return LABELS.helpTextDesktop;
+    }
+
+    get hasHelpText() {
+        return this.helpText != null && this.helpText !== '';
+    }
+
+    handleHelpMouseEnter() {
+        this.showTooltip = true;
+    }
+
+    handleHelpMouseLeave() {
+        this.showTooltip = false;
     }
 
     appendLog(message, ...args) {

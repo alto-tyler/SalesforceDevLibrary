@@ -1,8 +1,24 @@
 <template>
     <div class="slds-form-element slds-m-bottom_x-small">
         <div class="slds-grid slds-wrap slds-grid_align-spread">
-            <label data-id="mainLabel" class="slds-form-element__label slds-p-around_none">
-            <template if:true={hasLabel}><abbr if:true={required} class="slds-required" title="required" aria-hidden="true">* </abbr></template>{label}</label>
+            <div class="slds-grid slds-grid_vertical-align-center">
+                <label data-id="mainLabel" class="slds-form-element__label slds-p-around_none">
+                <template if:true={hasLabel}><abbr if:true={required} class="slds-required" title="required" aria-hidden="true">* </abbr></template>{label}</label>
+                
+                <template if:true={hasHelpText}>
+                    <div class="slds-form-element__icon slds-m-left_x-small" style="position: relative; display: inline-block;">
+                        <button class="slds-button slds-button_icon" aria-describedby="help-tooltip" onmouseenter={handleHelpMouseEnter} onmouseleave={handleHelpMouseLeave}>
+                            <lightning-icon icon-name="utility:info" size="x-small" alternative-text="Help"></lightning-icon>
+                            <span class="slds-assistive-text">Help</span>
+                        </button>
+                        <template if:true={showTooltip}>
+                            <div class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left" role="tooltip" id="help-tooltip" style="position:absolute;top:-45px;left:-15px;width:170px" onmouseenter={handleHelpMouseEnter} onmouseleave={handleHelpMouseLeave}>
+                                <div class="slds-popover__body">{helpText}</div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
 
             <div if:true={showClearTextAndNotDisabled} data-id="clearMeta" class={clearMetaClass}>
                 {helpTextLabel}

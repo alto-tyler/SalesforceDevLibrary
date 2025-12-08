@@ -345,20 +345,33 @@ Access the record return via the component's outputs:
 The component uses **Custom Labels** for all user-facing text, enabling multi-language support:
 
 **Available Custom Labels:**
-- `Alto_DynamicLookup_Search` - "Search..." placeholder text
-- `Alto_DynamicLookup_NoRecordsFound` - "No records found" message
-- `Alto_DynamicLookup_Loading` - "Loading..." text
-- `Alto_DynamicLookup_Recent` - "Recent" section header
-- `Alto_DynamicLookup_SearchResults` - "Search Results" header
-- `Alto_DynamicLookup_Clear` - "Clear" button text
-- `Alto_DynamicLookup_Cancel` - "Cancel" button text
-- `Alto_DynamicLookup_ScanBarcode` - "Scan Barcode" button text
+- `alto_DynLookup_ApplyingParent` - "Applying parent values..."
+- `alto_DynLookup_BarcodeUnavailable` - "BarcodeScanner unavailable. Non-mobile device?"
+- `alto_DynLookup_Error` - "Error"
+- `alto_DynLookup_ErrorRecords` - "Error fetching records"
+- `alto_DynLookup_ErrorSObject` - "Error fetching SObject details"
+- `alto_DynLookup_ErrorScanning` - "Error during scanning"
+- `alto_DynLookup_FieldRequired` - "Field is required."
+- `alto_DynLookup_FindingMatch` - "Finding match..."
+- `alto_DynLookup_GettingContext` - "Getting context..."
+- `alto_DynLookup_LookupNotReady` - "Lookup was not ready before proceeding."
+- `alto_DynLookup_NoRecordsFound` - "No Records Found"
+- `alto_DynLookup_Preparing` - "Preparing lookup..."
+- `alto_DynLookup_ProcessingBarcode` - "Processing scanned barcode..."
+- `alto_DynLookup_RemoveOption` - "Remove selected option"
+- `alto_DynLookup_RetrievingRecords` - "Retrieving records..."
+- `alto_DynLookup_ScanError` - "Scan error"
+- `alto_DynLookup_ScanReceived` - "Scan event received"
+- `alto_DynLookup_Search` - "Search"
+- `alto_DynLookup_Success` - "Success"
+- `alto_DynLookup_UserDismissed` - "User terminated scanning session."
+- `alto_DynLookup_WaitingParent` - "Waiting for parent..."
 
 **To Add Translations:**
 1. Navigate to **Setup** → **Custom Labels**
-2. Find labels starting with `Alto_DynamicLookup_`
-3. Click **Edit** and add translations for each language
-4. Save and test in a Flow with the desired language enabled
+2. Find labels starting with `alto_DynLookup_`
+3. Click **Edit** on each label and add translations for your desired languages
+4. Save and test in a Flow with the desired user language enabled
 
 ---
 - **Security:** Respects user permissions and field-level security
