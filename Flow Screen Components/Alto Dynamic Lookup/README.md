@@ -24,18 +24,22 @@ This component provides a powerful, configurable lookup field for Flows that can
 
 The component properties are organized into logical sections in Flow Builder. All property labels start with a prefix (e.g., `I01_`, `I02_`) to keep them grouped and sorted.
 
-### **Display Section** (I01-I03)
+### **Display Section** (I01-I04)
 
 **I01_Display_Label**
 - The label shown above the lookup field
 - Example: `"Select Contact"`, `"Choose Product"`
 
-**I02_Display_Placeholder**
+**I02_Display_HelpText**
+- Help text shown in tooltip next to label
+- Example: `"Choose a contact for this opportunity."`
+
+**I03_Display_Placeholder**
 - Placeholder text in the search input
 - Default: `"Search..."`
 - Example: `"Type to search contacts..."`
 
-**I03_Display_IconName**
+**I04_Display_IconName**
 - SLDS icon to show next to results
 - Default: `"standard:account"`
 - Examples: `"standard:contact"`, `"standard:product2"`, `"utility:search"`
@@ -43,55 +47,55 @@ The component properties are organized into logical sections in Flow Builder. Al
 
 ---
 
-### **Object Configuration Section** (I04-I07)
+### **Object Configuration Section** (I05-I08)
 
-**I04_Object_ObjectApiName** *(critical)*
+**I05_Object_ObjectApiName** *(critical)*
 - API name of the object to search
 - Examples: `"Account"`, `"Contact"`, `"Product2"`, `"Custom_Object__c"`
 
-**I05_Object_DisplayFieldName**
+**I06_Object_DisplayFieldName**
 - Field to display in the dropdown results
 - Default: `"Name"`
 - Examples: `"Name"`, `"Email"`, `"ProductCode"`
 
-**I06_Object_SearchFieldApiName**
+**I07_Object_SearchFieldApiName**
 - Field to search on when user types
 - Default: `"Name"`
 - Leave empty to search the Display Field
 - Examples: `"LastName"`, `"Email"`, `"Phone"`
 
-**I07_Object_ValueFieldName**
+**I08_Object_ValueFieldName**
 - Field to use as the selected value (usually Id)
 - Default: `"Id"`
 - Can be any field: `"Id"`, `"Email"`, `"ProductCode"`
 
 ---
 
-### **Query Configuration Section** (I08-I12)
+### **Query Configuration Section** (I09-I13)
 
-**I08_Query_MaxResults**
+**I09_Query_MaxResults**
 - Maximum number of records to return
 - Default: `200`
 - Range: 1-2000
 
-**I09_Query_WhereClause**
+**I10_Query_WhereClause**
 - Additional filter conditions (without the "WHERE" keyword)
 - Examples:
   - `"Type = 'Customer'"`
   - `"IsActive = true AND Rating = 'Hot'"`
   - `"CreatedDate = LAST_N_DAYS:30"`
 
-**I10_Query_SortBy**
+**I11_Query_SortBy**
 - Field to sort results by
 - Leave empty to use Display Field
 - Examples: `"Name"`, `"CreatedDate"`, `"LastModifiedDate"`
 
-**I11_Query_SortDirection**
+**I12_Query_SortDirection**
 - Sort direction
 - Options: `"asc"` or `"desc"`
 - Default: `"asc"`
 
-**I12_Query_ValueMatchType**
+**I13_Query_ValueMatchType**
 - How to match the initial value
 - Options:
   - `"partial"` (default) — contains/includes the search text
@@ -99,94 +103,94 @@ The component properties are organized into logical sections in Flow Builder. Al
 
 ---
 
-### **Parent Filter Section** (I13-I17)
+### **Parent Filter Section** (I14-I18)
 
 Use these to create dependent lookups (e.g., filter Contacts by selected Account).
 
-**I13_Parent_ParentInitialized**
+**I14_Parent_ParentInitialized**
 - **Important:** Map this to the parent lookup's **O3_componentInitialized** output
 - This tells the child lookup that the parent has finished loading
 - Example: `{!ParentLookupComponent.componentInitialized}`
 - Required for dependent lookups to work correctly
 - Default: `False`
 
-**I14_Parent_ParentFilterField**
+**I15_Parent_ParentFilterField**
 - Field on the child object to filter by
 - Examples: `"AccountId"`, `"Product__c"`, `"CustomLookup__c"`
 
-**I15_Parent_ParentFilterValue**
+**I16_Parent_ParentFilterValue**
 - Value from parent to filter on
 - Examples: `{!ParentLookupComponent.selectedValue}`
 
-**I16_Parent_ParentFilterOperator**
+**I17_Parent_ParentFilterOperator**
 - Comparison operator
 - Options: `"="`, `"!="`, `"IN"`, `"LIKE"`
 - Default: `"="`
 - For `IN`, use comma-separated values in Parent Filter Value
 
-**I17_Parent_DisableOnNoParentValue**
+**I18_Parent_DisableOnNoParentValue**
 - Disable this lookup when parent value is empty
 - Recommended: `True` for dependent lookups
 - Default: `False`
 
 ---
 
-### **Behavior Section** (I18-I22)
+### **Behavior Section** (I19-I23)
 
-**I18_Behavior_Required**
+**I19_Behavior_Required**
 - Make this field required for Flow progression
 - Default: `False`
 
-**I19_Behavior_Disabled**
+**I20_Behavior_Disabled**
 - Disable the lookup field
 - Default: `False`
 
-**I20_Behavior_AllowDisplayFieldMatch**
+**I21_Behavior_AllowDisplayFieldMatch**
 - Allows matching initial/selected values and Tab-populated values against the display field (not just value field)
-- **When to use:** Enable when pre-populating with display values (e.g., names) instead of Ids, or when using **I22_Behavior_PopulateOnTab**
+- **When to use:** Enable when pre-populating with display values (e.g., names) instead of Ids, or when using **I23_Behavior_PopulateOnTab**
 - **Example:** If display field is "Name" and you set initial value to "John Doe", the component will find matching records by name
-- Works with **I25_Value_InitialValue**, **I26_Value_SelectedValue**, and **I22_Behavior_PopulateOnTab**
+- Works with **I26_Value_InitialValue**, **I27_Value_SelectedValue**, and **I23_Behavior_PopulateOnTab**
 - Default: `False`
 
-**I21_Behavior_RelativeDropdown**
+**I22_Behavior_RelativeDropdown**
 - Changes dropdown positioning to use the Flow screen space instead of overflowing the component container
 - **When to use:** Enable if the dropdown is cut off or hidden by the Flow container boundaries
 - **Mobile:** Automatically enabled on mobile devices
 - **Desktop:** Useful for long result lists that get clipped by Flow's container
 - Default: `False` (desktop), automatically `True` (mobile)
 
-**I22_Behavior_PopulateOnTab**
+**I23_Behavior_PopulateOnTab**
 - When user presses Tab, automatically select the first matching result
 - Great for keyboard-heavy data entry
 - Default: `False`
 
 ---
 
-### **Barcode Scanning Section** (I23-I24)
+### **Barcode Scanning Section** (I24-I25)
 
-**I23_Scan_AllowBarcodeScanning**
+**I24_Scan_AllowBarcodeScanning**
 - Enable barcode scanning button (mobile only)
 - Default: `False`
 
-**I24_Scan_ScanButtonIcon**
+**I25_Scan_ScanButtonIcon**
 - Icon for the scan button
 - Default: `"utility:scan"`
 - Examples: `"utility:scan"`, `"utility:photo"`
 
 ---
 
-### **Initial Value / Output Section** (I25-I26)
+### **Initial Value / Output Section** (I26-I27)
 
-**I25_Value_InitialValue**
+**I26_Value_InitialValue**
 - Pre-populate with a specific value on component load
 - Example: `{!RecordId}` to auto-select a record
 
-**I26_Value_SelectedValue** *(Input/Output)*
+**I27_Value_SelectedValue / O1_selectedValue** *(Input/Output)*
 - **As Input:** Pre-populate the selection
 - **As Output:** The value of the selected record
 - **Critical for Flows:** Map this field to ITSELF (`{!ComponentName.selectedValue}`) to preserve the selection when validation errors occur
 - **Why:** Without this mapping, the lookup will clear when the user corrects validation errors and returns to the screen
-- **Example mapping:** Set I26_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
+- **Example mapping:** Set I27_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
 
 ---
 
@@ -194,8 +198,8 @@ Use these to create dependent lookups (e.g., filter Contacts by selected Account
 
 These are automatically set by the component — you can use them in Flow decisions and formulas.
 
-**O1_selectedValue** (also shown as I26_Value_SelectedValue)
-- The value of the selected record based on **I07_Object_ValueFieldName** (typically the Id, but can be any field)
+**O1_selectedValue** (also shown as I27_Value_SelectedValue)
+- The value of the selected record based on **I08_Object_ValueFieldName** (typically the Id, but can be any field)
 - Access via: `{!ComponentName.selectedValue}`
 - **Important:** Also serves as an input — map to itself to preserve selection on validation errors
 
