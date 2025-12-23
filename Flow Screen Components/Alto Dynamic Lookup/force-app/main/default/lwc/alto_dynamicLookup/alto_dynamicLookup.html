@@ -41,10 +41,17 @@
                             <span class="slds-icon_container slds-combobox__input-entity-icon">
                                 <lightning-icon icon-name={iconName} size="small"></lightning-icon>
                             </span>
-                            <a href="javascript:void(0)" role="combobox" tabindex="0" class={pillClass} onkeydown={handleComboboxKeydown} onfocus={handleSelectionFocus} onblur={handleSelectionBlur} onclick={handleSelectionClick} ondblclick={handleSelectionDblClick} aria-haspopup="listbox">
-                                <span class="slds-truncate">{selectedDisplayValue}</span>
-                            </a>
-                            <button if:false={disabled} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title={removeOptionLabel} onclick={handleRemoveSelection} tabindex="-1">
+                            <template if:true={isNonInteractive}>
+                                <div role="combobox" tabindex="0" class={pillClass} aria-haspopup="listbox">
+                                    <span class="slds-truncate">{selectedDisplayValue}</span>
+                                </div>
+                            </template>
+                            <template if:false={isNonInteractive}>
+                                <a href="#" role="combobox" tabindex="0" class={pillClass} onkeydown={handleComboboxKeydown} onfocus={handleSelectionFocus} onblur={handleSelectionBlur} onclick={handleSelectionClick} ondblclick={handleSelectionDblClick} aria-haspopup="listbox">
+                                    <span class="slds-truncate">{selectedDisplayValue}</span>
+                                </a>
+                            </template>
+                            <button if:false={isNonInteractive} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title={removeOptionLabel} onclick={handleRemoveSelection} tabindex="-1">
                                 <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
                             </button>
                         </div>

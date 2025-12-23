@@ -36,18 +36,19 @@
             
             <!-- Behavior Section -->
             <property name="required" type="Boolean" label="I19_Behavior_Required" default="false" description="Behavior: Make this field required for flow progression" />
-            <property name="disabled" type="Boolean" label="I20_Behavior_Disabled" default="false" description="Behavior: Disable the lookup field" />
-            <property name="allowDisplayFieldMatch" type="Boolean" label="I21_Behavior_AllowDisplayFieldMatch" default="false" description="Behavior: Allow searching on display field even when search field is different" />
-            <property name="relativeDropdown" type="Boolean" label="I22_Behavior_RelativeDropdown" default="false" description="Behavior: Make dropdown position relative to screen (not input field)" />
-            <property name="populateOnTab" type="Boolean" label="I23_Behavior_PopulateOnTab" default="false" description="Behavior: When true, pressing Tab will wait for records to load and then select the first result" />
+            <property name="disabled" type="Boolean" label="I20_Behavior_Disabled" default="false" description="Behavior: Disable the lookup field with disabled appearance. Value still passes through and initial value will be set" />
+            <property name="readOnly" type="Boolean" label="I21_Behavior_ReadOnly" default="false" description="Behavior: Make lookup read-only with clean appearance (no border, no user interaction). Value still passes through and initial value will be set" />
+            <property name="allowDisplayFieldMatch" type="Boolean" label="I22_Behavior_AllowDisplayFieldMatch" default="false" description="Behavior: Allow searching on display field even when search field is different" />
+            <property name="relativeDropdown" type="Boolean" label="I23_Behavior_RelativeDropdown" default="false" description="Behavior: Make dropdown position relative to screen (not input field)" />
+            <property name="populateOnTab" type="Boolean" label="I24_Behavior_PopulateOnTab" default="false" description="Behavior: When true, pressing Tab will wait for records to load and then select the first result" />
             
             <!-- Barcode Scanning Section -->
-            <property name="allowBarcodeScanning" type="Boolean" label="I24_Scan_AllowBarcodeScanning" default="false" description="Barcode: Enable barcode scanning button" />
-            <property name="scanButtonIcon" type="String" label="I25_Scan_ScanButtonIcon" default="utility:scan" description="Barcode: Icon for the scan button (e.g., utility:scan, utility:photo)" />
+            <property name="allowBarcodeScanning" type="Boolean" label="I25_Scan_AllowBarcodeScanning" default="false" description="Barcode: Enable barcode scanning button" />
+            <property name="scanButtonIcon" type="String" label="I26_Scan_ScanButtonIcon" default="utility:scan" description="Barcode: Icon for the scan button (e.g., utility:scan, utility:photo)" />
             
             <!-- Initial Value Section -->
-            <property name="value" type="String" label="I26_Value_InitialValue" description="Initial Value: Pre-populate with a specific value on component load" />
-            <property name="selectedValue" type="String" label="I27_Value_SelectedValue / O1_selectedValue" description="Initial Value: Use {!ComponentName.selectedValue} to remember value on validation | Output: The value of the selected record" />
+            <property name="value" type="String" label="I27_Value_InitialValue" description="Initial Value: Pre-populate with a specific value on component load" />
+            <property name="selectedValue" type="String" label="I28_Value_SelectedValue / O1_selectedValue" description="Initial Value: Use {!ComponentName.selectedValue} to remember value on validation | Output: The value of the selected record" />
             
             <!-- Outputs -->
             <property name="recordId" type="String" label="O2_recordId" role="outputOnly" description="Output: The Id of the selected record" />

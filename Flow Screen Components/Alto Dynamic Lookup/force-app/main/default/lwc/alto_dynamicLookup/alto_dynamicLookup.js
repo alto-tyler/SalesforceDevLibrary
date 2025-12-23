@@ -83,6 +83,7 @@ export default class AltoDynamicLookup extends LightningElement {
 
     _disabled = false;
     _required = false;
+    _readOnly = false;
 
     @api 
     get disabled() {
@@ -97,6 +98,22 @@ export default class AltoDynamicLookup extends LightningElement {
             this._disabled = false;
         } else {
             this._disabled = Boolean(value);
+        }
+    }
+
+    @api 
+    get readOnly() {
+        return this._readOnly;
+    }
+    
+    set readOnly(value) {
+        // Handle string "true"/"false" and boolean values
+        if (value === true || value === 'true') {
+            this._readOnly = true;
+        } else if (value === false || value === 'false') {
+            this._readOnly = false;
+        } else {
+            this._readOnly = Boolean(value);
         }
     }
 
@@ -132,6 +149,10 @@ export default class AltoDynamicLookup extends LightningElement {
 
     get hasLabel() {
         return !!this.label && String(this.label).trim().length > 0;
+    }
+
+    get isNonInteractive() {
+        return this.disabled || this.readOnly;
     }
 
     @api
@@ -245,11 +266,13 @@ export default class AltoDynamicLookup extends LightningElement {
         if(this._parentFilterValue == null || this._parentFilterValue === '') {   
             this.selectedRecord = null;
             this.searchValue = ''; // Clear search input if parent filter value is not set
-            if(this.disableOnNoParentValue) {
+            if(this.disableOnNoParentValue && !this.readOnly) {
                 this.disabled = true; // Disable the input if no parent filter value is set
             }
         } else {
-            this.disabled = false; // Enable the input if parent filter value is set
+            if(!this.readOnly) {
+                this.disabled = false; // Enable the input if parent filter value is set
+            }
         }
 
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Parent Filter Value Set:`, value);
@@ -763,9 +786,9 @@ export default class AltoDynamicLookup extends LightningElement {
     @api
     handleRemoveSelection() {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleRemoveSelection triggered`);
-        // Prevent removal if disabled
-        if (this.disabled) {
-            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleRemoveSelection blocked - component is disabled`);
+        // Prevent removal if disabled or readOnly
+        if (this.isNonInteractive) {
+            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleRemoveSelection blocked - component is non-interactive`);
             return;
         }
         this.selectedRecord = null; // Clear the selected record
@@ -782,9 +805,9 @@ export default class AltoDynamicLookup extends LightningElement {
 
     handleSelectionDblClick(event) {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleSelectionDblClick triggered`);
-        // Prevent removal if disabled
-        if (this.disabled) {
-            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleSelectionDblClick blocked - component is disabled`);
+        // Prevent removal if disabled or readOnly
+        if (this.isNonInteractive) {
+            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleSelectionDblClick blocked - component is non-interactive`);
             return;
         }
         const displayValue = this.selectedDisplayValue || '';
@@ -951,9 +974,9 @@ export default class AltoDynamicLookup extends LightningElement {
 
         // Only trigger if Delete key is pressed and there is a selected value
         if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedRecord) {
-            // Prevent removal if disabled
-            if (this.disabled) {
-                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleComboboxKeydown blocked - component is disabled`);
+            // Prevent removal if disabled or readOnly
+            if (this.isNonInteractive) {
+                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleComboboxKeydown blocked - component is non-interactive`);
                 event.preventDefault();
                 return;
             }
@@ -1125,13 +1148,15 @@ export default class AltoDynamicLookup extends LightningElement {
     }
 
     get showClearTextAndNotDisabled() {
-        return this.showClearText && !this.disabled;
+        return this.showClearText && !this.isNonInteractive;
     }
 
     get pillClass() {
         let classes = 'selection-container_combobox slds-input_faux slds-combobox__input slds-combobox__input-value slds-button slds-text-color_default';
         if (this.disabled) {
             classes += ' slds-is-disabled';
+        } else if (this.readOnly) {
+            classes += ' read-only-mode';
         }
         return classes;
     }
