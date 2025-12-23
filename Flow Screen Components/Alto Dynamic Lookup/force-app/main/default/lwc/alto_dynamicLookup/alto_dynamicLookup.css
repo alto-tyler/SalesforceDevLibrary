@@ -21,3 +21,36 @@
 :host .clear-meta kbd {
     font-family: inherit;
 }
+
+/* Read-only mode styling */
+.read-only-mode {
+    border: 0 !important;
+    cursor: text !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    background-color: transparent !important;
+}
+
+.read-only-mode:hover,
+.read-only-mode:focus {
+    border: 0 !important;
+    cursor: text !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    color: inherit !important;
+}
+
+.read-only-mode .slds-truncate {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    color: inherit !important;
+}
+
+.read-only-mode:hover .slds-truncate,
+.read-only-mode:focus .slds-truncate {
+    color: inherit !important;
+}
