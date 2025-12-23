@@ -51,7 +51,7 @@
                                     <span class="slds-truncate">{selectedDisplayValue}</span>
                                 </a>
                             </template>
-                            <button if:false={isNonInteractive} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title={removeOptionLabel} onclick={handleRemoveSelection} tabindex="-1">
+                            <button if:false={isNonInteractive} class="slds-button slds-button_icon slds-input__icon slds-input__icon_right" title={removeOptionLabel} onclick={handleRemoveSelection} onfocus={handleSelectionFocus} onblur={handleSelectionBlur} tabindex="-1">
                                 <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
                             </button>
                         </div>

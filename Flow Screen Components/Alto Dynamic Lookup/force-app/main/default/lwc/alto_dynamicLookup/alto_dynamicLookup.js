@@ -292,6 +292,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this._selectedRecord = value;
         this.selectedValue = value ? value[this.valueFieldName] : null;
         this.recordSelected = value ? true : false;
+        this.recordSelectedNegative = value ? false : true;
 
         // Dispatch an event to notify parent components of the selected record
         const selectedEvent = new CustomEvent('recordselected', {
