@@ -1,0 +1,15 @@
+<aura:component implements="lightning:availableForFlowScreens" access="global">
+    <aura:attribute name="columnsXL" type="Integer" default="2" access="global" description="Number of columns for extra-large screens (1440px+)"/>
+    <aura:attribute name="columns" type="Integer" default="2" access="global" description="Number of columns for large screens (1024px-1439px)"/>
+    <aura:attribute name="columnsMedium" type="Integer" default="2" access="global" description="Number of columns for medium screens (768px-1023px)"/>
+    <aura:attribute name="columnsSmall" type="Integer" default="1" access="global" description="Number of columns for small screens (below 768px)"/>
+    <aura:attribute name="uniqueId" type="String" access="private"/>
+    <aura:handler name="init" value="{!this}" action="{!c.onInit}"/>
+    <aura:handler name="change" value="{!v.columnsXL}" action="{!c.handleColumnsChange}"/>
+    <aura:handler name="change" value="{!v.columns}" action="{!c.handleColumnsChange}"/>
+    <aura:handler name="change" value="{!v.columnsMedium}" action="{!c.handleColumnsChange}"/>
+    <aura:handler name="change" value="{!v.columnsSmall}" action="{!c.handleColumnsChange}"/>
+    
+    <div aura:id="styleContainer"></div>
+    <div aura:id="componentContainer"></div>
+</aura:component>

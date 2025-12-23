@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AuraDefinitionBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <description>Sets fixed column widths for Flow Repeater fields by dividing 100% by the number of columns</description>
+    <masterLabel>Alto Repeater Set Columns</masterLabel>
+</AuraDefinitionBundle>

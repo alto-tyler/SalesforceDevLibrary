@@ -220,6 +220,26 @@ Fetch a single record with specified fields and return it as an SObject
 
 ---
 
+### Alto Repeater Set Columns
+Create responsive multi-column layouts for Flow Repeaters
+
+**Key Features:**
+- Configure column counts for 4 screen sizes (XL, Large, Medium, Small)
+- Responsive design with automatic breakpoint adaptation
+- Supports 1-12 columns per breakpoint
+- Invisible component (no UI)
+- Works with any repeater content
+
+**Use Cases:**
+- Display products in responsive grid layouts
+- Create multi-column form fields in repeaters
+- Build dashboard card layouts
+- Show line items in table-like column format
+
+[View Full Documentation](Alto%20Repeater%20Set%20Columns/)
+
+---
+
 ## Reactive Screen Support
 
 **⚠️ Important:** Most of these components leverage reactive screen functionality, which requires **Flow API version 59.0 or higher**. Reactive screens allow components to automatically update other components on the same screen when their output values change, without requiring navigation to another screen.
@@ -250,6 +270,7 @@ Fetch a single record with specified fields and return it as an SObject
    - "Alto Rollup Record Numbers"
    - "alto_simpleCalculator"
    - "alto_recordFetcher"
+   - "Alto Repeater Set Columns"
 4. Drag the component onto your screen
 5. Configure properties as documented in each component's README
 

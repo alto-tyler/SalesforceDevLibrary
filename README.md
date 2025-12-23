@@ -23,6 +23,7 @@ A collection of reusable Salesforce Flow components and actions to enhance your 
 - **[Alto Flow Modal Width Override](Flow%20Screen%20Components/Alto%20Flow%20Modal%20Width%20Override/)** - Override the default modal width for Flow screens launched as Quick Actions (in modals), to support wide content such as datatables or large forms
 - **[Alto Simple Calculator](Flow%20Screen%20Components/Alto%20Simple%20Calculator/)** - Perform basic arithmetic operations on two numeric values in Flow Repeaters (where formulas can't be used)
 - **[Alto Record Fetcher](Flow%20Screen%20Components/Alto%20Record%20Fetcher/)** - Fetch a single record with specified fields and return it as an SObject with reactive screen support
+- **[Alto Repeater Set Columns](Flow%20Screen%20Components/Alto%20Repeater%20Set%20Columns/)** - Create responsive multi-column layouts for Flow Repeaters with configurable breakpoints
 
 ### Reactive Screen Support
 
@@ -181,6 +182,11 @@ xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Simple Calculator\for
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Record Fetcher\force-app" "force-app" /E /I /Y
 ```
 
+**For Repeater Set Columns:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Repeater Set Columns\force-app" "force-app" /E /I /Y
+```
+
 **Note:** If you want to deploy multiple components, run multiple copy commands before deploying.
 
 #### 5. Deploy to Your Org
@@ -265,6 +271,7 @@ xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Rollup Numbers\force-
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Modal Width Override\force-app" "force-app" /E /I /Y
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Simple Calculator\force-app" "force-app" /E /I /Y
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Record Fetcher\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Repeater Set Columns\force-app" "force-app" /E /I /Y
 
 # Deploy everything
 sf project deploy start --source-dir force-app
@@ -329,6 +336,7 @@ After deployment, components are immediately available in Flow Builder.
    - "Alto Rollup Record Numbers"
    - "alto_simpleCalculator"
    - "alto_recordFetcher"
+   - "Alto Repeater Set Columns"
 4. Drag the component onto your screen
 5. Configure properties as documented in each component's README
 

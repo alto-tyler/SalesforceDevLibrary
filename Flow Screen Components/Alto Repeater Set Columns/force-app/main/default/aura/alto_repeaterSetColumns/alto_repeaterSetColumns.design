@@ -1,0 +1,26 @@
+<design:component label="Alto Repeater Set Columns">
+    <design:attribute name="columnsXL" 
+                      label="Columns (XL: 1440px+)" 
+                      description="Number of columns for extra-large screens" 
+                      default="2" 
+                      min="1" 
+                      max="12" />
+    <design:attribute name="columns" 
+                      label="Columns (Large: 1024-1439px)" 
+                      description="Number of columns for large screens" 
+                      default="2" 
+                      min="1" 
+                      max="12" />
+    <design:attribute name="columnsMedium" 
+                      label="Columns (Medium: 768-1023px)" 
+                      description="Number of columns for medium screens" 
+                      default="2" 
+                      min="1" 
+                      max="12" />
+    <design:attribute name="columnsSmall" 
+                      label="Columns (Small: below 768px)" 
+                      description="Number of columns for small screens" 
+                      default="1" 
+                      min="1" 
+                      max="12" />
+</design:component>
