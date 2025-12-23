@@ -268,6 +268,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} selectedRecord setter triggered`);
         this._selectedRecord = value;
         this.selectedValue = value ? value[this.valueFieldName] : null;
+        this.recordSelected = value ? true : false;
 
         // Dispatch an event to notify parent components of the selected record
         const selectedEvent = new CustomEvent('recordselected', {
@@ -286,10 +287,24 @@ export default class AltoDynamicLookup extends LightningElement {
         this.dispatchEvent(
             new FlowAttributeChangeEvent('selectedValue', this.selectedValue)
         );
+        this.dispatchEvent(
+            new FlowAttributeChangeEvent('recordSelected', value ? true : false)
+        );
+        this.dispatchEvent(
+            new FlowAttributeChangeEvent('recordSelectedNegative', value ? false : true)
+        );
     }
 
     @api get recordId() {
         return this._selectedRecord ? this._selectedRecord.Id : null;
+    }
+
+    @api get recordSelected() {
+        return this._selectedRecord ? true : false;
+    }
+
+    @api get recordSelectedNegative() {
+        return this._selectedRecord ? false : true;
     }
 
     @api get selectedDisplayValue() {
