@@ -168,4 +168,20 @@
         <shortDescription>Waiting for Parent</shortDescription>
         <value>Waiting for parent...</value>
     </labels>
+    <labels>
+        <fullName>alto_DynLookup_HelpTextDesktop</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Help Text Desktop</shortDescription>
+        <value>Press Delete or Backspace to clear. Double-click to edit.</value>
+    </labels>
+    <labels>
+        <fullName>alto_DynLookup_HelpTextMobile</fullName>
+        <categories>alto_dynamicLookup</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Help Text Mobile</shortDescription>
+        <value>Double-tap to edit.</value>
+    </labels>
 </CustomLabels>
