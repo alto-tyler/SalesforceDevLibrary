@@ -1005,8 +1005,24 @@ export default class AltoDynamicLookup extends LightningElement {
         try { if (this._clickOpenTimeout) { clearTimeout(this._clickOpenTimeout); this._clickOpenTimeout = null; } } catch (e) {}
         try { if (this._recentPointerDownTimeout) { clearTimeout(this._recentPointerDownTimeout); this._recentPointerDownTimeout = null; this._recentPointerDown = false; } } catch (e) {}
         setTimeout(() => {
+            // Check if focus moved to dropdown or scrollbar - if so, don't close
+            const dropdownList = this.template.querySelector('.slds-dropdown');
+            const focusedElement = this.template.activeElement || document.activeElement;
+            
+            // Don't close if dropdown list contains the focused element or if we're still within component
+            if (dropdownList && dropdownList.contains(focusedElement)) {
+                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleInputBlur - focus is within dropdown, keeping open`);
+                return;
+            }
+            
+            // Check if focus is still within this component's boundary
+            if (this.template.contains(focusedElement)) {
+                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleInputBlur - focus is within component, keeping open`);
+                return;
+            }
+            
             this.hideDropdown();
-        },10);
+        }, 150); // Increased timeout to allow scrollbar interaction
         
     }
 
