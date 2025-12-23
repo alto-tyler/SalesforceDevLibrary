@@ -179,6 +179,47 @@ Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record co
 
 ---
 
+### Alto Simple Calculator
+Perform basic arithmetic operations on two numeric values in Flow Repeaters
+
+**Key Features:**
+- Four operations: Add, Subtract, Multiply, Divide
+- Works inside Flow Repeaters with reactive screens
+- Invisible component (no UI)
+- Prevents division by zero errors
+- Supports decimal numbers
+
+**Use Cases:**
+- Calculate values inside Flow Repeaters (where formulas can't be used)
+- Multiply quantity by price for line item totals
+- Calculate discounts or percentages
+- Perform dynamic calculations on repeating data
+
+[View Full Documentation](Alto%20Simple%20Calculator/)
+
+---
+
+### Alto Record Fetcher
+Fetch a single record with specified fields and return it as an SObject
+
+**Key Features:**
+- Fetch any Salesforce record by ID dynamically
+- Specify fields to retrieve via CSV list
+- Supports relationship fields (e.g., Account.Owner.Name)
+- Reactive screen support (updates when record ID changes)
+- Invisible component (no UI)
+- Handles null IDs gracefully
+
+**Use Cases:**
+- Load record details based on user selection
+- Access relationship fields in Flow screens
+- Dynamic record display with reactive updates
+- Fetch records in repeaters or loops
+
+[View Full Documentation](Alto%20Record%20Fetcher/)
+
+---
+
 ## Reactive Screen Support
 
 **⚠️ Important:** Most of these components leverage reactive screen functionality, which requires **Flow API version 59.0 or higher**. Reactive screens allow components to automatically update other components on the same screen when their output values change, without requiring navigation to another screen.
@@ -186,6 +227,8 @@ Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record co
 **Components with Reactive Support:**
 - Alto Datatable (outputs `outputAllRows` reactively)
 - Alto Rollup Numbers (outputs update when input collection changes)
+- Alto Simple Calculator (outputs update when input values change)
+- Alto Record Fetcher (outputs update when record ID changes)
 
 **To use reactive features:**
 1. Ensure your Flow's API version is set to 59.0 or higher
@@ -205,6 +248,8 @@ Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record co
    - "Alto Header"
    - "Alto Flow Footer"
    - "Alto Rollup Record Numbers"
+   - "alto_simpleCalculator"
+   - "alto_recordFetcher"
 4. Drag the component onto your screen
 5. Configure properties as documented in each component's README
 

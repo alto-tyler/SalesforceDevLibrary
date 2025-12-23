@@ -20,7 +20,9 @@ A collection of reusable Salesforce Flow components and actions to enhance your 
 - **[Alto Flow Header](Flow%20Screen%20Components/Alto%20Flow%20Header/)** - Header component with Rootstock company info and customizable action buttons
 - **[Alto Flow Footer](Flow%20Screen%20Components/Alto%20Flow%20Footer/)** - Footer component with customizable action buttons and alignment options
 - **[Alto Rollup Numbers](Flow%20Screen%20Components/Alto%20Rollup%20Numbers/)** - Perform rollup calculations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT) on record collections without displaying UI
-- **[Alto Flow Modal Width Override](Flow%20Screen%20Components/Alto%20Flow%20Modal%20Width%20Override/)** - Override the default modal width for Flow screens launched as Quick Actions (in modals), to support wide content such as datatables or large forms.
+- **[Alto Flow Modal Width Override](Flow%20Screen%20Components/Alto%20Flow%20Modal%20Width%20Override/)** - Override the default modal width for Flow screens launched as Quick Actions (in modals), to support wide content such as datatables or large forms
+- **[Alto Simple Calculator](Flow%20Screen%20Components/Alto%20Simple%20Calculator/)** - Perform basic arithmetic operations on two numeric values in Flow Repeaters (where formulas can't be used)
+- **[Alto Record Fetcher](Flow%20Screen%20Components/Alto%20Record%20Fetcher/)** - Fetch a single record with specified fields and return it as an SObject with reactive screen support
 
 ### Reactive Screen Support
 
@@ -164,6 +166,21 @@ xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Footer\force-app
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Rollup Numbers\force-app" "force-app" /E /I /Y
 ```
 
+**For Flow Modal Width Override:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Modal Width Override\force-app" "force-app" /E /I /Y
+```
+
+**For Simple Calculator:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Simple Calculator\force-app" "force-app" /E /I /Y
+```
+
+**For Record Fetcher:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Record Fetcher\force-app" "force-app" /E /I /Y
+```
+
 **Note:** If you want to deploy multiple components, run multiple copy commands before deploying.
 
 #### 5. Deploy to Your Org
@@ -245,6 +262,9 @@ xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Multi Dynamic Lookup\
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Header\force-app" "force-app" /E /I /Y
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Footer\force-app" "force-app" /E /I /Y
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Rollup Numbers\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Flow Modal Width Override\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Simple Calculator\force-app" "force-app" /E /I /Y
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Record Fetcher\force-app" "force-app" /E /I /Y
 
 # Deploy everything
 sf project deploy start --source-dir force-app
@@ -307,6 +327,8 @@ After deployment, components are immediately available in Flow Builder.
    - "Alto Header"
    - "Alto Flow Footer"
    - "Alto Rollup Record Numbers"
+   - "alto_simpleCalculator"
+   - "alto_recordFetcher"
 4. Drag the component onto your screen
 5. Configure properties as documented in each component's README
 

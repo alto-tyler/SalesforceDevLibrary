@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Record Fetcher</masterLabel>
+    <description>Fetches a single record with specified fields and returns it as an SObject</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <propertyType name="T" extends="SObject" label="Object API Name" description="Select the API Name of the SObject to fetch"/>
+            <property name="objectApiName" label="Object API Name" type="String" role="inputOnly" description="The API name of the object (e.g., Contact, Account, rstk__poitem__c)"/>
+            <property name="recordId" label="Record ID" type="String" role="inputOnly" description="The ID of the record to fetch"/>
+            <property name="fieldList" label="Field List (CSV)" type="String" role="inputOnly" description="Comma-separated list of field API names to retrieve (e.g., Name,Email,Phone)"/>
+            <property name="outputRecord" label="Output Record" type="{T}" role="outputOnly" description="The fetched record with all specified fields"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

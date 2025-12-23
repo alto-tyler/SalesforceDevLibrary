@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Simple Calculator</masterLabel>
+    <description>Calculates and returns the result to Flow</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="inputNumber1" label="Number 1" type="Integer" role="inputOnly" description="First number"/>
+            <property name="inputNumber2" label="Number 2" type="Integer" role="inputOnly" description="Second number"/>
+            <property name="inputOperation" label="Operation" type="String" role="inputOnly" description="Operation to perform: add, subtract, multiply, divide (default: add)"/>
+            <property name="result" label="Result" type="Integer" role="outputOnly" description="Result of the calculation"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
