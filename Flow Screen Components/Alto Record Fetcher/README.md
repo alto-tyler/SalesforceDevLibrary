@@ -32,7 +32,7 @@ Fetch records dynamically based on Flow logic and display fields in other screen
 ## Adding to Your Flow
 
 1. In Flow Builder, drag a **Screen** element onto your canvas.
-2. In the left panel under **Components**, search for **"alto_recordFetcher"** and drag it onto your screen.
+2. In the left panel under **Components**, search for **"Alto Record Fetcher"** and drag it onto your screen.
 3. Configure the properties (see sections below).
 4. Reference the `Output Record` in other components on the same screen (reactive) or in later flow elements.
 

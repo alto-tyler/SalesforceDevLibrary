@@ -29,7 +29,7 @@ Flow Repeaters cannot access formulas, which makes calculations on repeating dat
 ## Adding to Your Flow
 
 1. In Flow Builder, drag a **Screen** element onto your canvas (with a **Repeater** region).
-2. In the left panel under **Components**, search for **"alto_simpleCalculator"** and drag it onto your screen.
+2. In the left panel under **Components**, search for **"Alto Simple Calculator"** and drag it onto your screen.
 3. Configure the properties (see sections below).
 4. Reference the `Result` output in other components on the same screen (reactive) or in later flow elements.
 

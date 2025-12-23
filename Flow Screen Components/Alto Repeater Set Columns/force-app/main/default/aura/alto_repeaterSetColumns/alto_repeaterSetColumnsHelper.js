@@ -1,22 +1,33 @@
 ({
     markRepeater: function(component) {
-        console.log('[AltoRepeaterSetColumns] Marking parent list container');
+        console.log('[AltoRepeaterSetColumns] Marking parent repeater');
         
         try {
             const componentElement = component.find('componentContainer').getElement();
-            const parentContainer = componentElement.closest('flowruntime-list-container');
+            const parentRepeater = componentElement.closest('flowruntime-repeater');
             
-            if (!parentContainer) {
-                console.warn('[AltoRepeaterSetColumns] Parent flowruntime-list-container not found');
+            if (!parentRepeater) {
+                console.warn('[AltoRepeaterSetColumns] Parent flowruntime-repeater not found');
                 return;
             }
             
             const uniqueId = component.get('v.uniqueId');
-            parentContainer.classList.add(uniqueId);
+            const classPrefix = 'alto-cols-';
             
-            console.log('[AltoRepeaterSetColumns] Parent list container marked with class:', uniqueId);
+            // Check if parent already has a class with our prefix
+            const existingClass = Array.from(parentRepeater.classList).find(cls => cls.startsWith(classPrefix));
+            
+            if (existingClass) {
+                console.log('[AltoRepeaterSetColumns] Parent repeater already has class:', existingClass, '- skipping to allow inheritance');
+                return;
+            }
+            
+            // Apply the unique ID class
+            parentRepeater.classList.add(uniqueId);
+            
+            console.log('[AltoRepeaterSetColumns] Parent repeater marked with class:', uniqueId);
         } catch (error) {
-            console.error('[AltoRepeaterSetColumns] Error marking list container:', error);
+            console.error('[AltoRepeaterSetColumns] Error marking repeater:', error);
         }
     },
     
@@ -51,7 +62,7 @@
             // Create style element with responsive CSS for all breakpoints
             const css = `
                 /* Extra-large screens (1440px+) - ${columnsXL} columns */
-                flowruntime-list-container.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
+                flowruntime-repeater.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
                     width: ${widthPercentXL}% !important;
                     flex: none !important;
                     min-width: auto !important;
@@ -59,21 +70,21 @@
                 
                 /* Large screens (1024px-1439px) - ${columns || columnsXL} columns */
                 @media (max-width: 1439px) {
-                    flowruntime-list-container.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
+                    flowruntime-repeater.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
                         width: ${widthPercentLarge}% !important;
                     }
                 }
                 
                 /* Medium screens (768px-1023px) - ${columnsMedium || columns || columnsXL} columns */
                 @media (max-width: 1023px) {
-                    flowruntime-list-container.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
+                    flowruntime-repeater.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
                         width: ${widthPercentMedium}% !important;
                     }
                 }
                 
                 /* Small screens (below 768px) - ${columnsSmall || 1} columns */
                 @media (max-width: 767px) {
-                    flowruntime-list-container.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
+                    flowruntime-repeater.${uniqueId} flowruntime-repeater-instance fieldset > .slds-grid flowruntime-screen-field {
                         width: ${widthPercentSmall}% !important;
                     }
                 }
