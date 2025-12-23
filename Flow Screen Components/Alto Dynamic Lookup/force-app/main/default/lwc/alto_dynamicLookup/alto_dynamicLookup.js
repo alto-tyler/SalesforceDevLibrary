@@ -780,6 +780,7 @@ export default class AltoDynamicLookup extends LightningElement {
     
     handleSelectionClick(event) {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleSelectionClick triggered`);
+        event.preventDefault(); // Prevent navigation from anchor tag
         event.stopPropagation(); // Prevent the click from propagating to the combobox
     }
 
