@@ -52,8 +52,8 @@
             <!-- Outputs -->
             <property name="recordId" type="String" label="O2_recordId" role="outputOnly" description="Output: The Id of the selected record" />
             <property name="componentInitialized" type="Boolean" label="O3_componentInitialized" role="outputOnly" description="Output: True when component has finished initializing" />
-            <property name="recordSelected" type="Boolean" label="O4_recordSelected" role="outputOnly" description="Output: True when a record has been selected" />
-            <property name="recordSelectedNegative" type="Boolean" label="O5_recordSelectedNegative" role="outputOnly" description="Output: True when no record has been selected" />
+            <property name="recordSelected" type="Boolean" label="O4_Record Selected" role="outputOnly" description="Output: True when a record has been selected" />
+            <property name="recordSelectedNegative" type="Boolean" label="O5_Record Not Selected" role="outputOnly" description="Output: True when no record has been selected" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>
