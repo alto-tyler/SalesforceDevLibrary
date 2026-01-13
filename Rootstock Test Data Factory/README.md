@@ -18,7 +18,9 @@ Rootstock tests often fail because required “system” records (company/divisi
 
 ### `RootstockTestDataBatch`
 
-Batch wrapper you can run to execute the factory repeatedly. This is useful when you want to seed data outside a unit test, or you want the work to run asynchronously.
+Batch wrapper used to **asynchronously** execute the factory logic. This exists primarily because the factory creates a large set of related Rootstock records, and running it async helps avoid test limits/timeouts.
+
+In unit tests, run it **inside** `Test.startTest()` / `Test.stopTest()` (as shown in the example test) so the async work completes before your assertions.
 
 ### `RootstockTestDataFactoryExampleTest`
 
@@ -34,7 +36,7 @@ An example `@isTest` class showing how to run the batch in `@testSetup` and then
 
 ### Recommended: use from `@testSetup`
 
-Call the batch once in `@testSetup`, then query whatever you need in tests.
+Call the batch once in `@testSetup` inside `Test.startTest()` / `Test.stopTest()`, then query whatever you need in tests.
 
 ```apex
 @testSetup
