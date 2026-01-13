@@ -68,5 +68,8 @@ Database.executeBatch(new RootstockTestDataBatch(1), 1);
 ## Notes / Customization
 
 - The factory sets `rstk__triggeroptions__c = 'UT'` on many Rootstock records. Keep/change this based on how your Rootstock org expects unit-test behavior.
+- **Important (`UT` behavior):** `UT` is commonly used to bypass Rootstock validations and to suppress Rootstock’s automatic creation of certain related/concurrent records. That means records you might normally expect Rootstock to create for you (via triggers/automation) may **not** be created when `UT` is set.
+    - Practical impact: if your test relies on those normally-auto-created records, you must create them yourself in the factory.
+    - Example: `rstk__icitem__c` is often created automatically from item setup, but with `UT` that automation can be suppressed—so this factory creates the needed `peitem`/`icitem` records explicitly.
 - Many values are intentionally hard-coded (currency, company/div/site codes, etc.) to keep the setup deterministic. Adjust those defaults to match your org conventions.
 - This code performs DML and will create real records when run outside tests—use it in sandboxes/dev orgs unless you intentionally want the data in production.
