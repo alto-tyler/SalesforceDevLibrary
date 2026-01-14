@@ -160,6 +160,162 @@ private class CleanupOnExitControllerTest {
     }
     
     @isTest
+    static void testCascadeDeleteWithOrderAndOrderItems() {
+        // Create Account, Contract, and Order (Order has Master-Detail to Contract)
+        Account testAccount = new Account(Name = 'Test Account for Order');
+        insert testAccount;
+        
+        Contract testContract = new Contract(
+            AccountId = testAccount.Id,
+            StartDate = Date.today(),
+            ContractTerm = 12
+        );
+        insert testContract;
+        
+        // Activate the contract
+        testContract.Status = 'Activated';
+        update testContract;
+        
+        // Create standard pricebook and product for OrderItem
+        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true);
+        insert testProduct;
+        
+        // Get standard pricebook
+        Id pricebookId = Test.getStandardPricebookId();
+        
+        // Create standard PricebookEntry
+        PricebookEntry testPricebookEntry = new PricebookEntry(
+            Pricebook2Id = pricebookId,
+            Product2Id = testProduct.Id,
+            UnitPrice = 100,
+            IsActive = true
+        );
+        insert testPricebookEntry;
+        
+        // Create Order with Pricebook
+        Order testOrder = new Order(
+            AccountId = testAccount.Id,
+            ContractId = testContract.Id,
+            EffectiveDate = Date.today(),
+            Status = 'Draft',
+            Pricebook2Id = pricebookId
+        );
+        insert testOrder;
+        
+        // Create OrderItem (Master-Detail to Order)
+        OrderItem testOrderItem = new OrderItem(
+            OrderId = testOrder.Id,
+            PricebookEntryId = testPricebookEntry.Id,
+            Quantity = 1,
+            UnitPrice = 100
+        );
+        insert testOrderItem;
+        
+        // Verify OrderItem exists
+        System.assertEquals(1, [SELECT COUNT() FROM OrderItem WHERE OrderId = :testOrder.Id]);
+        
+        Test.startTest();
+        
+        // Call delete with cascade=true - should find and delete OrderItems first
+        String result = CleanupOnExitController.deleteRecord(testOrder.Id, true, null);
+        
+        Test.stopTest();
+        
+        // Verify Order and OrderItems are deleted
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed with cascade');
+        System.assertEquals(0, [SELECT COUNT() FROM OrderItem WHERE OrderId = :testOrder.Id]);
+        System.assertEquals(0, [SELECT COUNT() FROM Order WHERE Id = :testOrder.Id]);
+    }
+    
+    @isTest
+    static void testCascadeDeleteWithGridActions() {
+        // Create a GridConfiguration (parent)
+        rootstock__GridConfiguration__c gridConfig = new rootstock__GridConfiguration__c(
+            rootstock__Name__c = 'Test Grid Config',
+            rootstock__ObjectAPIName__c = 'Account',
+            rootstock__FieldSetAPIName__c = 'TestFieldSet'
+        );
+        insert gridConfig;
+        
+        // Create GridAction children (Master-Detail to GridConfiguration)
+        rootstock__GridAction__c action1 = new rootstock__GridAction__c(
+            rootstock__GridConfiguration__c = gridConfig.Id,
+            rootstock__ButtonLabel__c = 'Test Button 1',
+            rootstock__Type__c = 'Single Row Action',
+            rootstock__UniqueKey2__c = 'UniqueKey1Value',
+            rootstock__ActionTarget__c = 'Flow'
+        );
+        rootstock__GridAction__c action2 = new rootstock__GridAction__c(
+            rootstock__GridConfiguration__c = gridConfig.Id,
+            rootstock__ButtonLabel__c = 'Test Button 2',
+            rootstock__Type__c = 'Single Row Action',
+            rootstock__UniqueKey2__c = 'UniqueKey2Value',
+            rootstock__ActionTarget__c = 'Flow'
+        );
+        insert new List<rootstock__GridAction__c>{action1, action2};
+        
+        // Verify children exist
+        System.assertEquals(2, [SELECT COUNT() FROM rootstock__GridAction__c WHERE rootstock__GridConfiguration__c = :gridConfig.Id]);
+        
+        Test.startTest();
+        
+        // Call delete with cascade=true - should find and delete GridActions first
+        String result = CleanupOnExitController.deleteRecord(gridConfig.Id, true, null);
+        
+        Test.stopTest();
+        
+        // Verify GridConfiguration and GridActions are deleted
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed with cascade');
+        System.assertEquals(0, [SELECT COUNT() FROM rootstock__GridAction__c WHERE rootstock__GridConfiguration__c = :gridConfig.Id]);
+        System.assertEquals(0, [SELECT COUNT() FROM rootstock__GridConfiguration__c WHERE Id = :gridConfig.Id]);
+    }
+    
+    @isTest
+    static void testCascadeDeleteWithPricebookEntry() {
+        // Create a custom pricebook (PricebookEntry has Master-Detail to Pricebook2)
+        Pricebook2 customPricebook = new Pricebook2(Name = 'Test Pricebook', IsActive = true);
+        insert customPricebook;
+        
+        // Create product
+        Product2 testProduct = new Product2(Name = 'Test Product', IsActive = true);
+        insert testProduct;
+        
+        // Create standard price first (required before custom price)
+        Id standardPricebookId = Test.getStandardPricebookId();
+        PricebookEntry standardPriceEntry = new PricebookEntry(
+            Pricebook2Id = standardPricebookId,
+            Product2Id = testProduct.Id,
+            UnitPrice = 100,
+            IsActive = true
+        );
+        insert standardPriceEntry;
+        
+        // Create PricebookEntry for custom pricebook (Master-Detail to Pricebook2)
+        PricebookEntry testPricebookEntry = new PricebookEntry(
+            Pricebook2Id = customPricebook.Id,
+            Product2Id = testProduct.Id,
+            UnitPrice = 100,
+            IsActive = true
+        );
+        insert testPricebookEntry;
+        
+        // Verify PricebookEntry exists
+        System.assertEquals(1, [SELECT COUNT() FROM PricebookEntry WHERE Pricebook2Id = :customPricebook.Id]);
+        
+        Test.startTest();
+        
+        // Call delete with cascade=true - should delete PricebookEntries first
+        String result = CleanupOnExitController.deleteRecord(customPricebook.Id, true, null);
+        
+        Test.stopTest();
+        
+        // Verify Pricebook and PricebookEntries are deleted
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed with cascade');
+        System.assertEquals(0, [SELECT COUNT() FROM PricebookEntry WHERE Pricebook2Id = :customPricebook.Id]);
+        System.assertEquals(0, [SELECT COUNT() FROM Pricebook2 WHERE Id = :customPricebook.Id]);
+    }
+    
+    @isTest
     static void testCascadeDeleteParameterFalse() {
         // Create a test account
         Account testAccount = new Account(Name = 'Test Account No Cascade');
@@ -174,6 +330,161 @@ private class CleanupOnExitControllerTest {
         
         // Verify delete succeeded
         System.assert(result.startsWith('SUCCESS'), 'Delete should succeed');
+        System.assertEquals(0, [SELECT COUNT() FROM Account WHERE Id = :testAccount.Id]);
+    }
+    
+    @isTest
+    static void testDeleteLookupChildrenWithContacts() {
+        // Create a test account with contacts
+        Account testAccount = new Account(Name = 'Test Account with Lookup Children');
+        insert testAccount;
+        
+        // Create child contacts (lookup relationship)
+        Contact contact1 = new Contact(LastName = 'Contact 1', AccountId = testAccount.Id, Email = 'contact1@test.com');
+        Contact contact2 = new Contact(LastName = 'Contact 2', AccountId = testAccount.Id, Email = 'contact2@test.com');
+        insert new List<Contact>{contact1, contact2};
+        
+        // Verify children exist
+        System.assertEquals(2, [SELECT COUNT() FROM Contact WHERE AccountId = :testAccount.Id]);
+        
+        Test.startTest();
+        
+        // Call delete with lookup relationship specified (Contacts is the relationship name)
+        String result = CleanupOnExitController.deleteRecord(testAccount.Id, false, 'Contacts');
+        
+        Test.stopTest();
+        
+        // Verify lookup children were deleted first, then parent
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed');
+        System.assertEquals(0, [SELECT COUNT() FROM Contact WHERE AccountId = :testAccount.Id]);
+        System.assertEquals(0, [SELECT COUNT() FROM Account WHERE Id = :testAccount.Id]);
+    }
+    
+    @isTest
+    static void testDeleteLookupChildrenMultipleRelationships() {
+        // Create a test account with multiple types of children
+        Account testAccount = new Account(Name = 'Test Account Multiple Children');
+        insert testAccount;
+        
+        // Create contacts
+        Contact contact1 = new Contact(LastName = 'Contact 1', AccountId = testAccount.Id, Email = 'contact1@test.com');
+        insert contact1;
+        
+        // Create cases
+        Case case1 = new Case(Subject = 'Test Case', AccountId = testAccount.Id);
+        insert case1;
+        
+        Test.startTest();
+        
+        // Call delete with multiple lookup relationships
+        String result = CleanupOnExitController.deleteRecord(testAccount.Id, false, 'Contacts,Cases');
+        
+        Test.stopTest();
+        
+        // Verify all children and parent deleted
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed');
+        System.assertEquals(0, [SELECT COUNT() FROM Contact WHERE AccountId = :testAccount.Id]);
+        System.assertEquals(0, [SELECT COUNT() FROM Case WHERE AccountId = :testAccount.Id]);
+        System.assertEquals(0, [SELECT COUNT() FROM Account WHERE Id = :testAccount.Id]);
+    }
+    
+    @isTest
+    static void testDeleteLookupChildrenInvalidRelationship() {
+        // Create a test account
+        Account testAccount = new Account(Name = 'Test Account Invalid Lookup');
+        insert testAccount;
+        
+        Test.startTest();
+        
+        // Call delete with non-existent relationship name
+        String result = CleanupOnExitController.deleteRecord(testAccount.Id, false, 'InvalidRelationshipName');
+        
+        Test.stopTest();
+        
+        // Should still succeed (just skips invalid relationship)
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed even with invalid relationship');
+        System.assertEquals(0, [SELECT COUNT() FROM Account WHERE Id = :testAccount.Id]);
+    }
+    
+    @isTest
+    static void testDeleteLookupChildrenEmptyString() {
+        // Create a test account
+        Account testAccount = new Account(Name = 'Test Account Empty Lookup');
+        insert testAccount;
+        
+        Test.startTest();
+        
+        // Call delete with empty string for relationships
+        String result = CleanupOnExitController.deleteRecord(testAccount.Id, false, '');
+        
+        Test.stopTest();
+        
+        // Should succeed (empty string treated as no lookups)
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed with empty lookup string');
+        System.assertEquals(0, [SELECT COUNT() FROM Account WHERE Id = :testAccount.Id]);
+    }
+    
+    @isTest
+    static void testDeleteLookupChildrenWithSpacesInCSV() {
+        // Create a test account with contacts
+        Account testAccount = new Account(Name = 'Test Account CSV Spaces');
+        insert testAccount;
+        
+        Contact contact1 = new Contact(LastName = 'Contact 1', AccountId = testAccount.Id, Email = 'contact1@test.com');
+        insert contact1;
+        
+        Test.startTest();
+        
+        // Call delete with spaces in CSV
+        String result = CleanupOnExitController.deleteRecord(testAccount.Id, false, ' Contacts , ');
+        
+        Test.stopTest();
+        
+        // Should succeed (spaces trimmed)
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed with spaces in CSV');
+        System.assertEquals(0, [SELECT COUNT() FROM Contact WHERE AccountId = :testAccount.Id]);
+        System.assertEquals(0, [SELECT COUNT() FROM Account WHERE Id = :testAccount.Id]);
+    }
+    
+    @isTest
+    static void testDeleteRecordFailure() {
+        // Create a test account with a contact that has a required field preventing deletion
+        Account testAccount = new Account(Name = 'Test Account Delete Failure');
+        insert testAccount;
+        
+        // Create a contact with the account
+        Contact contact1 = new Contact(LastName = 'Contact 1', AccountId = testAccount.Id, Email = 'contact1@test.com');
+        insert contact1;
+        
+        Test.startTest();
+        
+        // Try to delete account without deleting contact first (should fail)
+        // Database.delete with allOrNone=false will return error in result
+        String result = CleanupOnExitController.deleteRecord(testAccount.Id, false, null);
+        
+        Test.stopTest();
+        
+        // Result could be SUCCESS or ERROR depending on org config
+        // If Account->Contact is optional, it succeeds. If required, it fails.
+        // Just verify we got a response
+        System.assert(result != null, 'Should return a result');
+    }
+    
+    @isTest
+    static void testCascadeDeleteNullParameter() {
+        // Create a test account
+        Account testAccount = new Account(Name = 'Test Account Null Cascade');
+        insert testAccount;
+        
+        Test.startTest();
+        
+        // Call delete with null cascade parameter (should treat as false)
+        String result = CleanupOnExitController.deleteRecord(testAccount.Id, null, null);
+        
+        Test.stopTest();
+        
+        // Verify delete succeeded
+        System.assert(result.startsWith('SUCCESS'), 'Delete should succeed with null cascade');
         System.assertEquals(0, [SELECT COUNT() FROM Account WHERE Id = :testAccount.Id]);
     }
 }

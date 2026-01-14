@@ -98,6 +98,25 @@ When you add the component to a Flow screen, you'll see these properties:
 ❌ **Don't:**
 - Rely solely on **Delete On Page Close** for critical cleanup (browser behavior varies)
 - Forget to grant Delete permissions to users running the Flow
+
+---
+
+## Requirements
+
+### Rootstock Objects (for Testing Only)
+
+The test class uses Rootstock custom objects to verify Master-Detail cascade delete functionality. These objects are **only required if you plan to run the test class** and are not needed for the component itself to function.
+
+Required Rootstock objects for testing:
+- `rootstock__GridConfiguration__c` (parent object)
+- `rootstock__GridAction__c` (child object with Master-Detail relationship to GridConfiguration)
+
+If you do not have Rootstock installed in your org, you can either:
+1. Install Rootstock (if you use the Rootstock ERP package)
+2. Comment out or remove the `testCascadeDeleteWithGridActions` test method
+3. Replace the test with your own Master-Detail objects
+
+The component will work with any standard or custom objects without requiring Rootstock.
 - Use this for permanent records — only use for temporary/draft records
 
 ---
