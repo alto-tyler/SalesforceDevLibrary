@@ -102,6 +102,13 @@ This reactivity allows you to dynamically update datatable configuration based o
 | Property | Type | Label | Default | Description |
 |----------|------|-------|---------|-------------|
 | **Show Search bar** | Boolean | `Show Search bar` | false | Enable global search across all columns (requires header) |
+| **External Search Value** | String | `External Search Value` | — | Programmatically set the global search text. When this value changes, the table applies filtering across all visible columns reactively. Works with or without the visible Search bar. |
+
+#### External Search Value (Programmatic Search)
+- Bind a Flow text variable to `External Search Value` to drive global filtering from other screen inputs (e.g., Text, Picklist, or formula-driven values).
+- Updates filtering as the bound variable changes (assignments or user input), without requiring screen navigation.
+- Respects case matching behavior configured elsewhere (e.g., column filter case sensitivity).
+- Useful for centralized search UX where the search input is outside the datatable header, or when the header is hidden.
 
 ### Configure Columns
 
@@ -407,6 +414,25 @@ When **Display User Defined Object?** is enabled:
 **Result:** When user changes radio button selection, the Column Labels property updates and triggers `connectedCallback`, redrawing the table with new column headers.
 
 ---
+
+### Example 6: External Search from Another Input
+
+**Scenario:** Provide a separate search input and use it to filter the datatable globally.
+
+**Setup:**
+
+1. **Screen** - Add a **Text** input
+   - Label: `Search`
+   - Store in: `searchText`
+
+2. **Alto Datatable** (on same screen)
+   - **Datatable Object API Name**: `Account`
+   - **Datatable Record Collection**: `{!AccountCollection}`
+   - **Column Fields**: `Name,Phone,BillingCity,Type`
+   - **External Search Value**: `{!searchText}` ← Filters reactively as the user types or changes the value
+   - Optional: Leave **Show Search bar** off to centralize search outside the table
+
+**Result:** The datatable applies global filtering based on `searchText` without requiring the built-in search bar.
 
 ## Reactivity Details
 

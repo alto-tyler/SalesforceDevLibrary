@@ -498,6 +498,26 @@ export default class Datatable extends LightningElement {
     searchTypeTimeout;
 
     @api 
+    get externalSearchValue() {
+        return this._externalSearchValue;
+    }
+    set externalSearchValue(value) {
+        this._externalSearchValue = value;
+        // Automatically trigger search when external value changes
+        if (this._externalSearchValue !== undefined && this._externalSearchValue !== null) {
+            this.searchTerm = this._externalSearchValue;
+            // Handle slight pause while typing
+            if (this.searchTypeTimeout) {
+                clearTimeout(this.searchTypeTimeout);
+            }
+            this.searchTypeTimeout = setTimeout(() => {
+                this.searchRowData(this.searchTerm);
+            }, SEARCH_WAIT_TIME);
+        }
+    }
+    _externalSearchValue;
+
+    @api 
     get not_suppressNameFieldLink() {       // Default value is to show the links
         return (this._not_suppressNameFieldLink) ? true : false;
     }
