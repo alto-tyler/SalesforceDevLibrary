@@ -121,6 +121,31 @@ Extract field values from a collection and return as both a string collection an
 
 ---
 
+### Alto Number to French Words
+Convert decimal numbers to French word representation with configurable currency units
+
+**Key Features:**
+- Converts numbers to properly formatted French words
+- Configurable major and minor currency units (euro/centime, dollar/cent, livre/penny, etc.)
+- Follows French grammar rules (vingt-et-un, soixante-dix, quatre-vingts)
+- Automatic pluralization of currency units
+- Handles numbers up to millions
+- Perfect for check writing, invoices, and legal documents
+
+**API Version:** 65.0
+
+**Use Cases:**
+- Generate check amounts in French
+- Create legal documents requiring spelled-out numbers
+- Invoice generation for French-speaking clients
+- Financial reports with written number verification
+- Contract amounts in words
+- Educational applications teaching French numbers
+
+[View Full Documentation](Alto%20Number%20to%20French%20Words/)
+
+---
+
 ## How to Use Flow Actions
 
 1. Open **Flow Builder** (Setup > Flows > New Flow or edit existing)
@@ -131,6 +156,7 @@ Extract field values from a collection and return as both a string collection an
    - "Compare Record Collections"
    - "Filter Record Collection"
    - "Extract Field Values"
+   - "Convert Number to French Words"
 4. Select the action and configure input parameters
 5. Use the action's output variables in subsequent Flow elements
 
@@ -151,6 +177,7 @@ All actions include comprehensive test classes:
 - `FlowCollectionComparatorTest` - Tests for Collection Comparator action
 - `FlowCollectionFilterTest` - Tests for Collection Filter action
 - `FlowFieldExtractorTest` - Tests for Field Extractor action
+- `alto_NumberToFrenchWordsTest` - Tests for Number to French Words action
 
 Run tests after deployment:
 ```powershell
@@ -159,6 +186,7 @@ sf apex run test --class-names RollupNumberHelperTest --target-org MyOrg --resul
 sf apex run test --class-names FlowCollectionComparatorTest --target-org MyOrg --result-format human
 sf apex run test --class-names FlowCollectionFilterTest --target-org MyOrg --result-format human
 sf apex run test --class-names FlowFieldExtractorTest --target-org MyOrg --result-format human
+sf apex run test --class-names alto_NumberToFrenchWordsTest --target-org MyOrg --result-format human
 ```
 
 ## Flow Actions vs Flow Screen Components

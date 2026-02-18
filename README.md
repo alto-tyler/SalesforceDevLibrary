@@ -10,6 +10,7 @@ A collection of reusable Salesforce Flow components and actions to enhance your 
 - **[Alto Flow Collection Comparator](Flow%20Actions/Alto%20Flow%20Collection%20Comparator/)** - Compare two record collections based on field values and return matching/non-matching records
 - **[Alto Flow Collection Filter](Flow%20Actions/Alto%20Flow%20Collection%20Filter/)** - Filter a collection based on field value criteria with exact, partial, and inverted match support
 - **[Alto Flow Field Extractor](Flow%20Actions/Alto%20Flow%20Field%20Extractor/)** - Extract field values from a collection and return as both a string collection and CSV
+- **[Alto Number to French Words](Flow%20Actions/Alto%20Number%20to%20French%20Words/)** - Convert decimal numbers to French word representation with configurable currency units
 
 ### Flow Screen Components
 - **[Alto Clean Up On Exit](Flow%20Screen%20Components/Alto%20Clean%20Up%20On%20Exit/)** - Automatically delete records when users exit a Flow screen
