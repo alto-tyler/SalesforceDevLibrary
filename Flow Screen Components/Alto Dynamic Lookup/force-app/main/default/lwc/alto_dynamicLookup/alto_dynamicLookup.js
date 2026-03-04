@@ -387,6 +387,17 @@ export default class AltoDynamicLookup extends LightningElement {
 
     async connectedCallback() {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} connectedCallback triggered`);
+
+        // Dispatch initial values to Flow for all output properties whose setters
+        // won't fire during component load (getter/setter pairs use local vars that
+        // start at their default values and never trigger FlowAttributeChangeEvent).
+        this.dispatchEvent(new FlowAttributeChangeEvent('componentInitialized', this._componentInitialized));
+        this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecord', this._selectedRecord));
+        this.dispatchEvent(new FlowAttributeChangeEvent('selectedValue', this._selectedValue));
+        this.dispatchEvent(new FlowAttributeChangeEvent('recordId', this._selectedRecord ? this._selectedRecord.Id : null));
+        this.dispatchEvent(new FlowAttributeChangeEvent('recordSelected', this._selectedRecord ? true : false));
+        this.dispatchEvent(new FlowAttributeChangeEvent('recordSelectedNegative', this._selectedRecord ? false : true));
+
         this.barcodeScanner = getBarcodeScanner();
         this.getSObjectDetails(); // Fetch SObject details on component initialization
 
