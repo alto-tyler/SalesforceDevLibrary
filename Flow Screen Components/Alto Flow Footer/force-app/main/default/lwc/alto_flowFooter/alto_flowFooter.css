@@ -1,5 +1,7 @@
 .footer-container {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     padding: 1rem 0;
 }
 
@@ -23,7 +25,9 @@
 
 .footer-buttons {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 0.25rem;
 }
 
 /* When footer meta is shown, place meta and buttons on opposite sides */
