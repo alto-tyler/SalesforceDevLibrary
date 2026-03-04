@@ -84,6 +84,31 @@ export default class AltoDynamicLookup extends LightningElement {
     _disabled = false;
     _required = false;
     _readOnly = false;
+    _showObjectMeta = true;
+    _customMeta = '';
+
+    @api get customMeta() {
+        return this._customMeta;
+    }
+
+    set customMeta(value) {
+        this._customMeta = value;
+    }
+
+    @api get showObjectMeta() {
+        return this._showObjectMeta;
+    }
+
+    set showObjectMeta(value) {
+        // Handle string "true"/"false" and boolean values
+        if (value === true || value === 'true') {
+            this._showObjectMeta = true;
+        } else if (value === false || value === 'false') {
+            this._showObjectMeta = false;
+        } else {
+            this._showObjectMeta = Boolean(value);
+        }
+    }
 
     @api 
     get disabled() {
@@ -397,6 +422,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this.dispatchEvent(new FlowAttributeChangeEvent('recordId', this._selectedRecord ? this._selectedRecord.Id : null));
         this.dispatchEvent(new FlowAttributeChangeEvent('recordSelected', this._selectedRecord ? true : false));
         this.dispatchEvent(new FlowAttributeChangeEvent('recordSelectedNegative', this._selectedRecord ? false : true));
+        this.dispatchEvent(new FlowAttributeChangeEvent('showObjectMeta', this._showObjectMeta));
 
         this.barcodeScanner = getBarcodeScanner();
         this.getSObjectDetails(); // Fetch SObject details on component initialization
