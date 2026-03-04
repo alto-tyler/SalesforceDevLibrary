@@ -681,9 +681,9 @@ export default class AltoDynamicLookup extends LightningElement {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleSelect triggered`);
         if (event.button === 0) {
             // Left mouse button
-            const selectedValue = event.currentTarget.dataset.value;
-            // Use valueFieldName to find the record instead of Id, since some objects like EntityDefinition have duplicate Ids
-            this.selectedRecord = this.findRecordByValue(selectedValue, true);
+            const selectedId = event.currentTarget.dataset.value; // data-value is always record.Id
+            // Find by Id so the selectedRecord setter can correctly derive selectedValue from valueFieldName
+            this.selectedRecord = this.findRecordByValue(selectedId, false);
 
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Selected Value:`, this.selectedValue);
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Selected Record:`, JSON.stringify(this.selectedRecord, null, 2));
