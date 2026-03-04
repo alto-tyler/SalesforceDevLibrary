@@ -135,70 +135,88 @@ Use these to create dependent lookups (e.g., filter Contacts by selected Account
 
 ---
 
-### **Behavior Section** (I19-I23)
+### **Behavior Section** (I19-I26)
 
 **I19_Behavior_Required**
 - Make this field required for Flow progression
 - Default: `False`
 
 **I20_Behavior_Disabled**
-- Disable the lookup field
+- Disable the lookup field with disabled appearance
+- Value still passes through and initial value will be set
 - Default: `False`
 
-**I21_Behavior_AllowDisplayFieldMatch**
+**I21_Behavior_ReadOnly**
+- Make lookup read-only with clean appearance (no border, no user interaction)
+- Value still passes through and initial value will be set
+- Useful for displaying pre-selected values without allowing changes
+- Default: `False`
+
+**I22_Behavior_AllowDisplayFieldMatch**
 - Allows matching initial/selected values and Tab-populated values against the display field (not just value field)
-- **When to use:** Enable when pre-populating with display values (e.g., names) instead of Ids, or when using **I23_Behavior_PopulateOnTab**
+- **When to use:** Enable when pre-populating with display values (e.g., names) instead of Ids, or when using **I24_Behavior_PopulateOnTab**
 - **Example:** If display field is "Name" and you set initial value to "John Doe", the component will find matching records by name
-- Works with **I26_Value_InitialValue**, **I27_Value_SelectedValue**, and **I23_Behavior_PopulateOnTab**
+- Works with **I29_Value_InitialValue**, **I30_Value_SelectedValue**, and **I24_Behavior_PopulateOnTab**
 - Default: `False`
 
-**I22_Behavior_RelativeDropdown**
+**I23_Behavior_RelativeDropdown**
 - Changes dropdown positioning to use the Flow screen space instead of overflowing the component container
 - **When to use:** Enable if the dropdown is cut off or hidden by the Flow container boundaries
 - **Mobile:** Automatically enabled on mobile devices
 - **Desktop:** Useful for long result lists that get clipped by Flow's container
 - Default: `False` (desktop), automatically `True` (mobile)
 
-**I23_Behavior_PopulateOnTab**
+**I24_Behavior_PopulateOnTab**
 - When user presses Tab, automatically select the first matching result
 - Great for keyboard-heavy data entry
 - Default: `False`
 
+**I25_Display_ShowObjectMeta**
+- Show the object name as meta text beneath each result in the dropdown
+- Helps users identify the object type when searching multiple objects
+- Default: `True`
+
+**I26_Display_CustomMeta**
+- Custom meta text to show beneath each result in the dropdown
+- Overrides the object name when **I25_Display_ShowObjectMeta** is true
+- Example: Use a formula to show custom information like "Contact - [Account Name]"
+- Default: Empty
+
 ---
 
-### **Barcode Scanning Section** (I24-I25)
+### **Barcode Scanning Section** (I27-I28)
 
-**I24_Scan_AllowBarcodeScanning**
+**I27_Scan_AllowBarcodeScanning**
 - Enable barcode scanning button (mobile only)
 - Default: `False`
 
-**I25_Scan_ScanButtonIcon**
+**I28_Scan_ScanButtonIcon**
 - Icon for the scan button
 - Default: `"utility:scan"`
 - Examples: `"utility:scan"`, `"utility:photo"`
 
 ---
 
-### **Initial Value / Output Section** (I26-I27)
+### **Initial Value / Output Section** (I29-I30)
 
-**I26_Value_InitialValue**
+**I29_Value_InitialValue**
 - Pre-populate with a specific value on component load
 - Example: `{!RecordId}` to auto-select a record
 
-**I27_Value_SelectedValue / O1_selectedValue** *(Input/Output)*
+**I30_Value_SelectedValue / O1_selectedValue** *(Input/Output)*
 - **As Input:** Pre-populate the selection
 - **As Output:** The value of the selected record
 - **Critical for Flows:** Map this field to ITSELF (`{!ComponentName.selectedValue}`) to preserve the selection when validation errors occur
 - **Why:** Without this mapping, the lookup will clear when the user corrects validation errors and returns to the screen
-- **Example mapping:** Set I27_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
+- **Example mapping:** Set I30_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
 
 ---
 
-### **Output-Only Properties** (O1-O3)
+### **Output-Only Properties** (O1-O5)
 
 These are automatically set by the component — you can use them in Flow decisions and formulas.
 
-**O1_selectedValue** (also shown as I27_Value_SelectedValue)
+**O1_selectedValue** (also shown as I30_Value_SelectedValue)
 - The value of the selected record based on **I08_Object_ValueFieldName** (typically the Id, but can be any field)
 - Access via: `{!ComponentName.selectedValue}`
 - **Important:** Also serves as an input — map to itself to preserve selection on validation errors
@@ -212,6 +230,16 @@ These are automatically set by the component — you can use them in Flow decisi
 - Use in decisions to prevent progression before component is ready
 - Access via: `{!ComponentName.componentInitialized}`
 
+**O4_Record Selected**
+- `True` when a record has been selected
+- Use in decisions to conditionally show content based on selection
+- Access via: `{!ComponentName.recordSelected}`
+
+**O5_Record Not Selected**
+- `True` when no record has been selected
+- Use in decisions to conditionally show instructions or warnings
+- Access via: `{!ComponentName.recordSelectedNegative}`
+
 ---
 
 ## Common Flow Examples
@@ -219,53 +247,53 @@ These are automatically set by the component — you can use them in Flow decisi
 ### Example 1: Simple Contact Lookup
 
 ```
-I04_Object_ObjectApiName: "Contact"
+I05_Object_ObjectApiName: "Contact"
 I01_Display_Label: "Select Contact"
-I05_Object_DisplayFieldName: "Name"
-I06_Object_SearchFieldApiName: "LastName"
-I18_Behavior_Required: True
+I06_Object_DisplayFieldName: "Name"
+I07_Object_SearchFieldApiName: "LastName"
+I19_Behavior_Required: True
 ```
 
 ### Example 2: Dependent Lookup (Account → Contacts)
 
 **First Screen: Account Lookup**
 ```
-I04_Object_ObjectApiName: "Account"
+I05_Object_ObjectApiName: "Account"
 I01_Display_Label: "Select Account"
 Store O2_recordId in: {!SelectedAccountId}
 ```
 
 **Second Screen: Contact Lookup (filtered by Account)**
 ```
-I04_Object_ObjectApiName: "Contact"
+I05_Object_ObjectApiName: "Contact"
 I01_Display_Label: "Select Contact"
-I13_Parent_ParentInitialized: {!AccountLookup.componentInitialized}
-I14_Parent_ParentFilterField: "AccountId"
-I15_Parent_ParentFilterValue: {!AccountLookup.selectedValue}
-I17_Parent_DisableOnNoParentValue: True
-I26_Value_SelectedValue: {!ContactLookup.selectedValue}
+I14_Parent_ParentInitialized: {!AccountLookup.componentInitialized}
+I15_Parent_ParentFilterField: "AccountId"
+I16_Parent_ParentFilterValue: {!AccountLookup.selectedValue}
+I18_Parent_DisableOnNoParentValue: True
+I30_Value_SelectedValue: {!ContactLookup.selectedValue}
 ```
 
 ### Example 3: Product Search with Filters
 
 ```
-I04_Object_ObjectApiName: "Product2"
+I05_Object_ObjectApiName: "Product2"
 I01_Display_Label: "Search Products"
-I05_Object_DisplayFieldName: "Name"
-I06_Object_SearchFieldApiName: "ProductCode"
-I09_Query_WhereClause: "IsActive = true AND Family = 'Hardware'"
-I10_Query_SortBy: "Name"
-I08_Query_MaxResults: 50
+I06_Object_DisplayFieldName: "Name"
+I07_Object_SearchFieldApiName: "ProductCode"
+I10_Query_WhereClause: "IsActive = true AND Family = 'Hardware'"
+I11_Query_SortBy: "Name"
+I09_Query_MaxResults: 50
 ```
 
 ### Example 4: Barcode Scanning (Mobile)
 
 ```
-I04_Object_ObjectApiName: "Asset"
+I05_Object_ObjectApiName: "Asset"
 I01_Display_Label: "Scan Asset"
-I05_Object_DisplayFieldName: "Name"
-I06_Object_SearchFieldApiName: "SerialNumber"
-I23_Scan_AllowBarcodeScanning: True
+I06_Object_DisplayFieldName: "Name"
+I07_Object_SearchFieldApiName: "SerialNumber"
+I27_Scan_AllowBarcodeScanning: True
 ```
 
 ---
@@ -273,40 +301,40 @@ I23_Scan_AllowBarcodeScanning: True
 ## Best Practices
 
 ✅ **Do:**
-- Use **I18_Behavior_Required** for mandatory selections
-- Set **I17_Parent_DisableOnNoParentValue** = True for dependent lookups
-- Use **I09_Query_WhereClause** to filter results for better performance
-- Enable **I22_Behavior_PopulateOnTab** for data entry efficiency
-- Store **O2_recordId** or **I26_Value_SelectedValue** in Flow variables
+- Use **I19_Behavior_Required** for mandatory selections
+- Set **I18_Parent_DisableOnNoParentValue** = True for dependent lookups
+- Use **I10_Query_WhereClause** to filter results for better performance
+- Enable **I24_Behavior_PopulateOnTab** for data entry efficiency
+- Store **O2_recordId** or **I30_Value_SelectedValue** in Flow variables
 
 ❌ **Don't:**
 - Return more than 200 records without good reason (performance)
-- Forget to set **I04_Object_ObjectApiName** (required!)
-- Use complex SOQL in **I09_Query_WhereClause** without testing
+- Forget to set **I05_Object_ObjectApiName** (required!)
+- Use complex SOQL in **I10_Query_WhereClause** without testing
 
 ---
 
 ## Troubleshooting
 
 **Problem:** No results appear
-- Verify **I04_Object_ObjectApiName** is correct
+- Verify **I05_Object_ObjectApiName** is correct
 - Check user has Read permission on the object and fields
-- Review **I09_Query_WhereClause** syntax (no "WHERE" keyword needed)
+- Review **I10_Query_WhereClause** syntax (no "WHERE" keyword needed)
 
 **Problem:** Parent filter not working
-- Ensure **I14_Parent_ParentFilterField** matches the exact API name (e.g., `AccountId`)
-- Verify **I15_Parent_ParentFilterValue** contains a valid value
-- Check if **I17_Parent_DisableOnNoParentValue** is preventing input
+- Ensure **I15_Parent_ParentFilterField** matches the exact API name (e.g., `AccountId`)
+- Verify **I16_Parent_ParentFilterValue** contains a valid value
+- Check if **I18_Parent_DisableOnNoParentValue** is preventing input
 
 **Problem:** Component won't validate
 - Check **O3_componentInitialized** is True before allowing progression
-- Ensure **I18_Behavior_Required** is set correctly
+- Ensure **I19_Behavior_Required** is set correctly
 - Verify selected value exists
 
 **Problem:** Search is too slow
-- Reduce **I08_Query_MaxResults**
-- Add filters via **I09_Query_WhereClause**
-- Index the **I06_Object_SearchFieldApiName** field (Admin task)
+- Reduce **I09_Query_MaxResults**
+- Add filters via **I10_Query_WhereClause**
+- Index the **I07_Object_SearchFieldApiName** field (Admin task)
 
 ---
 
@@ -318,14 +346,14 @@ I23_Scan_AllowBarcodeScanning: True
 
 ### Remembering Selection After Validation Errors
 **Recommended Method (Easiest):**
-Map **I26_Value_SelectedValue** to itself:
-- Set **I26_Value_SelectedValue** = `{!ComponentName.selectedValue}`
+Map **I30_Value_SelectedValue** to itself:
+- Set **I30_Value_SelectedValue** = `{!ComponentName.selectedValue}`
 - This automatically preserves the selection when users fix validation errors
 
 **Alternative Method (Using Variables):**
 Store the selection in a Flow variable:
 1. Create a Text variable: `varSelectedContactId`
-2. Set **I25_Value_InitialValue** = `{!varSelectedContactId}`
+2. Set **I29_Value_InitialValue** = `{!varSelectedContactId}`
 3. After selection, assign **O2_recordId** → `{!varSelectedContactId}`
 
 ### Using Selected Record Data
