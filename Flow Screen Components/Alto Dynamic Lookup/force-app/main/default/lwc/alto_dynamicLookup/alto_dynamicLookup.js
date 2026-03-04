@@ -197,7 +197,7 @@ export default class AltoDynamicLookup extends LightningElement {
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Parent initialized with filter field: ${this.parentFilterField}, value: ${this.parentFilterValue}`);
             this.getRecords().then(() => {
                 if(this.parentFilterValue){
-                    this.selectedRecord = this.findRecordByValue(this.value);
+                    this.selectedRecord = this.findRecordByValue(this.value, true);
                 } else {
                     this.selectedRecord = null; // Clear selected record if parent filter value is not set
                 }
@@ -878,7 +878,8 @@ export default class AltoDynamicLookup extends LightningElement {
                 this.getRecords(currentValue).then(() => {
                     this.hideDropdown();
                     this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Records fetched for Tab key:`, JSON.stringify(this.rawData));
-                    this.selectedRecord = this.findRecordByValue(currentValue, false, true); // true = return first if multiple
+                    // rawData is already server-filtered by currentValue (search text), so take the first result directly
+                    this.selectedRecord = this.rawData.length > 0 ? this.rawData[0] : null;
                     this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Selected Record after Tab search:`, JSON.stringify(this.selectedRecord, null, 2));
                     this.maxResults = origMaxResults;
                     this.componentInitialized = true;
@@ -1094,7 +1095,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this.maxResults = null; // Default to 200 if not set
         this.searchValue = '';
         this.getRecords().then(() => {
-            this.selectedRecord = this.findRecordByValue(this.scannedBarcodesAsString);
+            this.selectedRecord = this.findRecordByValue(this.scannedBarcodesAsString, true);
             this.maxResults = origMaxResults;
             if(!this.selectedRecord){
                 this.searchValue = this.scannedBarcodesAsString; // Set search value to scanned barcodes
