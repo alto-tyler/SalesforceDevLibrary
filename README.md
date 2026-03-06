@@ -15,6 +15,7 @@ A collection of reusable Salesforce Flow components and actions to enhance your 
 ### Flow Screen Components
 - **[Alto Clean Up On Exit](Flow%20Screen%20Components/Alto%20Clean%20Up%20On%20Exit/)** - Automatically delete records when users exit a Flow screen
 - **[Alto Datatable](Flow%20Screen%20Components/Alto%20Datatable/)** - Display, select, filter, search, and inline edit records in a customizable datatable. Outputs all records (edited and unedited) unlike the original which only outputs edited and selected rows (based on Eric Smith's component with reactivity enhancements)
+- **[Alto Disable Pull To Refresh](Flow%20Screen%20Components/Alto%20Disable%20Pull%20To%20Refresh/)** - Disable pull-to-refresh gesture on mobile devices to prevent accidental page refreshes
 - **[Alto Document Job Monitor](Flow%20Screen%20Components/Alto%20Document%20Job%20Monitor/)** - Monitor document generation jobs in real-time and display generated documents (requires DOX__Document_Job__c object from Rootforms)
 - **[Alto Dynamic Lookup](Flow%20Screen%20Components/Alto%20Dynamic%20Lookup/)** - Configurable lookup component with parent filtering, barcode scanning, and validation
 - **[Alto Multi Dynamic Lookup](Flow%20Screen%20Components/Alto%20Multi%20Dynamic%20Lookup/)** - Multi-select lookup with pill display (requires Dynamic Lookup)
@@ -139,6 +140,11 @@ xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Clean Up On Exit\forc
 xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Datatable\force-app" "force-app" /E /I /Y
 ```
 
+**For Disable Pull To Refresh:**
+```powershell
+xcopy "..\SalesforceDevLibrary\Flow Screen Components\Alto Disable Pull To Refresh\force-app" "force-app" /E /I /Y
+```
+
 **For Document Job Monitor:**
 ```powershell
 # Requires Drawloop/Nintex DocGen installed in target org
@@ -227,6 +233,7 @@ You'll see output showing the deployment progress. Wait for the message: `Deploy
 3. In the component panel on the left, search for the component name:
    - "Cleanup On Exit"
    - "Alto Datatable"
+   - "Alto Disable Pull To Refresh"
    - "Alto Document Job Monitor"
    - "Alto Dynamic Lookup"
    - "Alto Multi Dynamic Lookup"

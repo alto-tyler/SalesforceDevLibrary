@@ -41,16 +41,19 @@
             <property name="allowDisplayFieldMatch" type="Boolean" label="I22_Behavior_AllowDisplayFieldMatch" default="false" description="Behavior: Allow searching on display field even when search field is different" />
             <property name="relativeDropdown" type="Boolean" label="I23_Behavior_RelativeDropdown" default="false" description="Behavior: Make dropdown position relative to screen (not input field)" />
             <property name="populateOnTab" type="Boolean" label="I24_Behavior_PopulateOnTab" default="false" description="Behavior: When true, pressing Tab will wait for records to load and then select the first result" />
-            <property name="showObjectMeta" type="Boolean" label="I25_Display_ShowObjectMeta" default="true" description="Display: Show the object name as meta text beneath each result in the dropdown" />
-            <property name="customMeta" type="String" label="I26_Display_CustomMeta" default="" description="Display: Custom meta text to show beneath each result in the dropdown (overrides object name when showObjectMeta is true)" />
+            <property name="navigateOnTab" type="Boolean" label="I25_Behavior_NavigateOnTab" default="false" description="Behavior: Navigate flow after finding a record with Tab key (requires populateOnTab to be enabled)" />
+            <property name="takeFocusOnInitialized" type="Boolean" label="I26_Behavior_TakeFocusOnInitialized" default="false" description="Behavior: Automatically focus the input field when component finishes initializing (only when no record is selected)" />
+            <property name="showObjectMeta" type="Boolean" label="I27_Display_ShowObjectMeta" default="true" description="Display: Show the object name as meta text beneath each result in the dropdown" />
+            <property name="customMeta" type="String" label="I28_Display_CustomMeta" default="" description="Display: Custom meta text to show beneath each result in the dropdown (overrides object name when showObjectMeta is true)" />
             
             <!-- Barcode Scanning Section -->
-            <property name="allowBarcodeScanning" type="Boolean" label="I27_Scan_AllowBarcodeScanning" default="false" description="Barcode: Enable barcode scanning button" />
-            <property name="scanButtonIcon" type="String" label="I28_Scan_ScanButtonIcon" default="utility:scan" description="Barcode: Icon for the scan button (e.g., utility:scan, utility:photo)" />
+            <property name="allowBarcodeScanning" type="Boolean" label="I29_Scan_AllowBarcodeScanning" default="false" description="Barcode: Enable barcode scanning button" />
+            <property name="navigateAfterMatch" type="Boolean" label="I30_Scan_NavigateAfterMatch" default="false" description="Barcode: Navigate flow after finding a valid record from barcode scan (uses Next or Finish based on available actions)" />
+            <property name="scanButtonIcon" type="String" label="I31_Scan_ScanButtonIcon" default="utility:scan" description="Barcode: Icon for the scan button (e.g., utility:scan, utility:photo)" />
             
             <!-- Initial Value Section -->
-            <property name="value" type="String" label="I29_Value_InitialValue" description="Initial Value: Pre-populate with a specific value on component load" />
-            <property name="selectedValue" type="String" label="I30_Value_SelectedValue / O1_selectedValue" description="Initial Value: Use {!ComponentName.selectedValue} to remember value on validation | Output: The value of the selected record" />
+            <property name="value" type="String" label="I32_Value_InitialValue" description="Initial Value: Pre-populate with a specific value on component load" />
+            <property name="selectedValue" type="String" label="I33_Value_SelectedValue / O1_selectedValue" description="Initial Value: Use {!ComponentName.selectedValue} to remember value on validation | Output: The value of the selected record" />
             
             <!-- Outputs -->
             <property name="recordId" type="String" label="O2_recordId" role="outputOnly" description="Output: The Id of the selected record" />

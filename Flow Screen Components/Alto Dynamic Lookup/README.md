@@ -135,7 +135,7 @@ Use these to create dependent lookups (e.g., filter Contacts by selected Account
 
 ---
 
-### **Behavior Section** (I19-I26)
+### **Behavior Section** (I19-I28)
 
 **I19_Behavior_Required**
 - Make this field required for Flow progression
@@ -156,7 +156,7 @@ Use these to create dependent lookups (e.g., filter Contacts by selected Account
 - Allows matching initial/selected values and Tab-populated values against the display field (not just value field)
 - **When to use:** Enable when pre-populating with display values (e.g., names) instead of Ids, or when using **I24_Behavior_PopulateOnTab**
 - **Example:** If display field is "Name" and you set initial value to "John Doe", the component will find matching records by name
-- Works with **I29_Value_InitialValue**, **I30_Value_SelectedValue**, and **I24_Behavior_PopulateOnTab**
+- Works with **I32_Value_InitialValue**, **I33_Value_SelectedValue**, and **I24_Behavior_PopulateOnTab**
 - Default: `False`
 
 **I23_Behavior_RelativeDropdown**
@@ -171,44 +171,63 @@ Use these to create dependent lookups (e.g., filter Contacts by selected Account
 - Great for keyboard-heavy data entry
 - Default: `False`
 
-**I25_Display_ShowObjectMeta**
+**I25_Behavior_NavigateOnTab**
+- Navigate flow after finding a record with Tab key
+- Requires **I24_Behavior_PopulateOnTab** to be enabled
+- Uses Next or Finish based on available actions
+- Great for ultra-fast keyboard-only data entry workflows/configured scanning devices that "tab" after scan
+- Default: `False`
+
+**I26_Behavior_TakeFocusOnInitialized**
+- Automatically focus the input field when component finishes initializing
+- Only takes focus when no record is selected
+- Useful for streamlining data entry by positioning the cursor immediately
+- Default: `False`
+
+**I27_Display_ShowObjectMeta**
 - Show the object name as meta text beneath each result in the dropdown
 - Helps users identify the object type when searching multiple objects
 - Default: `True`
 
-**I26_Display_CustomMeta**
+**I28_Display_CustomMeta**
 - Custom meta text to show beneath each result in the dropdown
-- Overrides the object name when **I25_Display_ShowObjectMeta** is true
+- Overrides the object name when **I27_Display_ShowObjectMeta** is true
 - Example: Use a formula to show custom information like "Contact - [Account Name]"
 - Default: Empty
 
 ---
 
-### **Barcode Scanning Section** (I27-I28)
+### **Barcode Scanning Section** (I29-I31)
 
-**I27_Scan_AllowBarcodeScanning**
+**I29_Scan_AllowBarcodeScanning**
 - Enable barcode scanning button (mobile only)
 - Default: `False`
 
-**I28_Scan_ScanButtonIcon**
+**I30_Scan_NavigateAfterMatch**
+- Navigate flow after finding a valid record from barcode scan
+- Uses Next or Finish based on available actions
+- Automatically progresses the Flow after a successful scan and match
+- Default: `False`
+
+**I31_Scan_ScanButtonIcon**
 - Icon for the scan button
 - Default: `"utility:scan"`
 - Examples: `"utility:scan"`, `"utility:photo"`
 
 ---
 
-### **Initial Value / Output Section** (I29-I30)
+### **Initial Value / Output Section** (I32-I33)
 
-**I29_Value_InitialValue**
+**I32_Value_InitialValue**
 - Pre-populate with a specific value on component load
 - Example: `{!RecordId}` to auto-select a record
 
-**I30_Value_SelectedValue / O1_selectedValue** *(Input/Output)*
+**I33_Value_SelectedValue / O1_selectedValue** *(Input/Output)*
 - **As Input:** Pre-populate the selection
 - **As Output:** The value of the selected record
 - **Critical for Flows:** Map this field to ITSELF (`{!ComponentName.selectedValue}`) to preserve the selection when validation errors occur
 - **Why:** Without this mapping, the lookup will clear when the user corrects validation errors and returns to the screen
-- **Example mapping:** Set I30_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
+- **Example mapping:** Set I33_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
 
 ---
 
@@ -216,7 +235,7 @@ Use these to create dependent lookups (e.g., filter Contacts by selected Account
 
 These are automatically set by the component — you can use them in Flow decisions and formulas.
 
-**O1_selectedValue** (also shown as I30_Value_SelectedValue)
+**O1_selectedValue** (also shown as I33_Value_SelectedValue)
 - The value of the selected record based on **I08_Object_ValueFieldName** (typically the Id, but can be any field)
 - Access via: `{!ComponentName.selectedValue}`
 - **Important:** Also serves as an input — map to itself to preserve selection on validation errors
@@ -271,7 +290,7 @@ I14_Parent_ParentInitialized: {!AccountLookup.componentInitialized}
 I15_Parent_ParentFilterField: "AccountId"
 I16_Parent_ParentFilterValue: {!AccountLookup.selectedValue}
 I18_Parent_DisableOnNoParentValue: True
-I30_Value_SelectedValue: {!ContactLookup.selectedValue}
+I33_Value_SelectedValue: {!ContactLookup.selectedValue}
 ```
 
 ### Example 3: Product Search with Filters
@@ -293,7 +312,8 @@ I05_Object_ObjectApiName: "Asset"
 I01_Display_Label: "Scan Asset"
 I06_Object_DisplayFieldName: "Name"
 I07_Object_SearchFieldApiName: "SerialNumber"
-I27_Scan_AllowBarcodeScanning: True
+I29_Scan_AllowBarcodeScanning: True
+I30_Scan_NavigateAfterMatch: True
 ```
 
 ---
@@ -305,7 +325,8 @@ I27_Scan_AllowBarcodeScanning: True
 - Set **I18_Parent_DisableOnNoParentValue** = True for dependent lookups
 - Use **I10_Query_WhereClause** to filter results for better performance
 - Enable **I24_Behavior_PopulateOnTab** for data entry efficiency
-- Store **O2_recordId** or **I30_Value_SelectedValue** in Flow variables
+- Enable **I25_Behavior_NavigateOnTab** for keyboard-only workflows/configured scanning devices
+- Store **O2_recordId** or **I33_Value_SelectedValue** in Flow variables
 
 ❌ **Don't:**
 - Return more than 200 records without good reason (performance)
@@ -346,14 +367,14 @@ I27_Scan_AllowBarcodeScanning: True
 
 ### Remembering Selection After Validation Errors
 **Recommended Method (Easiest):**
-Map **I30_Value_SelectedValue** to itself:
-- Set **I30_Value_SelectedValue** = `{!ComponentName.selectedValue}`
+Map **I33_Value_SelectedValue** to itself:
+- Set **I33_Value_SelectedValue** = `{!ComponentName.selectedValue}`
 - This automatically preserves the selection when users fix validation errors
 
 **Alternative Method (Using Variables):**
 Store the selection in a Flow variable:
 1. Create a Text variable: `varSelectedContactId`
-2. Set **I29_Value_InitialValue** = `{!varSelectedContactId}`
+2. Set **I32_Value_InitialValue** = `{!varSelectedContactId}`
 3. After selection, assign **O2_recordId** → `{!varSelectedContactId}`
 
 ### Using Selected Record Data

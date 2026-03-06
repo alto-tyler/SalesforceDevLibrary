@@ -46,6 +46,26 @@ Display, select, filter, search, and inline edit records in a customizable datat
 
 ---
 
+### Alto Disable Pull To Refresh
+Disable pull-to-refresh gesture on mobile devices to prevent accidental page refreshes
+
+**Key Features:**
+- Disable pull-to-refresh on Salesforce mobile apps
+- Disable pull-to-show-more gesture
+- Invisible component (no UI)
+- Works on Flow screens and Lightning pages
+- Prevents data loss from accidental refreshes
+
+**Use Cases:**
+- Prevent accidental refreshes during data entry
+- Protect multi-step Flow progress
+- Disable refresh on custom forms and interactions
+- Control mobile gestures on Lightning pages
+
+[View Full Documentation](Alto%20Disable%20Pull%20To%20Refresh/)
+
+---
+
 ### Alto Document Job Monitor
 Monitor document generation jobs in real-time and display generated documents
 
@@ -58,6 +78,10 @@ Monitor document generation jobs in real-time and display generated documents
 
 **Use Cases:**
 - Show users document generation progress
+- Provide immediate access to generated documents
+- Create document generation workflows with user feedback
+
+[View Full Documentation](Alto%20Document%20Job%20Monitor/)
 
 ---
 
@@ -75,10 +99,6 @@ Override the default modal width for Flow screens launched as Quick Actions (in 
 - Provide more space for custom UI in modal Flows
 
 [View Full Documentation](Alto%20Flow%20Modal%20Width%20Override/)
-- Provide immediate access to generated documents
-- Create document generation workflows with user feedback
-
-[View Full Documentation](Alto%20Document%20Job%20Monitor/)
 
 ---
 
@@ -262,6 +282,7 @@ Create responsive multi-column layouts for Flow Repeaters
 3. In the component sidebar, search for the component name:
    - "Cleanup On Exit"
    - "Alto Datatable"
+   - "Alto Disable Pull To Refresh"
    - "Alto Document Job Monitor"
    - "Alto Dynamic Lookup"
    - "Alto Multi Dynamic Lookup"

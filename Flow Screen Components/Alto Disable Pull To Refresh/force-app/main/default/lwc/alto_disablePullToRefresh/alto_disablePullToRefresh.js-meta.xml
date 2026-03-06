@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto Disable Pull To Refresh</masterLabel>
+    <description>Disables pull-to-refresh behavior on Salesforce mobile apps. Add this component to your Flow or page to prevent unwanted refresh gestures.</description>
+    <targets>
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+        <target>lightning__HomePage</target>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="enablePullToRefresh" type="Boolean" label="Enable Pull To Refresh" default="false" description="Enable pull-to-refresh gesture on mobile (defaults to disabled)"/>
+            <property name="enablePullToShowMore" type="Boolean" label="Enable Pull To Show More" default="false" description="Enable pull-to-show-more gesture on mobile (defaults to disabled)"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

@@ -1,7 +1,7 @@
 import { LightningElement, track, api } from 'lwc';
 import queryRecords from '@salesforce/apex/DynamicLookupQueryBuilder.queryRecords';
 import getSObjectDetails from '@salesforce/apex/DynamicLookupQueryBuilder.getSObjectDetails';
-import { FlowAttributeChangeEvent } from 'lightning/flowSupport';
+import { FlowAttributeChangeEvent, FlowNavigationNextEvent, FlowNavigationFinishEvent } from 'lightning/flowSupport';
 import { getBarcodeScanner } from 'lightning/mobileCapabilities';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { LABELS } from './alto_dynamicLookupUtils';
@@ -33,9 +33,13 @@ export default class AltoDynamicLookup extends LightningElement {
     @api parentFilterOperator = '='; // Operator for parent filter
     @api disableOnNoParentValue = false; // Disable input if no parent filter value
     @api allowBarcodeScanning = false; // Allow barcode scanning
+    @api navigateAfterMatch = false; // Navigate flow after finding a valid record from barcode scan
     @api scanButtonIcon = 'utility:scan'; // Allow barcode scanning
     @api relativeDropdown = false;
     @api populateOnTab = false;
+    @api navigateOnTab = false; // Navigate flow after finding a record with Tab key
+    @api takeFocusOnInitialized = false; // Take focus when component is initialized
+    @api availableActions = []; // Available flow navigation actions
 
     // Internal properties
     @track results = [];
@@ -59,6 +63,7 @@ export default class AltoDynamicLookup extends LightningElement {
     _dropDownOpen = false; // Is dropdown open
     _parentInitialized = false; // Is parent initialized
     _getRecordsRequestId = 0; // Request ID for getRecords to handle multiple calls
+    _initialAutoFocus = false; // Flag to track if this is the initial auto-focus from takeFocusOnInitialized
 
 
     // Debounce timeout for search
@@ -455,6 +460,17 @@ export default class AltoDynamicLookup extends LightningElement {
                 this.maxResults = origMaxResults; // Restore maxResults after fetching records
                 if(!this.parentFilterField){
                     this.componentInitialized = true; // Set the flag to true after initialization
+                    
+                    // Take focus if enabled and no record selected
+                    if (this.takeFocusOnInitialized && !this.selectedRecord) {
+                        this._initialAutoFocus = true; // Mark this as initial auto-focus
+                        setTimeout(() => {
+                            const inputElement = this.template.querySelector('.slds-input');
+                            if (inputElement) {
+                                inputElement.focus();
+                            }
+                        }, 100);
+                    }
                 }
             });
         } else {
@@ -656,6 +672,9 @@ export default class AltoDynamicLookup extends LightningElement {
         const inputValue = event.target.value;
         this.searchValue = inputValue;
         this.highlightedIndex = 0; // Reset highlight to first item on input
+        
+        // Clear initial auto-focus flag on first key press
+        this._initialAutoFocus = false;
 
         // Debounce: clear previous timeout and set a new one
         if (this.debounceTimeout) {
@@ -684,7 +703,10 @@ export default class AltoDynamicLookup extends LightningElement {
     }
 
     handleInputFocus(event) {
-        this._scheduleOpenIfFocused(200);
+        // Don't open dropdown if this is the initial auto-focus
+        if (!this._initialAutoFocus) {
+            this._scheduleOpenIfFocused(200);
+        }
     }
 
     _scheduleOpenIfFocused(delayMs = 200) {
@@ -871,78 +893,103 @@ export default class AltoDynamicLookup extends LightningElement {
         if (event.key === 'Tab') {
             // Get the current value directly from the input element to ensure it's up-to-date
             const inputElement = event.target;
-            const currentValue = inputElement ? inputElement.value.trim() : searchValue;
             
-            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Tab pressed. CurrentValue: "${currentValue}", populateOnTab: ${this.populateOnTab}`);
-            
-            // Only handle Tab if there's a search value AND populateOnTab is true
-            if (currentValue && this.populateOnTab === true) {
+            // Only handle Tab if populateOnTab is true
+            if (this.populateOnTab === true) {
+                // Use a microtask to ensure paste operations have completed
                 event.preventDefault(); // Prevent default BEFORE doing anything else
                 event.stopPropagation();
                 
-                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Tab pressed with search value, fetching first match`);
+                // Clear any pending debounced search to prevent interference
+                if (this.debounceTimeout) {
+                    clearTimeout(this.debounceTimeout);
+                    this.debounceTimeout = null;
+                }
                 
-                // Update searchValue to current input value
-                this.searchValue = currentValue;
-                
-                // Close dropdown and blur input
-                this.hideDropdown();
+                // Wait for next tick to ensure input value is fully updated (especially for paste)
                 setTimeout(() => {
-                    const inputElement = this.template.querySelector('.slds-input');
-                    if (inputElement) {
-                        inputElement.blur();
+                    const currentValue = inputElement ? inputElement.value.trim() : this.searchValue;
+                    
+                    this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Tab pressed. CurrentValue: "${currentValue}", populateOnTab: ${this.populateOnTab}`);
+                    
+                    // Only proceed if there's a search value
+                    if (currentValue) {
+                        this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Tab pressed with search value, fetching first match`);
+                        
+                        // Update searchValue to current input value
+                        this.searchValue = currentValue;
+                        
+                        // Close dropdown and blur input
+                        this.hideDropdown();
+                        setTimeout(() => {
+                            const inputElement = this.template.querySelector('.slds-input');
+                            if (inputElement) {
+                                inputElement.blur();
+                            }
+                        }, 0);
+                        
+                        this.selectedRecord = null;
+                        this.loadingMessage = LABELS.findingMatch;
+                        this.componentInitialized = false;
+
+                        const origMaxResults = this.maxResults;
+                        this.maxResults = null;
+                        
+                        this.getRecords(currentValue).then(() => {
+                            this.hideDropdown();
+                            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Records fetched for Tab key:`, JSON.stringify(this.rawData));
+                            // rawData is already server-filtered by currentValue (search text), so take the first result directly
+                            this.selectedRecord = this.rawData.length > 0 ? this.rawData[0] : null;
+                            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Selected Record after Tab search:`, JSON.stringify(this.selectedRecord, null, 2));
+                            this.maxResults = origMaxResults;
+                            this.componentInitialized = true;
+                            
+                            setTimeout(() => {
+                                if(this.selectedRecord) {
+                                    // Record found - check if we should navigate
+                                    if (this.navigateOnTab) {
+                                        this.navigateFlow();
+                                    } else {
+                                        const comboboxDiv = this.template.querySelector('.selection-container_combobox');
+                                        if (comboboxDiv) {
+                                            comboboxDiv.focus();
+                                        }
+                                    }
+                                } else {
+                                    const inputElement = this.template.querySelector('.slds-input');
+                                    if (inputElement) {
+                                        inputElement.focus();
+                                    }
+                                }
+                            }, 0);
+                        }).catch(error => {
+                            console.error(`${LOG_PREFIX} - ${this.objectApiName} Error during Tab search:`, error);
+                            this.maxResults = origMaxResults;
+                            this.componentInitialized = true;
+                        });
                     }
                 }, 0);
                 
-                this.selectedRecord = null;
-                this.loadingMessage = LABELS.findingMatch;
-                this.componentInitialized = false;
-
-                const origMaxResults = this.maxResults;
-                this.maxResults = null;
-                
-                this.getRecords(currentValue).then(() => {
-                    this.hideDropdown();
-                    this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Records fetched for Tab key:`, JSON.stringify(this.rawData));
-                    // rawData is already server-filtered by currentValue (search text), so take the first result directly
-                    this.selectedRecord = this.rawData.length > 0 ? this.rawData[0] : null;
-                    this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Selected Record after Tab search:`, JSON.stringify(this.selectedRecord, null, 2));
-                    this.maxResults = origMaxResults;
-                    this.componentInitialized = true;
-                    
-                    setTimeout(() => {
-                        if(this.selectedRecord) {
-                            const comboboxDiv = this.template.querySelector('.selection-container_combobox');
-                            if (comboboxDiv) {
-                                comboboxDiv.focus();
-                            }
-                        } else {
-                            const inputElement = this.template.querySelector('.slds-input');
-                            if (inputElement) {
-                                inputElement.focus();
-                            }
-                        }
-                    }, 0);
-                }).catch(error => {
-                    console.error(`${LOG_PREFIX} - ${this.objectApiName} Error during Tab search:`, error);
-                    this.maxResults = origMaxResults;
-                    this.componentInitialized = true;
-                });
-                
                 return; // Exit early to prevent further processing
-            } else if (currentValue && this.populateOnTab === false && this.dropDownOpen && this.results.length > 0) {
+            } else {
+                const currentValue = inputElement ? inputElement.value.trim() : this.searchValue;
+                
+                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Tab pressed. CurrentValue: "${currentValue}", populateOnTab: ${this.populateOnTab}`);
+                
                 // If populateOnTab is false but there's a dropdown open with results, select first option
-                event.preventDefault();
-                const selected = this.results[0];
-                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Tab pressed with search value, selecting first option:`, selected);
-                const mockEvent = {
-                    currentTarget: {
-                        dataset: { value: selected.Id }
-                    },
-                    button: 0
-                };
-                this.handleSelect(mockEvent);
-                return;
+                if (currentValue && this.dropDownOpen && this.results.length > 0) {
+                    event.preventDefault();
+                    const selected = this.results[0];
+                    this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Tab pressed with search value, selecting first option:`, selected);
+                    const mockEvent = {
+                        currentTarget: {
+                            dataset: { value: selected.Id }
+                        },
+                        button: 0
+                    };
+                    this.handleSelect(mockEvent);
+                    return;
+                }
             }
             // If no search value or populateOnTab is not enabled, allow default Tab behaviour
             return;
@@ -1040,6 +1087,8 @@ export default class AltoDynamicLookup extends LightningElement {
 
     handleInputBlur(event) {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} handleInputBlur triggered`);
+        // Clear initial auto-focus flag when user leaves the field
+        this._initialAutoFocus = false;
         // Check if the newly focused element is still inside the component
         try { if (this._clickOpenTimeout) { clearTimeout(this._clickOpenTimeout); this._clickOpenTimeout = null; } } catch (e) {}
         try { if (this._recentPointerDownTimeout) { clearTimeout(this._recentPointerDownTimeout); this._recentPointerDownTimeout = null; this._recentPointerDown = false; } } catch (e) {}
@@ -1133,6 +1182,11 @@ export default class AltoDynamicLookup extends LightningElement {
                         inputElement.focus();
                     }
                 },0);
+            } else {
+                // Record found - check if we should navigate
+                if (this.navigateAfterMatch) {
+                    this.navigateFlow();
+                }
             }
             this.componentInitialized = true; // Set the flag to true after initialization
             this.scannedBarcodes = []; // Clear scanned barcodes after processing
@@ -1144,6 +1198,21 @@ export default class AltoDynamicLookup extends LightningElement {
                 }
             }, 0);
         });
+    }
+
+    navigateFlow() {
+        // Check which navigation actions are available and navigate accordingly
+        if (this.availableActions && this.availableActions.length > 0) {
+            if (this.availableActions.find(action => action === 'NEXT')) {
+                // Navigate to next screen
+                const navigateNextEvent = new FlowNavigationNextEvent();
+                this.dispatchEvent(navigateNextEvent);
+            } else if (this.availableActions.find(action => action === 'FINISH')) {
+                // Finish the flow
+                const navigateFinishEvent = new FlowNavigationFinishEvent();
+                this.dispatchEvent(navigateFinishEvent);
+            }
+        }
     }
 
     processError(error) {
