@@ -85,6 +85,29 @@ Monitor document generation jobs in real-time and display generated documents
 
 ---
 
+### Alto DOC Job Monitor v2
+Enhanced document job monitor with task progress tracking, Clone & Restart, and URL-addressable support
+
+**Key Features:**
+- Real-time status monitoring with 5-second polling
+- Task progress section with collapsible view and live spinner
+- Clone & Restart action — re-runs the job without leaving the page
+- Native Salesforce file preview for generated ContentDocuments
+- Email status and additional record linkage status display
+- URL-addressable — embeds on Lightning App/Record pages via `c__recordId` URL parameter
+- Supports ContentVersion, ContentDocument, and legacy Attachment IDs
+- **Requires DOX__Document_Job__c object from Rootforms**
+
+**Use Cases:**
+- Monitor document generation with granular task-level visibility
+- Re-run failed or completed jobs inline without navigation
+- Embed job monitoring on Lightning record pages
+- Show users real-time document generation progress with preview access
+
+[View Full Documentation](Alto%20DOC%20Job%20Monitor%20v2/)
+
+---
+
 ### Alto Flow Modal Width Override
 Override the default modal width for Flow screens launched as Quick Actions (in modals), to support wide content such as datatables or large forms.
 
@@ -284,6 +307,7 @@ Create responsive multi-column layouts for Flow Repeaters
    - "Alto Datatable"
    - "Alto Disable Pull To Refresh"
    - "Alto Document Job Monitor"
+   - "Alto DOC Job Monitor"
    - "Alto Dynamic Lookup"
    - "Alto Multi Dynamic Lookup"
    - "Alto Header"

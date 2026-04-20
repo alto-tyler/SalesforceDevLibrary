@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Alto DOC Job Monitor</masterLabel>
+    <targets>
+        <!-- URL-addressable: /lightning/cmp/c__doxJobMonitor?recordId=xxx -->
+        <target>lightning__UrlAddressable</target>
+        <!-- Flow screen component: accepts recordId as input variable -->
+        <target>lightning__FlowScreen</target>
+        <!-- Also usable on app/record pages with a manual recordId property -->
+        <target>lightning__AppPage</target>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen,lightning__AppPage,lightning__RecordPage">
+            <property
+                name="recordId"
+                type="String"
+                label="Record Id"
+                description="Id of the DOX__Document_Job__c record to monitor"
+            />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

@@ -1,0 +1,184 @@
+<template>
+    <div class="monitor-root slds-top_x-small">
+
+        <!-- ── Error ─────────────────────────────────────────────────────── -->
+        <template lwc:if={_error}>
+            <div class="slds-scoped-notification slds-media slds-media_center slds-scoped-notification_error" role="alert">
+                <div class="slds-media__figure">
+                    <lightning-icon icon-name="utility:error" size="small" alternative-text="Error" variant="inverse"></lightning-icon>
+                </div>
+                <div class="slds-media__body">{_error}</div>
+            </div>
+        </template>
+
+        <!-- ── No ID ──────────────────────────────────────────────────────── -->
+        <template lwc:if={_noRecordId}>
+            <div class="empty-state">
+                <lightning-icon icon-name="utility:info" size="large" class="slds-m-bottom_small"></lightning-icon>
+                <p class="slds-text-heading_small">No Record ID</p>
+                <p class="slds-text-body_regular slds-text-color_weak slds-m-top_xx-small">
+                    Pass <code>c__recordId</code> via URL or as a Flow input variable.
+                </p>
+            </div>
+        </template>
+
+        <!-- ── Loading ───────────────────────────────────────────────────── -->
+        <template lwc:if={_isLoading}>
+            <div class="loading-wrap">
+                <lightning-spinner size="medium" alternative-text="Loading"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- ── Loaded ────────────────────────────────────────────────────── -->
+        <template lwc:if={_job}>
+
+            <!-- Header bar -->
+            <div class="monitor-header">
+                <div class="monitor-header__main">
+                    <div class="monitor-header__icon">
+                        <lightning-icon icon-name="standard:document" size="medium" alternative-text="Job"></lightning-icon>
+                    </div>
+                    <div class="monitor-header__titles">
+                        <h1 class="slds-text-heading_medium">
+                            <a href={recordUrl} class="monitor-header__job-link">{_job.Name}</a>
+                        </h1>
+                        <p class="slds-text-body_small slds-text-color_weak">
+                            {_job.DOX__Application__c}
+                            <template lwc:if={_job.DOX__Operation__c}>
+                                &nbsp;&middot;&nbsp;{_job.DOX__Operation__c}
+                            </template>
+                        </p>
+                    </div>
+                </div>
+                <div class="monitor-header__status">
+                    <span class={statusBadgeClass}>{derivedStatus}</span>
+                    <template lwc:if={isPolling}>
+                        <div class="poll-pip" title="Auto-refreshing">
+                            <lightning-spinner size="x-small" alternative-text="Refreshing"></lightning-spinner>
+                        </div>
+                    </template>
+                    <lightning-button
+                        label="Clone &amp; Restart"
+                        icon-name="utility:copy"
+                        icon-position="left"
+                        size="small"
+                        variant="neutral"
+                        disabled={_isCloning}
+                        onclick={handleClone}
+                        title="Clone this job with cleared attachments and status set to Not Started"
+                    ></lightning-button>
+                    <template lwc:if={_isCloning}>
+                        <lightning-spinner size="x-small" alternative-text="Cloning"></lightning-spinner>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="monitor-body">
+
+                <!-- Additional linkage -->
+                <template lwc:if={showAdditionalLinkage}>
+                    <div class="info-row">
+                        <lightning-icon icon-name="utility:link" size="x-small" class="info-row__icon"></lightning-icon>
+                        <span class="slds-text-body_small slds-text-color_weak slds-m-right_x-small">Linkage:</span>
+                        <span class="slds-text-body_regular">{_job.DOX__Additional_Rec_Linkage_Staus__c}</span>
+                    </div>
+                </template>
+
+                <!-- Email status -->
+                <template lwc:if={showEmailStatus}>
+                    <div class="section-block">
+                        <div class="section-block__header">
+                            <lightning-icon icon-name="utility:email" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            <span class="slds-text-title_caps">Email Status</span>
+                        </div>
+                        <div class="section-block__body email-scroll">{_job.DOX__emailStatus__c}</div>
+                    </div>
+                </template>
+
+                <!-- Tasks pending spinner -->
+                <template lwc:if={showTasksSpinner}>
+                    <div class="section-block">
+                        <div class="section-block__body tasks-pending">
+                                <div class="tasks-pending__spinner">
+                                    <lightning-spinner size="small" alternative-text="Submitting to server"></lightning-spinner>
+                                </div>
+                                <p class="tasks-pending__label">Submitting to server&hellip;</p>
+                            </div>
+                    </div>
+                </template>
+
+                <!-- Tasks -->
+                <template lwc:if={hasTasks}>
+                    <div class="section-block">
+                        <div class="section-block__header section-block__header--toggle" onclick={handleToggleTasks}>
+                            <lightning-icon icon-name="utility:list" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            <span class="slds-text-title_caps">Tasks</span>
+                            <lightning-icon icon-name={tasksToggleIcon} size="x-small" class="section-block__chevron"></lightning-icon>
+                        </div>
+                        <template lwc:if={isTasksOpen}>
+                            <div class="section-block__body slds-p-around_none">
+                                <template for:each={_tasks} for:item="task">
+                                    <div key={task.Id} class="task-row">
+                                        <div class="task-row__left">
+                                            <span class="task-row__subject">{task.Subject}</span>
+                                            <span class="task-row__desc">{task.descriptionText}</span>
+                                        </div>
+                                        <span class={task.statusClass}>{task.Status}</span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Documents -->
+                <template lwc:if={showDocLinks}>
+                    <div class="section-block">
+                        <div class="section-block__header">
+                            <lightning-icon icon-name="utility:file" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            <span class="slds-text-title_caps">Generated Documents</span>
+                        </div>
+                        <div class="section-block__body">
+                            <template for:each={docLinksWithUrl} for:item="doc">
+                                <div key={doc.rawId} class="doc-row">
+                                    <div class="doc-row__name">
+                                        <lightning-icon icon-name="doctype:pdf" size="small" class="doc-row__icon"></lightning-icon>
+                                        <span class="doc-row__title">{doc.title}</span>
+                                    </div>
+                                    <div class="doc-row__actions">
+                                        <template lwc:if={doc.isContentDocument}>
+                                            <lightning-button
+                                                label="Preview"
+                                                icon-name="utility:preview"
+                                                icon-position="left"
+                                                size="small"
+                                                variant="brand-outline"
+                                                data-content-document-id={doc.contentDocumentId}
+                                                onclick={handleLightningPreview}
+                                            ></lightning-button>
+                                        </template>
+                                    </div>
+                                    <template lwc:if={doc.isAttachment}>
+                                        <div class="doc-inline-preview">
+                                            <iframe
+                                                title={doc.title}
+                                                src={doc.inlineUrl}
+                                                class="doc-inline-frame"
+                                                allowfullscreen
+                                            ></iframe>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+        </template>
+
+    </div>
+
+
+</template>
