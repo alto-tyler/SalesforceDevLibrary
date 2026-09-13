@@ -9,5 +9,31 @@
         <members>alto_dynamicLookup</members>
         <name>LightningComponentBundle</name>
     </types>
+    <types>
+        <members>alto_DynLookup_ApplyingParent</members>
+        <members>alto_DynLookup_BarcodeUnavailable</members>
+        <members>alto_DynLookup_Error</members>
+        <members>alto_DynLookup_ErrorRecords</members>
+        <members>alto_DynLookup_ErrorSObject</members>
+        <members>alto_DynLookup_ErrorScanning</members>
+        <members>alto_DynLookup_FieldRequired</members>
+        <members>alto_DynLookup_FindingMatch</members>
+        <members>alto_DynLookup_GettingContext</members>
+        <members>alto_DynLookup_HelpTextDesktop</members>
+        <members>alto_DynLookup_HelpTextMobile</members>
+        <members>alto_DynLookup_LookupNotReady</members>
+        <members>alto_DynLookup_NoRecordsFound</members>
+        <members>alto_DynLookup_Preparing</members>
+        <members>alto_DynLookup_ProcessingBarcode</members>
+        <members>alto_DynLookup_RemoveOption</members>
+        <members>alto_DynLookup_RetrievingRecords</members>
+        <members>alto_DynLookup_ScanError</members>
+        <members>alto_DynLookup_ScanReceived</members>
+        <members>alto_DynLookup_Search</members>
+        <members>alto_DynLookup_Success</members>
+        <members>alto_DynLookup_UserDismissed</members>
+        <members>alto_DynLookup_WaitingParent</members>
+        <name>CustomLabel</name>
+    </types>
     <version>63.0</version>
 </Package>
