@@ -373,6 +373,24 @@ After deployment, components are immediately available in Flow Builder.
 
 ---
 
+## Component Dependencies (`manifest/dependencies.json`)
+
+Each component's `manifest/package.xml` only lists metadata that lives in its *own* folder. Some components reference another component's LWC/Apex from a different folder (e.g. Multi Dynamic Lookup renders Dynamic Lookup's LWC), or require something outside this repo entirely (e.g. a managed package). That's declared in an optional `manifest/dependencies.json` next to `package.xml`:
+
+```json
+{
+  "dependsOn": ["Flow Screen Components/Alto Dynamic Lookup"],
+  "requires": ["Free-text warning about an external prerequisite, e.g. a managed package."]
+}
+```
+
+- `dependsOn` — paths (relative to repo root) of *other components in this repo* that must be deployed alongside this one. Tooling that deploys components (including the internal Chrome extension) should union each listed component's `package.xml` members into the deploy before installing.
+- `requires` — free-text prerequisites that exist outside this repo (a managed package, an ERP module, etc.) and can't be auto-deployed. Shown as a warning, not auto-resolved.
+
+Both keys are optional; omit the file entirely if a component is fully self-contained. If you add a component whose LWC/Apex references another component's bundle or class, add a `dependsOn` entry here — don't only mention it in prose in this README, since that's easy to miss and nothing enforces it at deploy time.
+
+---
+
 ## Component Requirements
 
 ### Document Job Monitor Component

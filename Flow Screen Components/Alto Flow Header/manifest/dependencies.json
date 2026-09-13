@@ -1,0 +1,5 @@
+{
+  "requires": [
+    "Rootstock ERP must be installed in the target org — this component uses Rootstock custom objects (rstk__sop__c, rstk__soinv__c, etc.)."
+  ]
+}

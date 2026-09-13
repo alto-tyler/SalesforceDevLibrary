@@ -1,0 +1,5 @@
+{
+  "requires": [
+    "Rootforms (DOX__ namespace) must be installed in the target org — this component uses the DOX__Document_Job__c object and related fields."
+  ]
+}
