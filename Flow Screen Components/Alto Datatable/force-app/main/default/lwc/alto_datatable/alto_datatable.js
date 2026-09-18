@@ -11,7 +11,7 @@
 import { LightningElement, api, track, wire } from 'lwc';
 import getReturnResults from '@salesforce/apex/alto_DatatableController.getReturnResults';
 import { FlowAttributeChangeEvent, FlowNavigationNextEvent } from 'lightning/flowSupport';
-import {getPicklistValuesByRecordType} from "lightning/uiObjectInfoApi";
+import {getPicklistValuesByRecordType, getObjectInfo} from "lightning/uiObjectInfoApi";
 import { getConstants, columnValue, removeSpaces, convertFormat, convertType, convertTime, removeRowFromCollection, replaceRowInCollection, findRowIndexById } from 'c/alto_datatableUtils';
 
 const CancelButton = "Cancel";
@@ -456,10 +456,16 @@ export default class Datatable extends LightningElement {
     }
     _suppressBottomBar;
 
-    @api 
+    @api
     get navigateNextOnSave() {
         return (this._navigateNextOnSave) ? true : false;
     }
+    set navigateNextOnSave(value) {
+        this._navigateNextOnSave = value;
+    }
+    _navigateNextOnSave;
+
+    @api didNavigateNext = false;   // Output: true once this Save has actually dispatched FlowNavigationNextEvent
 
     @api 
     get matchCaseOnFilters() {
@@ -808,6 +814,7 @@ export default class Datatable extends LightningElement {
     // Other Picklist variables
     masterRecordTypeId = "012000000000000AAA";  // If a recordTypeId is not provided, use this one
     _picklistData;
+    _objectInfo;
 
     // Component working variables
     // @api savePreEditData = [];   // v4.3.3 - changed to get/set
@@ -843,6 +850,8 @@ export default class Datatable extends LightningElement {
     @api otherAttribs = [];
     @api typeAttribs = [];
     @api typeAttributes;
+    @api columnLookupFilters = '';
+    @api lookupFilters = [];
     @api widths = [];
     @api wraps = [];
     flexes = [];
@@ -899,8 +908,8 @@ export default class Datatable extends LightningElement {
     set editedData(value) {
         this._editedData = value || [];
         // Notify Flow of edited rows and related outputs
-        this.notifyFlowAttribute('outputEditedRows', this._editedData);
-        this.notifyFlowAttribute('numberOfRowsEdited', (this._editedData || []).length);
+        this.notifyFlowAttribute('outputEditedRows', this.outputEditedRows);
+        this.notifyFlowAttribute('numberOfRowsEdited', this.outputEditedRows.length);
         this.notifyFlowAttribute('outputAllRows', this.outputAllRows);
     }
     _editedData = [];
@@ -1116,6 +1125,50 @@ export default class Datatable extends LightningElement {
         return undefined;
     }
 
+    @wire(getObjectInfo, { objectApiName: '$wireObjectName' })
+    objectInfoWire({error, data}) {
+        if (data) {
+            this._objectInfo = data;
+        } else if (error) {
+            // Same expected-error case as allPicklistValues() above -- controlling/dependent
+            // picklist filtering is simply skipped (fields behave as non-dependent) when this fails
+            console.log(this.consoleLogPrefix+'getObjectInfo wire service returned error: ' + JSON.stringify(error));
+        }
+        if (data != undefined || error != undefined) {
+            this.updateColumns();
+        }
+    }
+
+    // Live (unsaved) edits to picklist controller fields, keyed by row key then field API name
+    // -- e.g. {[rowId]: {Pricing_Model__c: 'Fixed Cost'}}. See handleComboValueChange().
+    _liveControllerValues = {};
+
+    // For each picklist field that has a controlling field, resolve everything
+    // alto_comboboxColumnType needs to filter its own options: the controller's field
+    // API name (so its current row value can be bound), the controller's value->index
+    // map, and each of this field's own values -> the controller indices they're valid for.
+    get picklistDependencyMap() {
+        let result = {};
+        if (this._picklistData && this._objectInfo) {
+            let picklistValues = this._picklistData.picklistFieldValues;
+            Object.keys(picklistValues).forEach((picklist) => {
+                let controllerFieldName = this._objectInfo.fields[picklist]?.controllerName;
+                if (controllerFieldName) {
+                    let validFor = {};
+                    picklistValues[picklist].values.forEach(item => {
+                        validFor[item.value] = item.validFor || [];
+                    });
+                    result[picklist] = {
+                        controllerFieldName: controllerFieldName,
+                        controllerValues: picklistValues[picklist].controllerValues || {},
+                        validFor: validFor
+                    };
+                }
+            });
+        }
+        return result;
+    }
+
     @api
     get picklistFieldMap() {
         let result;
@@ -1159,7 +1212,8 @@ export default class Datatable extends LightningElement {
         this.cellAttribs = [];
         this.otherAttribs = [];
         this.typeAttribs = [];
-        
+        this.lookupFilters = [];
+
         // Field type arrays
         this.lookups = [];
         this.lookupFieldArray = [];
@@ -1176,6 +1230,9 @@ export default class Datatable extends LightningElement {
         this.showClearFilterButton = false;
         this.showClearButton = false;
         this.isFiltered = false;
+
+        // Live (unsaved) dependent-picklist controller edits
+        this._liveControllerValues = {};
         
         // Selection state (if you want to clear selections on reinit)
         this.allSelectedRowIds = [];
@@ -1190,6 +1247,11 @@ export default class Datatable extends LightningElement {
         // Working flags
         this.isWorking = false;
         this.showSpinner = true;
+
+        // Outputs Init
+        this.numberOfRowsEdited = 0;
+        this.dispatchEvent(new FlowAttributeChangeEvent('numberOfRowsEdited', this.numberOfRowsEdited));
+
         
         // JSON/UDO-specific (if applicable)
         if (this.isUserDefinedObject) {
@@ -1416,6 +1478,16 @@ export default class Datatable extends LightningElement {
             });
         });
 
+        // Parse Column Lookup Filters attribute (Because filter expressions may contain , these are separated by ;)
+        const parseLookupFilters = (this.columnLookupFilters.length > 0) ? removeSpaces(this.columnLookupFilters).split(';') : [];
+        this.attribCount = 0;   // These attributes must specify a column number or field API name
+        parseLookupFilters.forEach(lf => {
+            this.lookupFilters.push({
+                column: this.columnReference(lf),
+                filter: columnValue(lf)
+            });
+        });
+
         // Set table height
         if (!this.allowOverflow) {
             this.tableHeightAttribute = 'height:' + this.tableHeight;
@@ -1457,8 +1529,8 @@ export default class Datatable extends LightningElement {
         this.preSelectedRows = (this.preSelectedRowsString.length > 0) ? JSON.parse(this.preSelectedRowsString) : [];  
         // Notify Flow of outputs after assigning records from Apex
         this.notifyFlowAttribute('outputAllRows', this.outputAllRows);
-        this.notifyFlowAttribute('outputEditedRows', this._editedData);
-        this.notifyFlowAttribute('numberOfRowsEdited', (this._editedData || []).length);
+        this.notifyFlowAttribute('outputEditedRows', this.outputEditedRows);
+        this.notifyFlowAttribute('numberOfRowsEdited', this.outputEditedRows.length);
     }
 
     processDatatable() {
@@ -1621,8 +1693,8 @@ export default class Datatable extends LightningElement {
         this.showClearFilterButton = false;
 
         // Notify Flow that outputs may have changed after processing completes
-        this.notifyFlowAttribute('outputEditedRows', this._editedData);
-        this.notifyFlowAttribute('numberOfRowsEdited', (this._editedData || []).length);
+        this.notifyFlowAttribute('outputEditedRows', this.outputEditedRows);
+        this.notifyFlowAttribute('numberOfRowsEdited', this.outputEditedRows.length);
         this.notifyFlowAttribute('outputAllRows', this.outputAllRows);
 
     }
@@ -1638,7 +1710,6 @@ export default class Datatable extends LightningElement {
         let percentFields = this.percentFieldArray;
         let numberFields = this.numberFieldArray;
         let datetimeFields = this.datetimeFieldArray;
-        let picklistFields = this.picklistFieldArray;
         let lookupFieldObject = '';
 
         data.forEach(record => {
@@ -1731,18 +1802,11 @@ export default class Datatable extends LightningElement {
                 }
             }
 
-            // Handle replacement of Picklist API Names with Labels
-            if (this.picklistReplaceValues) {
-                picklistFields.forEach(picklist => {
-                    if (record[picklist]) {
-                        let picklistLabels = [];
-                        record[picklist].split(';').forEach(picklistValue => {                    
-                            picklistLabels.push(this.apex_picklistFieldMap[picklist][picklistValue]);
-                        });
-                        record[picklist] = picklistLabels.join(';');
-                    }
-                });
-            }
+            // Picklist API values are intentionally left as-is here (not replaced with labels).
+            // The combobox custom type resolves its own label for display (see displayLabel getter
+            // in alto_comboboxColumnType.js) and needs the raw API value in row data to match its
+            // option values on edit and to compare against controllerValueIndex for dependent picklists --
+            // pre-replacing with labels broke both of those.
 
             // If needed, add more fields to datatable records
             // (Useful for Custom Row Actions/Buttons)
@@ -1758,8 +1822,8 @@ export default class Datatable extends LightningElement {
         this.dispatchEvent(new FlowAttributeChangeEvent('outputRemainingRows', this._outputRemainingRows));
         // Notify Flow for remaining/edited/all rows and counts
         this.notifyFlowAttribute('outputRemainingRows', this._outputRemainingRows);
-        this.notifyFlowAttribute('outputEditedRows', this._editedData);
-        this.notifyFlowAttribute('numberOfRowsEdited', (this._editedData || []).length);
+        this.notifyFlowAttribute('outputEditedRows', this.outputEditedRows);
+        this.notifyFlowAttribute('numberOfRowsEdited', this.outputEditedRows.length);
         this.notifyFlowAttribute('outputAllRows', this.outputAllRows);
         console.log(this.consoleLogPrefix+'allSelectedRowIds',(SHOW_DEBUG_INFO) ? this.allSelectedRowIds : '***');
         console.log(this.consoleLogPrefix+'keyField:',(SHOW_DEBUG_INFO) ? this.keyField : '***');
@@ -1834,12 +1898,11 @@ export default class Datatable extends LightningElement {
             if(editAttrib) {
                 switch (type) {
                     case 'location':
-                    case 'lookup':
                     case 'time':
                         editAttrib.edit = false;
                         break;
-                    default:  
-                        if (this.noEditFieldArray.indexOf(fieldName) != -1) editAttrib.edit = false;                     
+                    default:
+                        if (this.noEditFieldArray.indexOf(fieldName) != -1) editAttrib.edit = false;
                 }
                 if (!editAttrib.edit) { 
                     this.isAllEdit = false;
@@ -1949,34 +2012,68 @@ export default class Datatable extends LightningElement {
                 case 'richtext':
                     this.typeAttrib.type = 'richtext';
                     break;
-                case 'combobox':    // Picklist
+                case 'combobox': {   // Picklist
                     // To use custom types, information will need to be passed using typesAttributes
+                    let dependency = this.picklistDependencyMap[fieldName];
                     this.typeAttributes = {
                         editable: (editAttrib ? editAttrib.edit : false),
                         fieldName: fieldName,
                         keyField: this.keyField,
                         keyFieldValue: {fieldName: this.keyField},
                         picklistValues: this.picklistFieldMap[fieldName],
-                        alignment: 'slds-text-align_' + this.cellAttributes.alignment
+                        alignment: 'slds-text-align_' + this.cellAttributes.alignment,
+                        controllerValue: dependency ? {fieldName: dependency.controllerFieldName} : undefined,
+                        controllerValueIndex: dependency ? dependency.controllerValues : undefined,
+                        validForByValue: dependency ? dependency.validFor : undefined,
+                        controllerFieldName: dependency ? dependency.controllerFieldName : undefined,
+                        liveControllerValues: dependency ? this._liveControllerValues : undefined,
+                        selectedRowKeys: this.outputSelectedRows.map(row => row[this.keyField])
                     };
                     wrapAttrib = {}; //For combobox, we need to force wrap = true or the dropdown will be truncated
                     wrapAttrib.wrap = true;
-                    break;                    
+                    break;
+                }
                 default:
                     
             }
 
-            // Change lookup to url and reference the new fields that will be added to the datatable object
+            // Change lookup to url (read-only) or the custom editable lookup picker,
+            // and reference the new fields that will be added to the datatable object
             if(type == 'lookup') {
                 if(this.lookups.includes(fieldName)) {
-                    this.typeAttrib.type = 'url';
                     if(fieldName.toLowerCase().endsWith('id')) {
                         lufield = fieldName.replace(/Id$/gi,'');
                     } else {
                         lufield = fieldName.replace(/__c$/gi,'__r');
                     }
-                    fieldName = lufield + '_lookup';
-                    this.typeAttributes = { label: { fieldName: lufield + '_name' }, target: this.linkTarget };
+                    // Descriptor {object, fieldName, nameField} resolved by Apex from schema
+                    // (or, for polymorphic fields, from row data) -- same lookup used in updateDataRows()
+                    let lookupFieldObject = this.lookupFieldArray.filter(obj => Object.keys(obj).some(key => obj[key].includes(lufield)))[0];
+
+                    if (editAttrib && editAttrib.edit && lookupFieldObject) {
+                        // Editable: custom lookup picker. Keep fieldName as the real Id field
+                        // so the cell's value maps to row[fieldName] (the Id) as normal.
+                        this.typeAttrib.type = 'lookup';
+                        let lookupFilterAttrib = this.lookupFilters.find(i => i['column'] == columnNumber);
+                        this.typeAttributes = {
+                            editable: true,
+                            fieldName: fieldName,
+                            keyField: this.keyField,
+                            keyFieldValue: { fieldName: this.keyField },
+                            displayValue: { fieldName: lufield + '_name' },
+                            displayFieldName: lufield + '_name',
+                            objectApiName: lookupFieldObject['object'],
+                            nameField: lookupFieldObject['nameField'],
+                            lookupFilterFragment: lookupFilterAttrib ? lookupFilterAttrib.filter : '',
+                            alignment: 'slds-text-align_' + this.cellAttributes.alignment,
+                            selectedRowKeys: this.outputSelectedRows.map(row => row[this.keyField])
+                        };
+                    } else {
+                        // Read-only: existing URL-link display
+                        this.typeAttrib.type = 'url';
+                        fieldName = lufield + '_lookup';
+                        this.typeAttributes = { label: { fieldName: lufield + '_name' }, target: this.linkTarget };
+                    }
                 } else {
                     this.typeAttrib.type = 'text';      // Non reparentable Master-Detail fields are not supported
                 }
@@ -2290,26 +2387,124 @@ export default class Datatable extends LightningElement {
         //Handle combobox value change separately if required
         event.stopPropagation();
 
-        //Manipulate the datatable draftValues
-        //Find if there is existing draftValue that matches the keyField
-        let draftValues = this.template.querySelector('c-alto_custom-lightning-datatable').draftValues;
-        let eventDraftValue = event.detail.draftValues[0]
-        let foundIndex = draftValues.findIndex(value => value[this.keyField] == eventDraftValue[this.keyField]);
+        let eventDraftValue = event.detail.draftValues[0];
+        let expandedDraftValues = [eventDraftValue];
 
-        //If found, combine the draftValue
-        if(foundIndex > -1) {
-            draftValues[foundIndex] = {...draftValues[foundIndex], ...eventDraftValue};
-        } else {
-            //else, add the new draft value
-            draftValues.push(eventDraftValue);
+        // Bulk-apply to the other checkbox-selected rows, mirroring handleLookupValueChange --
+        // only when the user explicitly opted in via the "Update N selected items" toggle in
+        // alto_comboboxColumnType.
+        const editedRowKey = eventDraftValue[this.keyField];
+        if (event.detail.applyToOthers) {
+            this.outputSelectedRows.forEach(row => {
+                const otherKey = row[this.keyField];
+                if (otherKey != editedRowKey) {
+                    let otherDraftValue = { ...eventDraftValue };
+                    otherDraftValue[this.keyField] = otherKey;
+                    expandedDraftValues.push(otherDraftValue);
+                }
+            });
         }
 
+        //Manipulate the datatable draftValues (same merge pattern as handleLookupValueChange)
+        let draftValues = this.template.querySelector('c-alto_custom-lightning-datatable').draftValues;
+        expandedDraftValues.forEach(dv => {
+            let foundIndex = draftValues.findIndex(value => value[this.keyField] == dv[this.keyField]);
+            if (foundIndex > -1) {
+                draftValues[foundIndex] = { ...draftValues[foundIndex], ...dv };
+            } else {
+                draftValues.push(dv);
+            }
+        });
         this.template.querySelector('c-alto_custom-lightning-datatable').draftValues = draftValues;
 
-        //call the usual handleCellChange        
-        this.handleCellChange(event);
+        // Let a dependent picklist cell in the same row recalculate its options immediately,
+        // without waiting for Save. This tracks the live (unsaved) edit separately from
+        // mydata/data -- reassigning `columns` re-renders every cell's typeAttributes (same
+        // trick already used below to clear edit highlights) without touching `data`, which
+        // would reset the base lightning-datatable's pending draftValues and silently break
+        // Save (including navigateNextOnSave). Each affected row gets its OWN live override, so
+        // its OWN dependent field re-validates against its OWN new controller value -- one row's
+        // Billing Frequency selection might become invalid for the bulk-applied Pricing Model
+        // while another row's was already valid for it.
+        const editedFieldName = Object.keys(eventDraftValue).find(k => k !== this.keyField);
+        if (editedFieldName) {
+            let updatedLiveControllerValues = { ...this._liveControllerValues };
+            expandedDraftValues.forEach(dv => {
+                const rowKey = dv[this.keyField];
+                updatedLiveControllerValues[rowKey] = { ...(updatedLiveControllerValues[rowKey] || {}), [editedFieldName]: dv[editedFieldName] };
+            });
+            this._liveControllerValues = updatedLiveControllerValues;
+            // NOTE: a plain `this.columns = [...this.columns]` only copies the ARRAY -- each
+            // column object (and its nested typeAttributes) keeps its OLD reference, so the
+            // liveControllerValues a cell already received would never actually change. Rebuild
+            // the column defs for real so each combobox cell's typeAttributes.liveControllerValues
+            // points at the fresh map and its @api setter actually fires.
+            this.updateColumns();
+        }
+
+        if (expandedDraftValues.length > 1) {
+            // Bulk-applied to other selected rows too -- same local-preview-only refresh as
+            // handleLookupValueChange (no DML happens here; nothing is actually saved yet).
+            this.handleSave({ detail: { draftValues: expandedDraftValues } }, { skipCleanup: true });
+        } else {
+            // Single-row edit: behave exactly like every other editable column
+            this.handleCellChange({ detail: { draftValues: expandedDraftValues } });
+        }
     }
-    
+
+    //handle change on the editable lookup picker
+    handleLookupValueChange(event) {
+        //Handle lookup value change separately, mirroring handleComboValueChange
+        event.stopPropagation();
+
+        let eventDraftValue = event.detail.draftValues[0];
+        let expandedDraftValues = [eventDraftValue];
+
+        // Only apply to the other checkbox-selected rows when the user explicitly opted in via
+        // the "Update N selected items" toggle in alto_lookupColumnType -- mirrors the native
+        // editable-column behavior, which also requires that explicit opt-in rather than
+        // applying automatically just because rows happen to be selected.
+        const editedRowKey = eventDraftValue[this.keyField];
+        if (event.detail.applyToOthers) {
+            this.outputSelectedRows.forEach(row => {
+                const otherKey = row[this.keyField];
+                if (otherKey != editedRowKey) {
+                    let otherDraftValue = { ...eventDraftValue };
+                    otherDraftValue[this.keyField] = otherKey;
+                    expandedDraftValues.push(otherDraftValue);
+                }
+            });
+        }
+
+        // Manipulate the datatable draftValues (same merge pattern as handleComboValueChange)
+        let draftValues = this.template.querySelector('c-alto_custom-lightning-datatable').draftValues;
+        expandedDraftValues.forEach(dv => {
+            let foundIndex = draftValues.findIndex(value => value[this.keyField] == dv[this.keyField]);
+            if (foundIndex > -1) {
+                draftValues[foundIndex] = { ...draftValues[foundIndex], ...dv };
+            } else {
+                draftValues.push(dv);
+            }
+        });
+        this.template.querySelector('c-alto_custom-lightning-datatable').draftValues = draftValues;
+
+        if (expandedDraftValues.length > 1) {
+            // Bulk-applied to other selected rows too. alto_lookupColumnType already shows its
+            // OWN new value locally the instant it's applied (no dependency on this.mydata), but
+            // the OTHER rows have no such local state -- native columns get their preview "for
+            // free" from lightning-datatable rendering draftValues directly, but custom column
+            // types render entirely their own markup, so those other rows can only pick up the
+            // change by re-rendering from this.mydata. Refresh it (and outputEditedRows, so Flow
+            // sees the pending change) but skip the "final commit" cleanup that a real Save does
+            // (clearing draftValues/the edited highlight, navigating) -- this is local staged
+            // data only, not an actual record update; nothing here performs any DML.
+            this.handleSave({ detail: { draftValues: expandedDraftValues } }, { skipCleanup: true });
+        } else {
+            // Single-row edit: behave exactly like every other editable column
+            this.handleCellChange({ detail: { draftValues: expandedDraftValues } });
+        }
+    }
+
     handleCellChange(event) {
         let rowKey =  event.detail.draftValues[0][this.keyField];
 // TODO - Add validation logic here (and change cellattribute to show red background?)
@@ -2321,8 +2516,9 @@ export default class Datatable extends LightningElement {
         }
     }
 
-    handleSave(event) {
+    handleSave(event, options = {}) {
         // Only used with inline editing
+        const skipCleanup = options.skipCleanup || false;
         const draftValues = event.detail.draftValues;
         let editField = '';
 
@@ -2453,14 +2649,35 @@ export default class Datatable extends LightningElement {
         this.savePreEditData = [...sdata];   // Resave the current table values  // v4.3.3
         this.mydata = [...data];            // Reset the current table values
 
-        if (!this.suppressBottomBar) {
-            this.columns = [...this.columns];   // Force clearing of the edit highlights
+        // These rows' real data is now authoritative again -- drop their live (pre-Save)
+        // dependent-picklist overrides so a stale entry can't outlive the save it was tracking.
+        const savedRowKeys = new Set(draftValues.map(dv => dv[this.keyField]));
+        const remainingLiveControllerValues = {};
+        Object.keys(this._liveControllerValues).forEach(k => {
+            if (!savedRowKeys.has(k)) {
+                remainingLiveControllerValues[k] = this._liveControllerValues[k];
+            }
+        });
+        this._liveControllerValues = remainingLiveControllerValues;
+        this.updateColumns();   // Rebuild typeAttributes so combobox cells actually see the pruned map (see handleComboValueChange)
+
+        if (!this.suppressBottomBar && !skipCleanup) {
             //clear draftValues. this is required for custom column types that need to specifically write into draftValues
             this.template.querySelector('c-alto_custom-lightning-datatable').draftValues = [];
 
             if(this.navigateNextOnSave) {       // Added in v3.5.0
-                const navigateNextEvent = new FlowNavigationNextEvent();
-                this.dispatchEvent(navigateNextEvent);
+                // Defer to the next tick so Flow's runtime has fully processed the
+                // outputEditedRows/outputAllRows FlowAttributeChangeEvents dispatched just above
+                // before the screen navigates away -- dispatching both synchronously back-to-back
+                // risks the next flow element (e.g. an Update Records) running before those
+                // variable updates are committed.
+                // eslint-disable-next-line @lwc/lwc/no-async-operation
+                setTimeout(() => {
+                    const navigateNextEvent = new FlowNavigationNextEvent();
+                    this.dispatchEvent(navigateNextEvent);
+                    this.didNavigateNext = true;
+                    this.notifyFlowAttribute('didNavigateNext', this.didNavigateNext);
+                }, 0);
             }
         }
 
@@ -2469,6 +2686,8 @@ export default class Datatable extends LightningElement {
     cancelChanges(event) {
         // Only used with inline editing
         this.mydata = [...this._savePreEditData];
+        this._liveControllerValues = {};   // Discard live (pre-Save) dependent-picklist overrides too
+        this.updateColumns();   // Rebuild typeAttributes so combobox cells actually see the clear (see handleComboValueChange)
     }
 
     handleRowSelection(event) {
@@ -2533,8 +2752,11 @@ export default class Datatable extends LightningElement {
         // this.isUpdateTable = false;      // Commented out in v4.1.1
         if (this.isUserDefinedObject) {
             this.outputSelectedRowsString = JSON.stringify(this.outputSelectedRows);
-            this.dispatchEvent(new FlowAttributeChangeEvent('outputSelectedRowsString', this.outputSelectedRowsString)); 
-        }      
+            this.dispatchEvent(new FlowAttributeChangeEvent('outputSelectedRowsString', this.outputSelectedRowsString));
+        }
+        // Refresh the editable lookup column's selectedRowKeys typeAttribute so its
+        // "update N selected items" checkbox reflects the current selection
+        this.updateColumns();
     }
 
     updateNumberOfRowsSelected(currentSelectedRows) {
@@ -2570,6 +2792,8 @@ export default class Datatable extends LightningElement {
             this.outputSelectedRowsString = '';
             this.dispatchEvent(new FlowAttributeChangeEvent('outputSelectedRowsString', this.outputSelectedRowsString));
         }
+        // Refresh the editable lookup column's selectedRowKeys typeAttribute
+        this.updateColumns();
     }
 
     handleClearFilterButton() {

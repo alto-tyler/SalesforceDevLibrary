@@ -87,6 +87,26 @@ private with sharing class alto_DatatableControllerTest {
     }
 
     @IsTest
+    private static void testLookupFieldDataResolvedFromSchemaWhenBlank() {
+        // ParentId is never set in @TestSetup, so every seeded row has it null -- this
+        // confirms getColumnData() resolves the lookup's target object/nameField from
+        // schema rather than depending on row data (the original bug this fixes).
+        List<Account> accts = [SELECT Id, Name, ParentId FROM Account];
+        String fieldNames = 'Id, Name, ParentId';
+        String testResponse = alto_DatatableController.getReturnResults(accts, fieldNames, false);
+
+        Map<String, Object> parsed = (Map<String, Object>) JSON.deserializeUntyped(testResponse);
+        List<Object> lookupList = (List<Object>) parsed.get('lookupFieldList');
+        System.assertEquals(1, lookupList.size());
+        System.assertEquals('ParentId', (String) lookupList[0]);
+
+        String lookupFieldData = (String) parsed.get('lookupFieldData');
+        System.assert(lookupFieldData.contains('"object" : "Account"'));
+        System.assert(lookupFieldData.contains('"fieldName" : "Parent"'));
+        System.assert(lookupFieldData.contains('"nameField" : "Name"'));
+    }
+
+    @IsTest
     private static void testGetIconName() {
         System.assertEquals('standard:account', alto_DatatableController.getIconName('Account'));
         System.assertEquals('standard:contact', alto_DatatableController.getIconName('Contact'));

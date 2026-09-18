@@ -180,4 +180,281 @@ const findRowIndexById = (that, collection, id) => {
     return idx;
 }
 
-export { getConstants, columnValue, removeSpaces, convertFormat, convertType, convertTime, removeRowFromCollection, replaceRowInCollection, findRowIndexById };
+// Maps the tokens recognized by parseLookupFilter() to lightning-record-picker's filter.criteria[].operator values
+const LOOKUP_FILTER_OPERATOR_MAP = {
+    '=': 'eq',
+    '!=': 'ne',
+    '<>': 'ne',
+    '>=': 'gte',
+    '<=': 'lte',
+    '>': 'gt',
+    '<': 'lt',
+    'LIKE': 'like',
+    'IN': 'in'
+};
+
+const tokenizeLookupFilter = (fragment) => {
+    // Turn a filter expression string (e.g. "Type = 'Site' AND (A != 'B' OR C IN ('D','E'))")
+    // into a flat token stream for the recursive-descent parser below.
+    const tokens = [];
+    const len = fragment.length;
+    let i = 0;
+    const isIdentStart = (ch) => /[A-Za-z_]/.test(ch);
+    const isIdentChar = (ch) => /[A-Za-z0-9_.]/.test(ch);
+
+    while (i < len) {
+        const ch = fragment[i];
+
+        if (/\s/.test(ch)) {
+            i++;
+            continue;
+        }
+        if (ch === '(') {
+            tokens.push({ type: 'LPAREN' });
+            i++;
+            continue;
+        }
+        if (ch === ')') {
+            tokens.push({ type: 'RPAREN' });
+            i++;
+            continue;
+        }
+        if (ch === ',') {
+            tokens.push({ type: 'COMMA' });
+            i++;
+            continue;
+        }
+        if (ch === "'") {
+            let j = i + 1;
+            let value = '';
+            while (j < len && fragment[j] !== "'") {
+                value += fragment[j];
+                j++;
+            }
+            if (j >= len) {
+                throw new Error('Unterminated string literal');
+            }
+            tokens.push({ type: 'STRING', value });
+            i = j + 1;
+            continue;
+        }
+
+        // Multi-char comparison operators must be checked before their single-char prefixes
+        const twoChar = fragment.substr(i, 2);
+        if (['!=', '<>', '>=', '<='].includes(twoChar)) {
+            tokens.push({ type: 'OP', value: twoChar });
+            i += 2;
+            continue;
+        }
+        if (ch === '=' || ch === '>' || ch === '<') {
+            tokens.push({ type: 'OP', value: ch });
+            i += 1;
+            continue;
+        }
+
+        if (/[0-9]/.test(ch)) {
+            let j = i;
+            while (j < len && /[0-9.]/.test(fragment[j])) {
+                j++;
+            }
+            tokens.push({ type: 'NUMBER', value: fragment.slice(i, j) });
+            i = j;
+            continue;
+        }
+
+        if (isIdentStart(ch)) {
+            let j = i;
+            while (j < len && isIdentChar(fragment[j])) {
+                j++;
+            }
+            const word = fragment.slice(i, j);
+            const upper = word.toUpperCase();
+            if (upper === 'AND' || upper === 'OR' || upper === 'NOT') {
+                tokens.push({ type: upper });
+            } else if (upper === 'LIKE' || upper === 'IN') {
+                tokens.push({ type: 'OP', value: upper });
+            } else {
+                tokens.push({ type: 'FIELD', value: word });
+            }
+            i = j;
+            continue;
+        }
+
+        throw new Error(`Unexpected character "${ch}" at position ${i}`);
+    }
+
+    return tokens;
+};
+
+class LookupFilterParser {
+    // Recursive-descent parser: expression := orExpr; orExpr := andExpr ('OR' andExpr)*;
+    // andExpr := notExpr ('AND' notExpr)*; notExpr := 'NOT' notExpr | atom;
+    // atom := '(' expression ')' | comparison
+    constructor(tokens) {
+        this.tokens = tokens;
+        this.pos = 0;
+    }
+
+    peek() {
+        return this.tokens[this.pos];
+    }
+
+    next() {
+        return this.tokens[this.pos++];
+    }
+
+    expect(type) {
+        const tok = this.next();
+        if (!tok || tok.type !== type) {
+            throw new Error(`Expected ${type} but got ${tok ? tok.type : 'end of input'}`);
+        }
+        return tok;
+    }
+
+    parseExpression() {
+        return this.parseOr();
+    }
+
+    parseOr() {
+        let node = this.parseAnd();
+        while (this.peek() && this.peek().type === 'OR') {
+            this.next();
+            node = { type: 'OR', left: node, right: this.parseAnd() };
+        }
+        return node;
+    }
+
+    parseAnd() {
+        let node = this.parseNot();
+        while (this.peek() && this.peek().type === 'AND') {
+            this.next();
+            node = { type: 'AND', left: node, right: this.parseNot() };
+        }
+        return node;
+    }
+
+    parseNot() {
+        if (this.peek() && this.peek().type === 'NOT') {
+            this.next();
+            return { type: 'NOT', operand: this.parseNot() };
+        }
+        return this.parseAtom();
+    }
+
+    parseAtom() {
+        if (this.peek() && this.peek().type === 'LPAREN') {
+            this.next();
+            const node = this.parseExpression();
+            this.expect('RPAREN');
+            return node;
+        }
+        return this.parseComparison();
+    }
+
+    parseComparison() {
+        const fieldTok = this.expect('FIELD');
+        const opTok = this.expect('OP');
+        const operator = LOOKUP_FILTER_OPERATOR_MAP[opTok.value];
+        if (!operator) {
+            throw new Error(`Unsupported operator "${opTok.value}"`);
+        }
+        let value;
+        if (opTok.value === 'IN') {
+            this.expect('LPAREN');
+            value = [this.parseLiteral()];
+            while (this.peek() && this.peek().type === 'COMMA') {
+                this.next();
+                value.push(this.parseLiteral());
+            }
+            this.expect('RPAREN');
+        } else {
+            value = this.parseLiteral();
+        }
+        return { type: 'comparison', field: fieldTok.value, operator, value };
+    }
+
+    parseLiteral() {
+        const tok = this.next();
+        if (!tok) {
+            throw new Error('Expected a value');
+        }
+        if (tok.type === 'STRING') {
+            return tok.value;
+        }
+        if (tok.type === 'NUMBER') {
+            return Number(tok.value);
+        }
+        if (tok.type === 'FIELD') {
+            const upper = tok.value.toUpperCase();
+            if (upper === 'TRUE') {
+                return true;
+            }
+            if (upper === 'FALSE') {
+                return false;
+            }
+            return tok.value;
+        }
+        throw new Error(`Unexpected token in value position: ${tok.type}`);
+    }
+}
+
+const emitLookupFilter = (node) => {
+    // Walk the parsed tree left-to-right, turning each comparison leaf into a
+    // record-picker criterion (numbered by encounter order) and rebuilding the
+    // AND/OR/NOT structure as record-picker's filterLogic string, e.g. "(1 OR 2) AND NOT(3)".
+    const criteria = [];
+
+    const isPureAnd = (n) => {
+        if (n.type === 'comparison') {
+            return true;
+        }
+        if (n.type === 'AND') {
+            return isPureAnd(n.left) && isPureAnd(n.right);
+        }
+        return false;
+    };
+
+    const walk = (n) => {
+        if (n.type === 'comparison') {
+            criteria.push({ fieldPath: n.field, operator: n.operator, value: n.value });
+            return String(criteria.length);
+        }
+        if (n.type === 'NOT') {
+            return `NOT(${walk(n.operand)})`;
+        }
+        return `(${walk(n.left)} ${n.type} ${walk(n.right)})`;
+    };
+
+    const logicExpr = walk(node);
+    // A pure AND-chain (or a single comparison) matches record-picker's implicit-AND
+    // default exactly, so filterLogic can be omitted in that case.
+    return { criteria, filterLogic: isPureAnd(node) ? undefined : logicExpr };
+};
+
+const parseLookupFilter = (fragment) => {
+    // Parses an admin-supplied filter expression (columnLookupFilters) into the
+    // {criteria, filterLogic} shape expected by lightning-record-picker's `filter` prop.
+    // Supports AND, OR, NOT, parentheses, and =, !=, <>, >, <, >=, <=, LIKE, IN.
+    // Returns null on a blank/unparseable fragment -- callers should treat that as
+    // "no filter" rather than blocking the lookup from being editable.
+    if (!fragment || !fragment.trim()) {
+        return null;
+    }
+    try {
+        const tokens = tokenizeLookupFilter(fragment.trim());
+        if (tokens.length === 0) {
+            return null;
+        }
+        const parser = new LookupFilterParser(tokens);
+        const tree = parser.parseExpression();
+        if (parser.pos !== tokens.length) {
+            throw new Error('Unexpected trailing tokens in lookup filter expression');
+        }
+        return emitLookupFilter(tree);
+    } catch (e) {
+        console.warn(`[ALTO_DATATABLE] Could not parse lookup filter "${fragment}": ${e.message}`);
+        return null;
+    }
+};
+
+export { getConstants, columnValue, removeSpaces, convertFormat, convertType, convertTime, removeRowFromCollection, replaceRowInCollection, findRowIndexById, parseLookupFilter };

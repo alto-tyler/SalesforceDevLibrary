@@ -1,26 +1,26 @@
-<!-- Combobox Column Type -->
+<!-- Lookup Column Type -->
 <template>
-    <!-- onmousedown here (fires before blur) flags any click inside this wrapper -- the
-         checkbox/Apply/Cancel below aren't always focusable themselves, so focusout() can't
-         reliably tell "user clicked something in here" from "user left the cell" just by
-         checking what's focused afterward. -->
+    <!-- onmousedown here (fires before blur) flags any click inside this wrapper -- the record
+         picker's dropdown options and the checkbox below aren't always focusable themselves, so
+         focusout() can't reliably tell "user clicked something in here" from "user left the
+         cell" just by checking what's focused afterward. -->
     <div onmousedown={handleMouseDown}>
-        <!-- slds-hide is used instead of template if, as it allows us to focus on the combobox when edit icon is clicked -->
-        <lightning-combobox
-            name="combobox"
-            class="slds-p-vertical_xx-small slds-p-horizontal_x-small slds-hide"
+        <!-- slds-hide is used instead of template if, as it allows us to focus on the picker when the edit icon is clicked -->
+        <lightning-record-picker
+            label="Search"
             variant="label-hidden"
+            class="slds-p-vertical_xx-small slds-p-horizontal_x-small slds-hide"
+            object-api-name={objectApiName}
             value={value}
-            options={options}
+            filter={filter}
             onchange={handleChange}
-            dropdown-alignment="auto"
-            onblur= {focusout}
-        ></lightning-combobox>
+            onblur={focusout}
+        ></lightning-record-picker>
 
         <!-- The review panel (checkbox + Cancel/Apply) is only shown while editing a row that's
              part of a multi-row checkbox selection, where there's an actual decision to make
              (apply to just this row, or all N selected). A plain single-row edit commits as
-             soon as an option is picked, same as before this panel existed -- no extra click
+             soon as a record is picked, same as before this panel existed -- no extra click
              needed for the common case. -->
         <template if:true={editMode}>
             <template if:true={isPartOfMultiSelection}>
@@ -43,10 +43,10 @@
     <template if:false={editMode}>
         <div class={cellClass}>
             <div class={valueClass}>
-                {displayLabel}
+                {displayValue}
             </div>
             <div class="slds-align-middle slds-m-left_x-small">
-                <lightning-button-icon icon-name="utility:edit" size="medium" variant="bare" class="cell-icon__edit" onclick={editCombobox}></lightning-button-icon>
+                <lightning-button-icon icon-name="utility:edit" size="medium" variant="bare" class="cell-icon__edit" onclick={editLookup}></lightning-button-icon>
             </div>
         </div>
     </template>

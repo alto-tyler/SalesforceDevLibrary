@@ -11,9 +11,29 @@
 .overflowEnabled c-alto_custom-lightning-datatable .slds-scrollable_y {
     overflow: visible;
 }
+/* Same overflow fix, but for the per-row/per-cell containers -- needed for dropdowns
+   (e.g. the lookup column's record picker) that are tall enough to still get clipped
+   by the row/cell itself even once the outer table-level scroll containers above are visible */
+.overflowEnabled c-alto_custom-lightning-datatable table.slds-table,
+.overflowEnabled c-alto_custom-lightning-datatable tbody,
+.overflowEnabled c-alto_custom-lightning-datatable tr,
+.overflowEnabled c-alto_custom-lightning-datatable td,
+.overflowEnabled c-alto_custom-lightning-datatable lightning-primitive-cell-factory {
+    overflow: visible !important;
+}
 /* stretch cell width of combobox to 100% */
 c-alto_custom-lightning-datatable lightning-primitive-cell-factory .slds-hyphenate {
     width: 100%;
+}
+/* Every cell's content is wrapped in a `.slds-truncate` div by lightning-datatable itself
+   (for normal single-line text truncation: overflow:hidden; text-overflow:ellipsis) -- that's
+   the actual clipping ancestor for the lookup column's record-picker dropdown, confirmed via
+   the live DOM: table/tr/td/lightning-primitive-cell-factory above were never it. Can't disable
+   this globally (it's what makes every other text cell truncate correctly), so scope the
+   override to only the truncate wrapper that's an ancestor of a picker that's actually open
+   (alto_lookupColumnType toggles "is-open" on itself while its picker is showing). */
+.overflowEnabled c-alto_custom-lightning-datatable .slds-truncate:has(c-alto_lookup-column-type.is-open) {
+    overflow: visible !important;
 }
 /* ensures that custom column cells remain higlighted on hover when edited */
 .slds-scope c-alto_custom-lightning-datatable .slds-table:not(.slds-no-row-hover) tbody tr:hover>td.slds-is-edited,
@@ -56,6 +76,38 @@ c-alto_combobox-column-type lightning-base-combobox .slds-input-has-icon .slds-i
     pointer-events: none;
     margin-top:-10px /* this fixes icon alignment caused by position static */
 }
+/********************************/
+/**** c-alto_lookup-column-type ****/
+/********************************/
+/* height of the record picker's dropdown */
+c-alto_lookup-column-type .slds-dropdown {
+    max-height: 180px;
+    overflow-y: auto;
+}
+/* lightning-record-picker is a compound component (record-picker > record-picker-base >
+   record-picker-base-desktop > grouped-combobox > base-combobox), several layers deeper
+   than the plain lightning-combobox used by the picklist column. Force overflow:visible
+   through that whole chain in case any layer clips its own dropdown internally, in addition
+   to the table-level td/tr/table fix above. */
+.overflowEnabled c-alto_custom-lightning-datatable lightning-record-picker,
+.overflowEnabled c-alto_custom-lightning-datatable lightning-record-picker-base,
+.overflowEnabled c-alto_custom-lightning-datatable lightning-record-picker-base-desktop,
+.overflowEnabled c-alto_custom-lightning-datatable lightning-grouped-combobox,
+.overflowEnabled c-alto_custom-lightning-datatable lightning-base-combobox {
+    overflow: visible !important;
+}
+/* In case the dropdown isn't actually being clipped but is instead being painted UNDER a
+   later row's opaque background (a stacking-context issue, not overflow -- would look
+   identical to clipping in a screenshot), lift the row/cell containing an OPEN record
+   picker (alto_lookupColumnType toggles the "is-open" class on itself) into its own
+   elevated stacking context so it paints above subsequent rows. Scoped to ".is-open" so
+   this only affects the one row currently being edited, not every row in the column. */
+.overflowEnabled c-alto_custom-lightning-datatable tr:has(c-alto_lookup-column-type.is-open),
+.overflowEnabled c-alto_custom-lightning-datatable td:has(c-alto_lookup-column-type.is-open) {
+    position: relative;
+    z-index: 10000;
+}
+
 /* v3.4.5 This corrects default lightning datatable behaviour, where the save/cancel footer will cover the horizontal scrollbar */
 .slds-scope c-datatable c-alto_custom-lightning-datatable .dt-outer-container lightning-primitive-datatable-status-bar .slds-docked-form-footer.slds-is-absolute,
 c-datatable c-alto_custom-lightning-datatable .dt-outer-container lightning-primitive-datatable-status-bar .slds-docked-form-footer.slds-is-absolute {

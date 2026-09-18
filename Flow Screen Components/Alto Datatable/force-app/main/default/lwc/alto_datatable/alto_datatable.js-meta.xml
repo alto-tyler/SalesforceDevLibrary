@@ -61,8 +61,11 @@
             <property name="columnFields" label="_ Column Fields" type="String" role="inputOnly" description="REQUIRED: Comma separated list of field API Names to display in the datatable."/>
             <property name="columnAlignments" label="- Column Alignments (Col#:alignment,...)" type="String" role="inputOnly" description="Comma separated list of ColID:Alignment Value (left,center,right).  
                 --  NOTE: ColIDs can be either the column number or the field API Name"/>
-            <property name="columnEdits" label="- Column Edits (Col#:true,...) or All" type="String" role="inputOnly" description="'All' or a Comma separated list of ColID:true or false  
-                --  NOTE: Some data types cannot be edited in a datable (lookup, picklist, location, encrypted, rich text, long text area)
+            <property name="columnEdits" label="- Column Edits (Col#:true,...) or All" type="String" role="inputOnly" description="'All' or a Comma separated list of ColID:true or false
+                --  NOTE: Some data types cannot be edited in a datable (picklist, location, encrypted, rich text, long text area)
+                --  NOTE: Lookup fields CAN be made editable (a record picker), optionally filtered via columnLookupFilters
+                --  NOTE: ColIDs can be either the column number or the field API Name"/>
+            <property name="columnLookupFilters" label=". Special: Column Lookup Filters (Col#:FilterExpression;...) Use ; as separator" type="String" role="inputOnly" description="Only applies to lookup columns made editable via columnEdits. Restricts which records the picker can select using a filter expression, e.g. Type = 'Site' AND (Status__c != 'Inactive' OR Priority__c = 'High'). Supports =, !=, &lt;&gt;, &gt;, &lt;, &gt;=, &lt;=, LIKE, IN, AND, OR, NOT and parentheses.
                 --  NOTE: ColIDs can be either the column number or the field API Name"/>
             <property name="columnFilters" label="- Column Filters (Col#:true,...) or All" type="String" role="inputOnly" description="'All' or a Comma separated list of ColID:true or false  
                 --  NOTE: Some data types cannot be filtered in a datable (location, encrypted)
@@ -103,8 +106,9 @@
                 The default (False) will display Checkboxes and allow multiple records to be selected."/>
             <property name="suppressBottomBar" label="Suppress Cancel/Save Buttons during Edit Mode?" type="Boolean" default="false" role="inputOnly" description="Cancel/Save buttons will appear by default at the very bottom of the table once a field is edited.  
                 When hiding these buttons, field updates will be applied as soon as the user Tabs out or selects a different field."/>
-            <property name="navigateNextOnSave" label="Navigate to Next Flow Element on Save?" type="Boolean" default="false" role="inputOnly" description="When selecting Save after inline editing, immediately navigate to the next Flow element.  
+            <property name="navigateNextOnSave" label="Navigate to Next Flow Element on Save?" type="Boolean" default="false" role="inputOnly" description="When selecting Save after inline editing, immediately navigate to the next Flow element.
                 This removes the need for the User to select the Next button after saving."/>
+            <property name="didNavigateNext" label="Output Did Navigate Next on Save" type="Boolean" role="outputOnly" description="True once Save has actually navigated to the next Flow element because Navigate to Next Flow Element on Save is enabled. Lets downstream elements tell whether that navigation occurred."/>
             <property name="tableHeight" label="Table Height" type="String" role="inputOnly" description="CSS specification for the height of the datatable (Examples: 30rem, calc(50vh - 100px)  If you leave this blank, the datatable will expand to display all records.)"/>
             <property name="tableBorder" label="Table Border" type="Boolean" default="false" role="inputOnly" description="Display a border around the datatable."/>
             <property name="isDisplayHeader" label="Display Table Header?" type="Boolean" default="false" role="inputOnly" description="Display a header above the datatable."/>

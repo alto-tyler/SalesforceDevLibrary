@@ -1,0 +1,26 @@
+<!-- alto_lookupColumnType -->
+<template>
+    <!-- editable -->
+    <template if:true={typeAttributes.editable}>
+        <c-alto_lookup-column-type
+                value={value}
+                field-name={typeAttributes.fieldName}
+                key-field={typeAttributes.keyField}
+                key-field-value={typeAttributes.keyFieldValue}
+                display-value={typeAttributes.displayValue}
+                display-field-name={typeAttributes.displayFieldName}
+                object-api-name={typeAttributes.objectApiName}
+                name-field={typeAttributes.nameField}
+                lookup-filter-fragment={typeAttributes.lookupFilterFragment}
+                alignment={typeAttributes.alignment}
+                selected-row-keys={typeAttributes.selectedRowKeys}
+                ></c-alto_lookup-column-type>
+    </template>
+
+    <!-- readonly -->
+    <template if:false={typeAttributes.editable}>
+        <div class="slds-p-vertical_xx-small slds-p-horizontal_x-small">
+            <div class={typeAttributes.alignment}>{typeAttributes.displayValue}</div>
+        </div>
+    </template>
+</template>

@@ -234,6 +234,29 @@ public with sharing class alto_DatatableController {
                     if (dfr.isUpdateable()) {
                         // Only works with Master-Detail fields that are reparentable
                         lookupFields.add(fieldName);
+                        // Resolve the target object/name field from schema so it's known even
+                        // when every row currently has this lookup blank (e.g. new/blank rows).
+                        // Polymorphic fields (more than one referenceTo type) are skipped here and
+                        // fall back to the row-data-driven resolution below in getRowData().
+                        List<Schema.SObjectType> refTypes = dfr.getReferenceTo();
+                        if (refTypes.size() == 1) {
+                            String relObjName = refTypes[0].getDescribe().getName();
+                            String relName;
+                            if (fieldName.toLowerCase().endsWith('id')) {
+                                relName = fieldName.replaceAll('(?i)id$', '');
+                            } else {
+                                relName = fieldName.replaceAll('(?i)__c$', '__r');
+                            }
+                            lookupFieldData =
+                                lookupFieldData +
+                                ',{ "object" : "' +
+                                relObjName +
+                                '", "fieldName" : "' +
+                                relName +
+                                '", "nameField" : "' +
+                                getNameUniqueField(relObjName) +
+                                '"}';
+                        }
                     }
                 }
                 when 'PERCENT' {
@@ -382,7 +405,9 @@ public with sharing class alto_DatatableController {
         Boolean suppressCurrencyConversion
     ) {
         // Update object to include values for the "Name" field referenced by Lookup fields
-        String lookupFieldData = '';
+        // Seed with whatever getColumnData() already resolved from schema, so that's preserved
+        // even for fields that stay null on every row (e.g. blank/new rows).
+        String lookupFieldData = (curRR.lookupFieldData != null) ? curRR.lookupFieldData : '';
         Map<String, Boolean> firstRecord = new Map<String, Boolean>();
         for (String lf : lookupFields) {
             firstRecord.put(lf, true);

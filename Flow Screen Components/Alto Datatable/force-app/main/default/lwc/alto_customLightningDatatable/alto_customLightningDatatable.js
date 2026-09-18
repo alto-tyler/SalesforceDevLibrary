@@ -1,6 +1,7 @@
 import LightningDatatable from "lightning/datatable";
 import alto_richTextColumnType from "./alto_richTextColumnType.html";
 import alto_comboboxColumnType from "./alto_comboboxColumnType.html";
+import alto_lookupColumnType from "./alto_lookupColumnType.html";
 import stylesheet from '@salesforce/resourceUrl/alto_customLightningDatatableStyles';
 import {loadStyle} from "lightning/platformResourceLoader";
 import { getConstants } from 'c/alto_datatableUtils';
@@ -36,7 +37,12 @@ export default class alto_customLightningDatatable extends LightningDatatable {
         combobox: {
             template: alto_comboboxColumnType,
             standardCellLayout: false,
-            typeAttributes: ['editable', 'fieldName', 'keyField', 'keyFieldValue', 'picklistValues', 'alignment']
+            typeAttributes: ['editable', 'fieldName', 'keyField', 'keyFieldValue', 'picklistValues', 'alignment', 'controllerValue', 'controllerValueIndex', 'validForByValue', 'controllerFieldName', 'liveControllerValues', 'selectedRowKeys']
+        },
+        lookup: {
+            template: alto_lookupColumnType,
+            standardCellLayout: false,
+            typeAttributes: ['editable', 'fieldName', 'keyField', 'keyFieldValue', 'displayValue', 'displayFieldName', 'objectApiName', 'nameField', 'lookupFilterFragment', 'alignment', 'selectedRowKeys']
         }
     }
 }

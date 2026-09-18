@@ -38,10 +38,13 @@ This reactivity allows you to dynamically update datatable configuration based o
 
 ### Inline Editing
 - Edit fields directly in the datatable
-- Supported field types: Text, Number, Date, DateTime, Currency, Percent, Boolean, Picklist, Email, Phone, URL
+- Supported field types: Text, Number, Date, DateTime, Currency, Percent, Boolean, Picklist, Lookup, Email, Phone, URL
 - Restrict picklist values by Record Type
+- Dependent (controlling/dependent) picklists are supported in edit mode -- a dependent field's options refilter live as its controller is edited, before Save
+- Editable lookup fields use a record picker, with an optional admin-supplied filter expression restricting which records can be selected
+- Bulk-apply an edit to every checkbox-selected row at once ("Update N selected items"), for both picklist and lookup columns
 - Auto-save on tab or manual save with Cancel/Save buttons
-- Optional auto-navigation to next Flow element on save
+- Optional auto-navigation to next Flow element on save, with an output to confirm navigation actually occurred
 
 ### Formatting & Customization
 - Configure 15+ column attributes per field (alignment, width, icon, label, etc.)
@@ -130,7 +133,8 @@ Use the **Configure Columns** button to launch a wizard that helps you:
 | Property | Type | Label | Description |
 |----------|------|-------|-------------|
 | **Column Alignments** | String | `- Column Alignments` | Comma-separated ColID:alignment (e.g., `Name:center, 2:right`) |
-| **Column Edits** | String | `- Column Edits` | `All` or ColID:true/false (e.g., `1:true, Phone:true`) |
+| **Column Edits** | String | `- Column Edits` | `All` or ColID:true/false (e.g., `1:true, Phone:true`). Lookup fields can now be made editable this way -- see [Editable Lookup Fields](#editable-lookup-fields) below |
+| **Column Lookup Filters** | String | `. Special: Column Lookup Filters` | Only applies to lookup columns made editable via Column Edits. ColID:FilterExpression pairs (`;` separated) restricting which records the picker can select -- see [Editable Lookup Fields](#editable-lookup-fields) |
 | **Column Filters** | String | `- Column Filters` | `All` or ColID:true/false |
 | **Column Icons** | String | `- Column Icons` | ColID:icon (e.g., `1:standard:account, Name:utility:user`) |
 | **Column Labels** | String | `- Column Labels` | ColID:label (e.g., `1:Account Name, BillingCity:City`) |
@@ -153,6 +157,23 @@ FancyField__c:{class: slds-theme_shade slds-theme_alert-texture, iconName: {fiel
 DateField__c:{year:'numeric', day:'2-digit', month:'long'}
 ```
 
+### Editable Lookup Fields
+
+Lookup fields can be made editable via **Column Edits**, using a `lightning-record-picker` instead of the default read-only link.
+
+- Set `Column Edits` to include the lookup's column (e.g. `ParentId:true`), same as any other editable column.
+- Optionally restrict which records the picker can select with **Column Lookup Filters**, a `;`-separated list of `ColID:FilterExpression` pairs, e.g.:
+  ```
+  ParentId:Type = 'Site' AND (Status__c != 'Inactive' OR Priority__c = 'High')
+  ```
+  Supported operators: `=`, `!=`, `<>`, `>`, `<`, `>=`, `<=`, `LIKE`, `IN`, plus `AND`, `OR`, `NOT`, and parentheses.
+- Like picklist edits, an editable lookup cell offers an "Update N selected items" checkbox when the edited row is part of a multi-row checkbox selection, letting the picked record be applied to every selected row at once.
+- The resolved name is looked up automatically so both the picker and the cell display an accurate label immediately, without waiting for a full server refresh.
+
+### Dependent (Controlling/Dependent) Picklists
+
+Standard controlling/dependent picklist relationships (as defined in Setup) are respected in edit mode: a dependent field's available options are filtered live to whatever is valid for its controller's current value -- including a controller value the user just changed but hasn't saved yet. If a dependent field's current selection becomes invalid because its controller changed, it's cleared automatically, matching standard Salesforce edit-form behavior.
+
 ### Table Behavior
 
 | Property | Type | Label | Default | Description |
@@ -167,6 +188,7 @@ DateField__c:{year:'numeric', day:'2-digit', month:'long'}
 | **Open Links in Same Tab** | Boolean | `Open Links in Same Tab` | false | Open record links in same tab instead of new tab |
 | **Suppress Cancel/Save Buttons during Edit Mode?** | Boolean | `Suppress Cancel/Save Buttons during Edit Mode?` | false | Auto-save on tab-out instead of showing Cancel/Save buttons |
 | **Navigate to Next Flow Element on Save?** | Boolean | `Navigate to Next Flow Element on Save?` | false | Auto-advance Flow after clicking Save (removes need for Next button) |
+| **Output Did Navigate Next on Save** | Boolean | `Output Did Navigate Next on Save` | — | Output only: true once Save has actually navigated to the next Flow element because Navigate to Next Flow Element on Save is enabled |
 
 ### Row Actions
 
@@ -213,6 +235,7 @@ DateField__c:{year:'numeric', day:'2-digit', month:'long'}
 | **Output Edited Rows** | SObject[] | `Output Edited Rows` | Collection of only edited records (use Update Records to save) |
 | **Output Edited (Serialized) Rows** | String | `Output Edited (Serialized) Rows` | Serialized string of edited records |
 | **Output Number of Edited Records** | Integer | `Output Number of Edited Records` | Count of edited records |
+| **Output Did Navigate Next on Save** | Boolean | `Output Did Navigate Next on Save` | True once Save has actually dispatched navigation to the next Flow element (only meaningful when **Navigate to Next Flow Element on Save?** is enabled) |
 
 ### All Rows
 
@@ -503,7 +526,12 @@ The following input properties call `connectedCallback()` when their values chan
 - Picklists are supported in inline editing
 - User must have Read access to the object for Record Type filtering
 - Check **Allow a --None-- Picklist Option** if you need to clear values
-- Dependent picklists are not yet supported
+- Dependent (controlling/dependent) picklists are supported -- see [Dependent (Controlling/Dependent) Picklists](#dependent-controllingdependent-picklists)
+
+### Lookup editing not working
+- Lookup fields can be made editable via **Column Edits** -- see [Editable Lookup Fields](#editable-lookup-fields)
+- Polymorphic lookups (fields that can reference more than one object type) are not supported for editing
+- Only reparentable Master-Detail and standard Lookup fields can be made editable
 
 ### Percent field editing issues
 - Enter the decimal value (0.25 for 25%)
@@ -528,7 +556,6 @@ The following input properties call `connectedCallback()` when their values chan
 - Data payload limit ~4MB (avoid "Automatically store all fields" in Get Records)
 
 ### Unsupported Field Types for Editing
-- Lookup fields
 - Location/Geolocation fields
 - Time fields
 - Multi-select picklists
@@ -537,6 +564,7 @@ The following input properties call `connectedCallback()` when their values chan
 - Long text area fields
 - Formula fields
 - Rollup summary fields
+- Polymorphic lookup fields (more than one possible referenced object type)
 
 ### Filtering Limitations
 - Time columns cannot be filtered
@@ -613,8 +641,9 @@ This component includes:
 **LWC Components:**
 - `alto_datatable` - Main datatable component
 - `alto_customLightningDatatable` - Extended datatable with custom types
-- `alto_comboboxColumnType` - Combobox column for picklist editing
-- `alto_datatableUtils` - Shared utility functions
+- `alto_comboboxColumnType` - Combobox column for picklist editing (supports dependent picklists)
+- `alto_lookupColumnType` - Record-picker column for editable lookup fields
+- `alto_datatableUtils` - Shared utility functions, including the lookup filter expression parser
 
 **Static Resources:**
 - `alto_customLightningDatatableStyles` - Custom CSS styling
