@@ -24,6 +24,8 @@
             <property name="pageTitleInput" type="String" label="Custom Page Title" description="Custom title to show when Use custom title/meta = true."/>
             <property name="pageMetaInput" type="String" label="Custom Page Meta" description="Custom meta line to show when Use custom title/meta = true."/>
             <property name="actionClicked" type="String" label="Action Clicked" description="Output: Name of action clicked (only for custom actions without navigate/url/pageReference). Use in Decision to route Flow." />
+            <property name="actionsPosition" type="String" label="Custom Actions Position" default="after"
+                      description="Controls where custom Action Links appear relative to Previous/Next buttons. 'before' = custom actions first; 'after' = custom actions last (default)." />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

@@ -57,10 +57,191 @@ private class DynamicLookupQueryBuilderTest {
         // Test with an invalid object API name
         try {
             result = DynamicLookupQueryBuilder.getSObjectDetails('InvalidObject');
-            // If the above line doesn't throw an exception, the test should fail
             System.assert(false, 'Expected AuraHandledException was not thrown');
         } catch (AuraHandledException e) {
             System.assertEquals('Script-thrown exception', e.getMessage());
         }
+    }
+
+    @IsTest
+    static void testGetSObjectDetailsBlankThrows() {
+        try {
+            DynamicLookupQueryBuilder.getSObjectDetails('');
+            System.assert(false, 'Expected exception not thrown');
+        } catch (AuraHandledException e) {
+            System.assertEquals('Script-thrown exception', e.getMessage());
+        }
+    }
+
+    @IsTest
+    static void testBuildQueryNullParamsThrows() {
+        try {
+            DynamicLookupQueryBuilder.buildQuery(null);
+            System.assert(false, 'Expected exception not thrown');
+        } catch (AuraHandledException e) {
+            System.assertEquals('Script-thrown exception', e.getMessage());
+        }
+    }
+
+    @IsTest
+    static void testBuildQueryBlankObjectApiNameThrows() {
+        DynamicLookupQueryBuilder.QueryParams params = new DynamicLookupQueryBuilder.QueryParams();
+        params.objectApiName = '';
+        try {
+            DynamicLookupQueryBuilder.buildQuery(params);
+            System.assert(false, 'Expected exception not thrown');
+        } catch (AuraHandledException e) {
+            System.assertEquals('Script-thrown exception', e.getMessage());
+        }
+    }
+
+    @IsTest
+    static void testExactMatchSearch() {
+        Account acc = new Account(Name = 'ExactSearchAcct');
+        insert acc;
+
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', null, null, null, null,
+            null, null, 10, 'Name', 'ExactSearchAcct', 'exact', null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        System.assertEquals(1, accounts.size());
+    }
+
+    @IsTest
+    static void testInvalidValueMatchTypeThrows() {
+        DynamicLookupQueryBuilder.QueryParams params = new DynamicLookupQueryBuilder.QueryParams();
+        params.objectApiName = 'Account';
+        params.searchField = 'Name';
+        params.searchValue = 'test';
+        params.valueMatchType = 'invalid_type';
+        try {
+            DynamicLookupQueryBuilder.buildQuery(params);
+            System.assert(false, 'Expected exception not thrown');
+        } catch (AuraHandledException e) {
+            System.assertEquals('Script-thrown exception', e.getMessage());
+        }
+    }
+
+    @IsTest
+    static void testSearchFieldNotOnObjectThrows() {
+        DynamicLookupQueryBuilder.QueryParams params = new DynamicLookupQueryBuilder.QueryParams();
+        params.objectApiName = 'Account';
+        params.searchField = 'NonExistentField__xyz';
+        params.searchValue = 'test';
+        try {
+            DynamicLookupQueryBuilder.buildQuery(params);
+            System.assert(false, 'Expected exception not thrown');
+        } catch (AuraHandledException e) {
+            System.assertEquals('Script-thrown exception', e.getMessage());
+        }
+    }
+
+    @IsTest
+    static void testWhereClauseAppended() {
+        Account acc = new Account(Name = 'WhereClauseAcct', BillingCity = 'Toronto');
+        insert acc;
+
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', null, null, null,
+            'BillingCity = \'Toronto\'',
+            null, null, 10, null, null, null, null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        System.assert(accounts.size() >= 1);
+    }
+
+    @IsTest
+    static void testParentFilterInOperator() {
+        Account a1 = new Account(Name = 'InFilter1');
+        Account a2 = new Account(Name = 'InFilter2');
+        insert new List<Account>{ a1, a2 };
+
+        // Use Name field (String type) with IN operator
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', 'Name', 'InFilter1,InFilter2', 'IN',
+            null, null, null, 10, null, null, null, null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        System.assertEquals(2, accounts.size());
+    }
+
+    @IsTest
+    static void testParentFilterNotInOperator() {
+        Account acc = new Account(Name = 'NotInFilterAcct');
+        insert acc;
+
+        // Exclude the record by name using NOT IN
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', 'Name', 'NotInFilterAcct', 'NOT IN',
+            null, null, null, 10, null, null, null, null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        for (Account a : accounts) {
+            System.assertNotEquals('NotInFilterAcct', a.Name);
+        }
+    }
+
+    @IsTest
+    static void testParentFilterLikeOperator() {
+        Account acc = new Account(Name = 'LikeFilterAcct');
+        insert acc;
+
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', 'Name', 'LikeFilter', 'LIKE',
+            null, null, null, 10, null, null, null, null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        System.assert(accounts.size() >= 1);
+    }
+
+    @IsTest
+    static void testParentFilterLikeOperatorWithWildcard() {
+        Account acc = new Account(Name = 'LikeWildcardAcct');
+        insert acc;
+
+        // Value already contains %, should not double-wrap
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', 'Name', '%LikeWildcard%', 'LIKE',
+            null, null, null, 10, null, null, null, null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        System.assert(accounts.size() >= 1);
+    }
+
+    @IsTest
+    static void testParentFilterInNumericField() {
+        // NumberOfEmployees is an Integer field (non-String) — covers the 'else' branch in IN loop
+        Account acc = new Account(Name = 'NumericInAcct', NumberOfEmployees = 5);
+        insert acc;
+
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', 'NumberOfEmployees', '5', 'IN',
+            null, null, null, 10, null, null, null, null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        System.assert(accounts.size() >= 1);
+    }
+
+    @IsTest
+    static void testNoSortByStillReturnsResults() {
+        Account acc = new Account(Name = 'NoSortAcct');
+        insert acc;
+
+        // No sortBy, no maxResults → no ORDER BY or LIMIT added
+        String result = DynamicLookupQueryBuilder.queryRecords(
+            'Account', 'Name', null, null, null, null,
+            null, null, null, null, null, null, null
+        );
+
+        List<Account> accounts = (List<Account>) JSON.deserialize(result, List<Account>.class);
+        System.assert(accounts.size() >= 1);
     }
 }

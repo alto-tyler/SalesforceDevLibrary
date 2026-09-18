@@ -369,7 +369,7 @@ For multiple metrics, call the action multiple times:
 
 ## API Version
 
-Built with **Salesforce API version 59.0**.
+Built with **Salesforce API version 66.0**.
 
 ---
 
@@ -417,7 +417,7 @@ Deploy the Apex class to your org:
 
 Test class `RollupNumberHelperTest` provides coverage for:
 - All six rollup operations (SUM, AVERAGE, MEDIAN, MIN, MAX, COUNT)
-- Null handling (empty collections, null values)
-- Multiple data types (Decimal, Integer, Long, Double)
-- Edge cases (single record, even/odd counts for median)
+- Null handling (empty collections, null values, null `records` list, `null` elements inside the collection)
+- Multiple data types (Decimal, Integer, Long, Double, and numeric strings parsed via `Decimal.valueOf`)
+- Edge cases (single record, even/odd counts for median, non-numeric string values silently skipped)
 - Invalid field names

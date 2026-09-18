@@ -307,4 +307,104 @@ private class RollupNumberHelperTest {
         
         Assert.areEqual(100, results[0], 'Median of single value should be that value');
     }
+
+    @IsTest
+    static void testNullRecordsListWithSum() {
+        RollupNumberHelper.RollupRequest request = new RollupNumberHelper.RollupRequest();
+        request.records = null;
+        request.fieldApiName = 'AnnualRevenue';
+        request.rollupOption = 'SUM';
+
+        List<Decimal> results = RollupNumberHelper.calculateRollup(new List<RollupNumberHelper.RollupRequest>{ request });
+
+        Assert.isNull(results[0], 'Null records with SUM should return null');
+    }
+
+    @IsTest
+    static void testNullRecordsListWithCount() {
+        RollupNumberHelper.RollupRequest request = new RollupNumberHelper.RollupRequest();
+        request.records = null;
+        request.fieldApiName = 'AnnualRevenue';
+        request.rollupOption = 'COUNT';
+
+        List<Decimal> results = RollupNumberHelper.calculateRollup(new List<RollupNumberHelper.RollupRequest>{ request });
+
+        Assert.areEqual(0, results[0], 'Null records with COUNT should return 0');
+    }
+
+    @IsTest
+    static void testCountWithNonNullValues() {
+        // When values ARE extracted (non-null), COUNT still returns records.size()
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'Test 1', AnnualRevenue = 100),
+            new Account(Name = 'Test 2', AnnualRevenue = 200),
+            new Account(Name = 'Test 3', AnnualRevenue = 300)
+        };
+
+        RollupNumberHelper.RollupRequest request = new RollupNumberHelper.RollupRequest();
+        request.records = accounts;
+        request.fieldApiName = 'AnnualRevenue';
+        request.rollupOption = 'COUNT';
+
+        List<Decimal> results = RollupNumberHelper.calculateRollup(new List<RollupNumberHelper.RollupRequest>{ request });
+
+        Assert.areEqual(3, results[0], 'COUNT with non-null values should return records.size()');
+    }
+
+    @IsTest
+    static void testNullElementInList() {
+        // A null SObject element inside the list should be skipped
+        List<SObject> mixed = new List<SObject>{
+            new Account(Name = 'Test 1', AnnualRevenue = 100),
+            null,
+            new Account(Name = 'Test 3', AnnualRevenue = 200)
+        };
+
+        RollupNumberHelper.RollupRequest request = new RollupNumberHelper.RollupRequest();
+        request.records = mixed;
+        request.fieldApiName = 'AnnualRevenue';
+        request.rollupOption = 'SUM';
+
+        List<Decimal> results = RollupNumberHelper.calculateRollup(new List<RollupNumberHelper.RollupRequest>{ request });
+
+        Assert.areEqual(300, results[0], 'Null elements should be skipped; sum should be 300');
+    }
+
+    @IsTest
+    static void testStringFieldParsedAsDecimal() {
+        // Use the Name field (String type) with a numeric value to cover the
+        // "try String.valueOf / Decimal.valueOf" branch in convertToDecimal
+        List<Account> accounts = new List<Account>{
+            new Account(Name = '100'),
+            new Account(Name = '200')
+        };
+
+        RollupNumberHelper.RollupRequest request = new RollupNumberHelper.RollupRequest();
+        request.records = accounts;
+        request.fieldApiName = 'Name';
+        request.rollupOption = 'SUM';
+
+        List<Decimal> results = RollupNumberHelper.calculateRollup(new List<RollupNumberHelper.RollupRequest>{ request });
+
+        Assert.areEqual(300, results[0], 'String field with numeric value should parse to Decimal and sum correctly');
+    }
+
+    @IsTest
+    static void testNonNumericStringFieldSkipped() {
+        // Non-numeric string causes Decimal.valueOf to throw; the catch block
+        // should swallow it and continue so valid values still sum
+        List<Account> accounts = new List<Account>{
+            new Account(Name = 'NotANumber'),
+            new Account(Name = '150')
+        };
+
+        RollupNumberHelper.RollupRequest request = new RollupNumberHelper.RollupRequest();
+        request.records = accounts;
+        request.fieldApiName = 'Name';
+        request.rollupOption = 'SUM';
+
+        List<Decimal> results = RollupNumberHelper.calculateRollup(new List<RollupNumberHelper.RollupRequest>{ request });
+
+        Assert.areEqual(150, results[0], 'Non-numeric string should be skipped; valid value should still be summed');
+    }
 }

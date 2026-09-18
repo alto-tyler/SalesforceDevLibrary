@@ -39,6 +39,11 @@ This component provides a professional header for Flow screens with customizable
 - All custom actions appear in overflow dropdown menu (⋮)
 - Default: `False`
 
+### **Custom Actions Position**
+- Controls where buttons from **Action Links (JSON)** render relative to the Previous/Next navigation buttons
+- Options: `before` (custom actions first), `after` (custom actions last)
+- Default: `after`
+
 ### **Show Next/Finish Button**
 - Shows the Next or Finish button (auto-detected based on Flow position)
 - Default: `True`
@@ -311,6 +316,9 @@ Action Links (JSON):
 - Reduce **Max Visible Actions** to 2 or 3
 - Enable **Custom Actions In Dropdown** to move custom actions to overflow menu
 
+**Problem:** Custom actions appear on the wrong side of Previous/Next
+- Set **Custom Actions Position** to `before` or `after` to control ordering relative to the standard navigation buttons
+
 ---
 
 ## Advanced Tips
@@ -368,6 +376,6 @@ Decision: Route Based on Action
 
 - **Component Name:** `alto_flowHeader`
 - **Apex Controller:** `FlowHeaderController`
-- **Test Class:** `FlowHeaderControllerTest`
+- **Test Class:** `FlowHeaderControllerTest` — uses `RootstockTestDataFactory` synthetic data (no `SeeAllData=true`) for deterministic, isolated test runs
 - **Navigation:** Uses Lightning Navigation mixin for `pageReference` navigation
 - **Targets:** `lightning__FlowScreen`, `lightning__AppPage`, `lightning__RecordPage`

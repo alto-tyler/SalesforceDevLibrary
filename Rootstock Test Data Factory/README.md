@@ -12,7 +12,13 @@ Rootstock tests often fail because required “system” records (company/divisi
 
 - Creates a Rootstock `rstk__syconfig__c` record via `createTestSyConfig()`.
 - Creates baseline Rootstock records via `createTestData()` (currency, company, division, user/license record, site, UOM, locations, and an example item setup).
-- Returns a `RootstockTestDataFactory.Response` object containing key records that were created so your tests can reference them without re-querying.
+- Also creates records required by Rootstock's `rstk.soapi` before-insert trigger so sales-order-related tests don't NPE:
+    - Two additional `rstk__syusr__c` "manufacturing user" records — one for the running System Administrator and one for the org's Automated Process / platform-event user (Alias `platint`). The trigger resolves the manufacturing user via `WHERE syusr_employee__c = UserInfo.getUserId()`, so tests that call `processOrders()` directly and tests that publish Platform Events need different manufacturing-user records to match whichever user context actually runs the trigger.
+    - A `rstk__socntl__c` (Sales Order Control) record — the trigger queries all `socntl__c` records and NPEs when none exist.
+    - A `rstk__socarriervia__c` (carrier/ship-via default mapping) record.
+- The customer class (`rstk__socclass__c`) is now created after carrier, FOB, freight terms, ship-via type, and payment terms exist, and links to all of them instead of being a minimal standalone record.
+- Uses the org's default currency (`UserInfo.getDefaultCurrency()`) instead of a hardcoded currency code, so the factory works in both single- and multi-currency orgs without modification.
+- Returns a `RootstockTestDataFactory.Response` object containing key records that were created so your tests can reference them without re-querying. Note: the new manufacturing-user, sales order control, and carrier-via records above are created but **not** exposed on `Response` — query them directly if a test needs to reference them.
 
 `Response` includes (non-exhaustive): `rstk__sycurr__c`, `rstk__sycmp__c`, `rstk__sydiv__c`, `rstk__syusr__c`, `rstk__sysite__c`, `rstk__syuom__c`, location records, and a couple of `rstk__peitem__c` references.
 
@@ -71,5 +77,6 @@ Database.executeBatch(new RootstockTestDataBatch(1), 1);
 - **Important (`UT` behavior):** `UT` is commonly used to bypass Rootstock validations and to suppress Rootstock’s automatic creation of certain related/concurrent records. That means records you might normally expect Rootstock to create for you (via triggers/automation) may **not** be created when `UT` is set.
     - Practical impact: if your test relies on those normally-auto-created records, you must create them yourself in the factory.
     - Example: `rstk__icitem__c` is often created automatically from item setup, but with `UT` that automation can be suppressed—so this factory creates the needed `peitem`/`icitem` records explicitly.
-- Many values are intentionally hard-coded (currency, company/div/site codes, etc.) to keep the setup deterministic. Adjust those defaults to match your org conventions.
+- Many values are intentionally hard-coded (company/div/site codes, etc.) to keep the setup deterministic. Adjust those defaults to match your org conventions. Currency is the exception — it now follows the org's default currency (`UserInfo.getDefaultCurrency()`) automatically.
+- Requires a Salesforce `User` with Alias `platint` to exist (used as the Automated Process / platform-event manufacturing user). Adjust the alias lookup in `createTestData()` if your org's automated process user uses a different alias.
 - This code performs DML and will create real records when run outside tests—use it in sandboxes/dev orgs unless you intentionally want the data in production.

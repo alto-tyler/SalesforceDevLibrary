@@ -8,6 +8,7 @@ This component provides a powerful, configurable lookup field for Flows that can
 - Find Cases by Status and Owner
 - Create dependent lookups (select Account first, then Contact)
 - Barcode scanning for inventory/asset lookups (mobile)
+- Deduplicate dropdown results by display name and/or value field
 - **Translation Support:** Uses Custom Labels for all UI text, enabling multi-language support
 
 ---
@@ -101,133 +102,148 @@ The component properties are organized into logical sections in Flow Builder. Al
   - `"partial"` (default) — contains/includes the search text
   - `"exact"` — must match exactly
 
+**I14_Query_DeduplicateName**
+- Remove duplicate dropdown entries that share the same **I06_Object_DisplayFieldName** value
+- Only affects what's shown in the dropdown — initial/pre-selected value matching still uses the full, unfiltered result set
+- Default: `False`
+
+**I15_Query_DeduplicateValue**
+- Remove duplicate dropdown entries that share the same **I08_Object_ValueFieldName** value
+- Only affects what's shown in the dropdown — initial/pre-selected value matching still uses the full, unfiltered result set
+- Can be combined with **I14_Query_DeduplicateName** (a record is dropped if it matches another already-seen record on both dimensions)
+- Default: `False`
+
 ---
 
-### **Parent Filter Section** (I14-I18)
+### **Parent Filter Section** (I16-I20)
 
 Use these to create dependent lookups (e.g., filter Contacts by selected Account).
 
-**I14_Parent_ParentInitialized**
+**I16_Parent_ParentInitialized**
 - **Important:** Map this to the parent lookup's **O3_componentInitialized** output
 - This tells the child lookup that the parent has finished loading
 - Example: `{!ParentLookupComponent.componentInitialized}`
 - Required for dependent lookups to work correctly
 - Default: `False`
 
-**I15_Parent_ParentFilterField**
+**I17_Parent_ParentFilterField**
 - Field on the child object to filter by
 - Examples: `"AccountId"`, `"Product__c"`, `"CustomLookup__c"`
+- Blank, whitespace-only, or the literal string `"null"` are all treated as "no parent filter field" — useful when this property is bound to a formula that can resolve to an empty string
 
-**I16_Parent_ParentFilterValue**
+**I18_Parent_ParentFilterValue**
 - Value from parent to filter on
 - Examples: `{!ParentLookupComponent.selectedValue}`
+- **Late-arriving parent values:** If this component loads with an **I32_Value_InitialValue** already set but the parent filter value isn't available yet, the initial value is preserved and re-matched automatically once **I18_Parent_ParentFilterValue** does arrive — you no longer need to sequence screens so the parent value is always present at load time
 
-**I17_Parent_ParentFilterOperator**
+**I19_Parent_ParentFilterOperator**
 - Comparison operator
 - Options: `"="`, `"!="`, `"IN"`, `"LIKE"`
 - Default: `"="`
 - For `IN`, use comma-separated values in Parent Filter Value
 
-**I18_Parent_DisableOnNoParentValue**
+**I20_Parent_DisableOnNoParentValue**
 - Disable this lookup when parent value is empty
 - Recommended: `True` for dependent lookups
 - Default: `False`
+- If you've also set **I22_Behavior_Disabled** = `True` explicitly, the component keeps it disabled and won't re-enable it just because a parent value showed up
 
 ---
 
-### **Behavior Section** (I19-I28)
+### **Behavior Section** (I21-I30)
 
-**I19_Behavior_Required**
+**I21_Behavior_Required**
 - Make this field required for Flow progression
 - Default: `False`
 
-**I20_Behavior_Disabled**
+**I22_Behavior_Disabled**
 - Disable the lookup field with disabled appearance
 - Value still passes through and initial value will be set
+- Takes precedence over **I20_Parent_DisableOnNoParentValue** — once explicitly disabled, a parent filter value arriving won't re-enable the field
 - Default: `False`
 
-**I21_Behavior_ReadOnly**
+**I23_Behavior_ReadOnly**
 - Make lookup read-only with clean appearance (no border, no user interaction)
 - Value still passes through and initial value will be set
 - Useful for displaying pre-selected values without allowing changes
 - Default: `False`
 
-**I22_Behavior_AllowDisplayFieldMatch**
+**I24_Behavior_AllowDisplayFieldMatch**
 - Allows matching initial/selected values and Tab-populated values against the display field (not just value field)
-- **When to use:** Enable when pre-populating with display values (e.g., names) instead of Ids, or when using **I24_Behavior_PopulateOnTab**
+- **When to use:** Enable when pre-populating with display values (e.g., names) instead of Ids, or when using **I26_Behavior_PopulateOnTab**
 - **Example:** If display field is "Name" and you set initial value to "John Doe", the component will find matching records by name
-- Works with **I32_Value_InitialValue**, **I33_Value_SelectedValue**, and **I24_Behavior_PopulateOnTab**
+- Works with **I34_Value_InitialValue**, **I35_Value_SelectedValue**, and **I26_Behavior_PopulateOnTab**
 - Default: `False`
 
-**I23_Behavior_RelativeDropdown**
+**I25_Behavior_RelativeDropdown**
 - Changes dropdown positioning to use the Flow screen space instead of overflowing the component container
 - **When to use:** Enable if the dropdown is cut off or hidden by the Flow container boundaries
 - **Mobile:** Automatically enabled on mobile devices
 - **Desktop:** Useful for long result lists that get clipped by Flow's container
 - Default: `False` (desktop), automatically `True` (mobile)
 
-**I24_Behavior_PopulateOnTab**
+**I26_Behavior_PopulateOnTab**
 - When user presses Tab, automatically select the first matching result
 - Great for keyboard-heavy data entry
 - Default: `False`
 
-**I25_Behavior_NavigateOnTab**
+**I27_Behavior_NavigateOnTab**
 - Navigate flow after finding a record with Tab key
-- Requires **I24_Behavior_PopulateOnTab** to be enabled
+- Requires **I26_Behavior_PopulateOnTab** to be enabled
 - Uses Next or Finish based on available actions
 - Great for ultra-fast keyboard-only data entry workflows/configured scanning devices that "tab" after scan
 - Default: `False`
 
-**I26_Behavior_TakeFocusOnInitialized**
+**I28_Behavior_TakeFocusOnInitialized**
 - Automatically focus the input field when component finishes initializing
 - Only takes focus when no record is selected
 - Useful for streamlining data entry by positioning the cursor immediately
 - Default: `False`
 
-**I27_Display_ShowObjectMeta**
+**I29_Display_ShowObjectMeta**
 - Show the object name as meta text beneath each result in the dropdown
 - Helps users identify the object type when searching multiple objects
 - Default: `True`
 
-**I28_Display_CustomMeta**
+**I30_Display_CustomMeta**
 - Custom meta text to show beneath each result in the dropdown
-- Overrides the object name when **I27_Display_ShowObjectMeta** is true
+- Overrides the object name when **I29_Display_ShowObjectMeta** is true
 - Example: Use a formula to show custom information like "Contact - [Account Name]"
 - Default: Empty
 
 ---
 
-### **Barcode Scanning Section** (I29-I31)
+### **Barcode Scanning Section** (I31-I33)
 
-**I29_Scan_AllowBarcodeScanning**
+**I31_Scan_AllowBarcodeScanning**
 - Enable barcode scanning button (mobile only)
 - Default: `False`
 
-**I30_Scan_NavigateAfterMatch**
+**I32_Scan_NavigateAfterMatch**
 - Navigate flow after finding a valid record from barcode scan
 - Uses Next or Finish based on available actions
 - Automatically progresses the Flow after a successful scan and match
 - Default: `False`
 
-**I31_Scan_ScanButtonIcon**
+**I33_Scan_ScanButtonIcon**
 - Icon for the scan button
 - Default: `"utility:scan"`
 - Examples: `"utility:scan"`, `"utility:photo"`
 
 ---
 
-### **Initial Value / Output Section** (I32-I33)
+### **Initial Value / Output Section** (I34-I35)
 
-**I32_Value_InitialValue**
+**I34_Value_InitialValue**
 - Pre-populate with a specific value on component load
 - Example: `{!RecordId}` to auto-select a record
 
-**I33_Value_SelectedValue / O1_selectedValue** *(Input/Output)*
+**I35_Value_SelectedValue / O1_selectedValue** *(Input/Output)*
 - **As Input:** Pre-populate the selection
 - **As Output:** The value of the selected record
 - **Critical for Flows:** Map this field to ITSELF (`{!ComponentName.selectedValue}`) to preserve the selection when validation errors occur
 - **Why:** Without this mapping, the lookup will clear when the user corrects validation errors and returns to the screen
-- **Example mapping:** Set I33_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
+- **Example mapping:** Set I35_Value_SelectedValue = `{!ContactLookup.selectedValue}` (where ContactLookup is your component API name)
 
 ---
 
@@ -235,7 +251,7 @@ Use these to create dependent lookups (e.g., filter Contacts by selected Account
 
 These are automatically set by the component — you can use them in Flow decisions and formulas.
 
-**O1_selectedValue** (also shown as I33_Value_SelectedValue)
+**O1_selectedValue** (also shown as I35_Value_SelectedValue)
 - The value of the selected record based on **I08_Object_ValueFieldName** (typically the Id, but can be any field)
 - Access via: `{!ComponentName.selectedValue}`
 - **Important:** Also serves as an input — map to itself to preserve selection on validation errors
@@ -270,7 +286,7 @@ I05_Object_ObjectApiName: "Contact"
 I01_Display_Label: "Select Contact"
 I06_Object_DisplayFieldName: "Name"
 I07_Object_SearchFieldApiName: "LastName"
-I19_Behavior_Required: True
+I21_Behavior_Required: True
 ```
 
 ### Example 2: Dependent Lookup (Account → Contacts)
@@ -286,11 +302,11 @@ Store O2_recordId in: {!SelectedAccountId}
 ```
 I05_Object_ObjectApiName: "Contact"
 I01_Display_Label: "Select Contact"
-I14_Parent_ParentInitialized: {!AccountLookup.componentInitialized}
-I15_Parent_ParentFilterField: "AccountId"
-I16_Parent_ParentFilterValue: {!AccountLookup.selectedValue}
-I18_Parent_DisableOnNoParentValue: True
-I33_Value_SelectedValue: {!ContactLookup.selectedValue}
+I16_Parent_ParentInitialized: {!AccountLookup.componentInitialized}
+I17_Parent_ParentFilterField: "AccountId"
+I18_Parent_ParentFilterValue: {!AccountLookup.selectedValue}
+I20_Parent_DisableOnNoParentValue: True
+I35_Value_SelectedValue: {!ContactLookup.selectedValue}
 ```
 
 ### Example 3: Product Search with Filters
@@ -312,8 +328,8 @@ I05_Object_ObjectApiName: "Asset"
 I01_Display_Label: "Scan Asset"
 I06_Object_DisplayFieldName: "Name"
 I07_Object_SearchFieldApiName: "SerialNumber"
-I29_Scan_AllowBarcodeScanning: True
-I30_Scan_NavigateAfterMatch: True
+I31_Scan_AllowBarcodeScanning: True
+I32_Scan_NavigateAfterMatch: True
 ```
 
 ---
@@ -321,12 +337,13 @@ I30_Scan_NavigateAfterMatch: True
 ## Best Practices
 
 ✅ **Do:**
-- Use **I19_Behavior_Required** for mandatory selections
-- Set **I18_Parent_DisableOnNoParentValue** = True for dependent lookups
+- Use **I21_Behavior_Required** for mandatory selections
+- Set **I20_Parent_DisableOnNoParentValue** = True for dependent lookups
 - Use **I10_Query_WhereClause** to filter results for better performance
-- Enable **I24_Behavior_PopulateOnTab** for data entry efficiency
-- Enable **I25_Behavior_NavigateOnTab** for keyboard-only workflows/configured scanning devices
-- Store **O2_recordId** or **I33_Value_SelectedValue** in Flow variables
+- Enable **I26_Behavior_PopulateOnTab** for data entry efficiency
+- Enable **I27_Behavior_NavigateOnTab** for keyboard-only workflows/configured scanning devices
+- Store **O2_recordId** or **I35_Value_SelectedValue** in Flow variables
+- Enable **I14_Query_DeduplicateName** / **I15_Query_DeduplicateValue** when the same record can appear more than once in results (e.g., multiple matching child records rolling up to the same parent)
 
 ❌ **Don't:**
 - Return more than 200 records without good reason (performance)
@@ -343,13 +360,14 @@ I30_Scan_NavigateAfterMatch: True
 - Review **I10_Query_WhereClause** syntax (no "WHERE" keyword needed)
 
 **Problem:** Parent filter not working
-- Ensure **I15_Parent_ParentFilterField** matches the exact API name (e.g., `AccountId`)
-- Verify **I16_Parent_ParentFilterValue** contains a valid value
-- Check if **I18_Parent_DisableOnNoParentValue** is preventing input
+- Ensure **I17_Parent_ParentFilterField** matches the exact API name (e.g., `AccountId`)
+- Verify **I18_Parent_ParentFilterValue** contains a valid value
+- Check if **I20_Parent_DisableOnNoParentValue** is preventing input
+- If the field is unexpectedly staying disabled after the parent value arrives, check whether **I22_Behavior_Disabled** is explicitly set to `True` — explicit disable now takes precedence
 
 **Problem:** Component won't validate
 - Check **O3_componentInitialized** is True before allowing progression
-- Ensure **I19_Behavior_Required** is set correctly
+- Ensure **I21_Behavior_Required** is set correctly
 - Verify selected value exists
 
 **Problem:** Search is too slow
@@ -367,14 +385,14 @@ I30_Scan_NavigateAfterMatch: True
 
 ### Remembering Selection After Validation Errors
 **Recommended Method (Easiest):**
-Map **I33_Value_SelectedValue** to itself:
-- Set **I33_Value_SelectedValue** = `{!ComponentName.selectedValue}`
+Map **I35_Value_SelectedValue** to itself:
+- Set **I35_Value_SelectedValue** = `{!ComponentName.selectedValue}`
 - This automatically preserves the selection when users fix validation errors
 
 **Alternative Method (Using Variables):**
 Store the selection in a Flow variable:
 1. Create a Text variable: `varSelectedContactId`
-2. Set **I32_Value_InitialValue** = `{!varSelectedContactId}`
+2. Set **I34_Value_InitialValue** = `{!varSelectedContactId}`
 3. After selection, assign **O2_recordId** → `{!varSelectedContactId}`
 
 ### Using Selected Record Data

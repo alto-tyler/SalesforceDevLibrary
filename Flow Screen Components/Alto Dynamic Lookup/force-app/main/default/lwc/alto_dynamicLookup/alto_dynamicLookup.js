@@ -37,6 +37,8 @@ export default class AltoDynamicLookup extends LightningElement {
     @api scanButtonIcon = 'utility:scan'; // Allow barcode scanning
     @api relativeDropdown = false;
     @api populateOnTab = false;
+    @api deduplicateName = false; // Deduplicate dropdown results by displayFieldName
+    @api deduplicateValue = false; // Deduplicate dropdown results by valueFieldName
     @api navigateOnTab = false; // Navigate flow after finding a record with Tab key
     @api takeFocusOnInitialized = false; // Take focus when component is initialized
     @api availableActions = []; // Available flow navigation actions
@@ -64,6 +66,7 @@ export default class AltoDynamicLookup extends LightningElement {
     _parentInitialized = false; // Is parent initialized
     _getRecordsRequestId = 0; // Request ID for getRecords to handle multiple calls
     _initialAutoFocus = false; // Flag to track if this is the initial auto-focus from takeFocusOnInitialized
+    _preservedInitValue = null; // Preserve init value for auto-matching when parent filter changes (cleared only on manual selection)
 
 
     // Debounce timeout for search
@@ -87,6 +90,7 @@ export default class AltoDynamicLookup extends LightningElement {
     }
 
     _disabled = false;
+    _explicitlyDisabled = false; // true when disabled was set externally, parent logic cannot override
     _required = false;
     _readOnly = false;
     _showObjectMeta = true;
@@ -124,10 +128,13 @@ export default class AltoDynamicLookup extends LightningElement {
         // Handle string "true"/"false" and boolean values
         if (value === true || value === 'true') {
             this._disabled = true;
+            this._explicitlyDisabled = true;
         } else if (value === false || value === 'false') {
             this._disabled = false;
+            this._explicitlyDisabled = false;
         } else {
             this._disabled = Boolean(value);
+            this._explicitlyDisabled = this._disabled;
         }
     }
 
@@ -215,7 +222,7 @@ export default class AltoDynamicLookup extends LightningElement {
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} parentInitialized setter triggered`);
         this._parentInitialized = value;
         this.componentInitialized = false;
-        this.loadingMessage = LABELS.applyingParent;
+        this.loadingMessage = this.parentFilterValue ? LABELS.applyingParent : LABELS.preparing;
         // Re-fetch records based on the new filter value and update selection
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Parent initialized:`, {
             parentInitialized: value,
@@ -225,6 +232,10 @@ export default class AltoDynamicLookup extends LightningElement {
         });
         if( this._parentInitialized && this.parentFilterField && this.parentFilterValue && this.value) {
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Parent initialized with filter field: ${this.parentFilterField}, value: ${this.parentFilterValue}`);
+            // Preserve init value for reuse when parent changes
+            if (!this._preservedInitValue) {
+                this._preservedInitValue = this.value;
+            }
             this.getRecords().then(() => {
                 if(this.parentFilterValue){
                     this.selectedRecord = this.findRecordByValue(this.value, true);
@@ -235,6 +246,13 @@ export default class AltoDynamicLookup extends LightningElement {
                 this.value = null;
             });
         } else if (this._parentInitialized) {
+            // Preserve init value for later matching when parentFilterValue arrives
+            if (this.value && this.parentFilterField && !this.parentFilterValue) {
+                this._preservedInitValue = this.value;
+                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Preserving init value for later matching: ${this._preservedInitValue}`);
+            } else {
+                this._preservedInitValue = null;
+            }
             this.value = null;
             this.selectedRecord = null;
             this.componentInitialized = true;
@@ -282,7 +300,10 @@ export default class AltoDynamicLookup extends LightningElement {
     }
 
     set parentFilterField(value) {
-        this._parentFilterField = value;
+        // Normalise falsy / whitespace-only / literal-string-'null' values so that
+        // connectedCallback correctly detects "no parent" via !this.parentFilterField
+        const trimmed = (value != null) ? String(value).trim() : '';
+        this._parentFilterField = (trimmed === '' || trimmed.toLowerCase() === 'null') ? null : trimmed;
     }
 
     @api get parentFilterValue() {
@@ -297,11 +318,22 @@ export default class AltoDynamicLookup extends LightningElement {
             this.selectedRecord = null;
             this.searchValue = ''; // Clear search input if parent filter value is not set
             if(this.disableOnNoParentValue && !this.readOnly) {
-                this.disabled = true; // Disable the input if no parent filter value is set
+                this._disabled = true; // Disable the input if no parent filter value is set
             }
         } else {
-            if(!this.readOnly) {
-                this.disabled = false; // Enable the input if parent filter value is set
+            if(!this.readOnly && !this._explicitlyDisabled) {
+                this._disabled = false; // Enable the input if parent filter value is set (unless explicitly disabled)
+            }
+            // If we have a preserved init value, try to match it now
+            if (this._preservedInitValue && this.componentInitialized) {
+                this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Attempting to match preserved init value: ${this._preservedInitValue}`);
+                this.componentInitialized = false;
+                this.loadingMessage = LABELS.preparing;
+                this.getRecords().then(() => {
+                    this.selectedRecord = this.findRecordByValue(this._preservedInitValue, true);
+                    // Keep preserved value for reuse when parent changes again
+                    this.componentInitialized = true;
+                });
             }
         }
 
@@ -421,6 +453,7 @@ export default class AltoDynamicLookup extends LightningElement {
         // Dispatch initial values to Flow for all output properties whose setters
         // won't fire during component load (getter/setter pairs use local vars that
         // start at their default values and never trigger FlowAttributeChangeEvent).
+        this.dispatchEvent(new FlowAttributeChangeEvent('parentInitialized', this._parentInitialized));
         this.dispatchEvent(new FlowAttributeChangeEvent('componentInitialized', this._componentInitialized));
         this.dispatchEvent(new FlowAttributeChangeEvent('selectedRecord', this._selectedRecord));
         this.dispatchEvent(new FlowAttributeChangeEvent('selectedValue', this._selectedValue));
@@ -476,7 +509,7 @@ export default class AltoDynamicLookup extends LightningElement {
         } else {
             this.loadingMessage = LABELS.waitingParent;
             if(this.disableOnNoParentValue && !this.parentFilterValue) {
-                this.disabled = true; // Disable the input if no parent filter value is set
+                this._disabled = true; // Disable the input if no parent filter value is set
             }
         }
         
@@ -517,7 +550,7 @@ export default class AltoDynamicLookup extends LightningElement {
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} SObject Details:`, sObjectDetails);
         } catch (error) {
             console.error(`${LOG_PREFIX} - ${this.objectApiName} Error fetching SObject details:`, error);
-            this.showErrorToast(LABELS.errorSObject + ': ' + error.body.message);
+            this.showErrorToast(LABELS.errorSObject + ': ' + (error?.body?.message || error?.message || 'Unknown error'));
         }
     }
 
@@ -578,7 +611,7 @@ export default class AltoDynamicLookup extends LightningElement {
         } catch (error) {
             if (currentRequestId === this._getRecordsRequestId) {
                 console.error(`${LOG_PREFIX} - ${this.objectApiName} Error fetching records:`, error);
-                this.showErrorToast(LABELS.errorRecords + ': ' + error.body.message);
+                this.showErrorToast(LABELS.errorRecords + ': ' + (error?.body?.message || error?.message || 'Unknown error'));
             }
         };
     }
@@ -603,10 +636,29 @@ export default class AltoDynamicLookup extends LightningElement {
 
     prepareData(data){
         this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} prepareData triggered`);
+
+        // Deduplicate dropdown results if requested.
+        // This operates only on the display list — rawData is untouched so
+        // findRecordByValue() can still resolve initial/pre-selected values
+        // that may share a deduplication key with another record.
+        let deduplicatedData = Array.isArray(data) ? data : [];
+        if (this.deduplicateName || this.deduplicateValue) {
+            const seen = new Set();
+            deduplicatedData = deduplicatedData.filter(record => {
+                const namePart  = this.deduplicateName  ? String(record[this.displayFieldName]  ?? '') : '';
+                const valuePart = this.deduplicateValue ? String(record[this.valueFieldName]     ?? '') : '';
+                const key = `${namePart}\x00${valuePart}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+            this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Deduplication applied (byName=${this.deduplicateName}, byValue=${this.deduplicateValue}): ${data.length} → ${deduplicatedData.length} records`);
+        }
+
         // Limit the data to the first maxResults entries
-        const limitedData = Array.isArray(data) && this.maxResults
-            ? data.slice(0, this.maxResults)
-            : data;
+        const limitedData = Array.isArray(deduplicatedData) && this.maxResults
+            ? deduplicatedData.slice(0, this.maxResults)
+            : deduplicatedData;
 
         if(limitedData.length === 0) {
             let noRecord = {};
@@ -732,6 +784,8 @@ export default class AltoDynamicLookup extends LightningElement {
             const selectedId = event.currentTarget.dataset.value; // data-value is always record.Id
             // Find by Id so the selectedRecord setter can correctly derive selectedValue from valueFieldName
             this.selectedRecord = this.findRecordByValue(selectedId, false);
+            // Clear preserved init value since user manually selected a different record
+            this._preservedInitValue = null;
 
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Selected Value:`, this.selectedValue);
             this.appendLog(`${LOG_PREFIX} - ${this.objectApiName} Selected Record:`, JSON.stringify(this.selectedRecord, null, 2));

@@ -25,6 +25,8 @@
                       description="Button variant: base, neutral, brand, brand-outline, destructive, destructive-text, inverse, success"/>
             <property name="alignment" type="String" label="Button Alignment" default="right"
                       description="Alignment of buttons: left, center, or right"/>
+            <property name="actionsPosition" type="String" label="Custom Actions Position" default="after"
+                      description="Controls where custom Action Links appear relative to Previous/Next buttons. 'before' = custom actions first; 'after' = custom actions last (default)."/>
             <property name="actionClicked" type="String" role="outputOnly" label="Action Clicked"
                       description="Output: Name of the action button that was clicked"/>
             <property name="displayAsGroup" type="Boolean" label="Display Buttons as Group" default="false"

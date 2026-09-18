@@ -100,6 +100,15 @@ export default class Alto_flowHeader extends NavigationMixin(LightningElement) {
         this.parseActionLinks();
     }
     _pageMetaInput = '';
+    @api
+    get actionsPosition() {
+        return this._actionsPosition;
+    }
+    set actionsPosition(value) {
+        this._actionsPosition = value;
+        this.parseActionLinks();
+    }
+    _actionsPosition = 'after'; // 'before' = custom actions before Previous/Next; 'after' = after (default)
     
     _availableActions = [];
     
@@ -121,6 +130,7 @@ export default class Alto_flowHeader extends NavigationMixin(LightningElement) {
     parsedActions = [];
     dropdownOpen = false;
     _actionClicked = '';
+    _boundHandleClickOutside = null;
 
     @api
     get actionClicked() {
@@ -137,12 +147,12 @@ export default class Alto_flowHeader extends NavigationMixin(LightningElement) {
             this.parseActionLinks();
         }
         // Close dropdown when clicking outside
-        this.handleClickOutside = this.handleClickOutside.bind(this);
-        document.addEventListener('click', this.handleClickOutside);
+        this._boundHandleClickOutside = this.handleClickOutside.bind(this);
+        document.addEventListener('click', this._boundHandleClickOutside);
     }
 
     disconnectedCallback() {
-        document.removeEventListener('click', this.handleClickOutside);
+        document.removeEventListener('click', this._boundHandleClickOutside);
     }
 
     handleClickOutside(event) {
@@ -240,7 +250,9 @@ export default class Alto_flowHeader extends NavigationMixin(LightningElement) {
                                 isUrl: !!action.url
                             };
                         });
-                    actions = actions.concat(customActions);
+                    actions = this._actionsPosition === 'before'
+                        ? [...customActions, ...actions]
+                        : [...actions, ...customActions];
                 }
             } catch (e) {
                 console.error('Error parsing action links:', e);

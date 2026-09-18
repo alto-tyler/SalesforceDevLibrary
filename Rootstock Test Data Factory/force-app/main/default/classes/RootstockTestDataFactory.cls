@@ -144,8 +144,11 @@ public class RootstockTestDataFactory {
             );
             insert testUser;
             
+            // Use org's default currency (works in both single and multi-currency orgs)
+            String orgDefaultCurrency = UserInfo.getDefaultCurrency();
+            
             rstk__sycurr__c syCurr = new rstk__sycurr__c(
-                rstk__sycurr_currency__c = 'GBP',
+                rstk__sycurr_currency__c = orgDefaultCurrency,
                 rstk__sycurr_exchrate__c = 1,
                 rstk__triggeroptions__c = 'UT'
             );
@@ -178,7 +181,6 @@ public class RootstockTestDataFactory {
                 rstk__sydiv_routing_active__c = true,
                 rstk__sydiv_revcntlact__c = true,
                 rstk__sydiv_revformat_pl__c = 'Alpha-Numeric',
-                Auto_Create_Independent_WO_Project__c = true,
                 rstk__triggeroptions__c = 'UT'
             );
             
@@ -222,6 +224,49 @@ public class RootstockTestDataFactory {
             syDiv = [SELECT Id, rstk__sydiv_mainsite__c FROM rstk__sydiv__c WHERE Id = :syDiv.Id];
             syDiv.rstk__sydiv_mainsite__c = sySite.Id;
             update syDiv;
+            
+            // Two manufacturing user records required by the rstk.soapi before-insert trigger.
+            // The trigger resolves the manufacturing user via: WHERE syusr_employee__c = UserInfo.getUserId()
+            //  • Test methods that call processOrders() directly run as the System Administrator.
+            //  • Test methods that publish Platform Events run as the Automated Process SF user.
+            User automatedProcessSFUser = [SELECT Id FROM User WHERE Alias = 'platint' LIMIT 1];
+            rstk__syusr__c autoProcessAdmin = new rstk__syusr__c(
+                rstk__syusr_clockno__c           = 9998,
+                rstk__syusr_employee__c          = UserInfo.getUserId(),
+                rstk__syusr_autoprocessuser__c   = true,
+                rstk__syusr_dfltcmpno__c         = sycmpRecord.Id,
+                rstk__syusr_dfltdiv__c           = syDiv.Id,
+                rstk__syusr_salesdiv__c          = syDiv.Id,
+                rstk__syusr_multicompany__c      = true,
+                rstk__syusr_multidiv__c          = true,
+                rstk__syusr_licreq__c            = true,
+                rstk__syusr_allowlaborbooking__c = true,
+                rstk__syusr_allowqtybooking__c   = true,
+                rstk__syusr_lastcmpno__c         = sycmpRecord.Id,
+                rstk__syusr_lastdiv__c           = syDiv.Id,
+                rstk__syusr_lastsalesdiv__c      = syDiv.Id,
+                rstk__syusr_lastsite__c          = sySite.Id,
+                rstk__triggeroptions__c          = 'UT'
+            );
+            rstk__syusr__c autoProcessPlatformEvent = new rstk__syusr__c(
+                rstk__syusr_clockno__c           = 9999,
+                rstk__syusr_employee__c          = automatedProcessSFUser.Id,
+                rstk__syusr_autoprocessuser__c   = true,
+                rstk__syusr_dfltcmpno__c         = sycmpRecord.Id,
+                rstk__syusr_dfltdiv__c           = syDiv.Id,
+                rstk__syusr_salesdiv__c          = syDiv.Id,
+                rstk__syusr_multicompany__c      = true,
+                rstk__syusr_multidiv__c          = true,
+                rstk__syusr_licreq__c            = true,
+                rstk__syusr_allowlaborbooking__c = true,
+                rstk__syusr_allowqtybooking__c   = true,
+                rstk__syusr_lastcmpno__c         = sycmpRecord.Id,
+                rstk__syusr_lastdiv__c           = syDiv.Id,
+                rstk__syusr_lastsalesdiv__c      = syDiv.Id,
+                rstk__syusr_lastsite__c          = sySite.Id,
+                rstk__triggeroptions__c          = 'UT'
+            );
+            insert new List<rstk__syusr__c>{ autoProcessAdmin, autoProcessPlatformEvent };
             
             rstk__syuom__c syUom = new rstk__syuom__c(
                 rstk__syuom_uom__c = 'Ea',
@@ -495,6 +540,30 @@ public class RootstockTestDataFactory {
             // Insert all accounts in one DML operation
             insert accountsToInsert;
             
+            // Sales Order Control — required by rstk.soapi before-insert trigger.
+            // The trigger queries all socntl__c records and NPEs when none exist.
+            // Account lookups are populated to match production record structure.
+            rstk__socntl__c soCtrl = new rstk__socntl__c(
+                rstk__socntl_div__c             = syDiv.Id,
+                rstk__socntl_autoorder__c       = true,
+                rstk__socntl_cosacct__c         = syAcc15.Id, // Cost of Sales
+                rstk__socntl_defcogsacct__c     = syAcc15.Id, // Default COGS
+                rstk__socntl_cospendacct__c     = syAcc15.Id, // COS Pending
+                rstk__socntl_rmaadjacct__c      = syAcc15.Id, // RMA Adjustment
+                rstk__socntl_salesacct__c       = syAcc16.Id, // Sales
+                rstk__socntl_defsalesacct__c    = syAcc16.Id, // Default Sales
+                rstk__socntl_ffsalesacct__c     = syAcc16.Id, // FF Sales
+                rstk__socntl_discacct__c        = syAcc16.Id, // Discount
+                rstk__socntl_freightacct__c     = syAcc16.Id, // Freight
+                rstk__socntl_handlingacct__c    = syAcc16.Id, // Handling
+                rstk__socntl_packageacct__c     = syAcc16.Id, // Packaging
+                rstk__socntl_ppyacct__c         = syAcc16.Id, // Prepayment
+                rstk__socntl_ccppyacct__c       = syAcc16.Id, // CC Prepayment
+                rstk__socntl_orderpaycashacct__c = syAcc16.Id, // Order Pay Cash
+                rstk__triggeroptions__c         = 'UT'
+            );
+            insert soCtrl;
+            
             // Now create the rstk__iccomcodacc__c record and associate the correct accounts
             rstk__iccomcodacc__c disComCodAcc = new rstk__iccomcodacc__c(
                 rstk__externalid__c = syDiv.Id + '_' + disComCod.rstk__iccomcod_comcod__c,
@@ -650,15 +719,6 @@ public class RootstockTestDataFactory {
             
             insert soProdDiv;
             
-            rstk__socclass__c soCClass = new rstk__socclass__c(
-            	rstk__socclass_cclass__c = 'UK-STD',
-                rstk__socclass_custcurr__c = syCurr.Id,
-                rstk__socclass_desc__c = 'UK Invoices Standard',
-                rstk__triggeroptions__c = 'UT'
-            );
-            
-            insert soCClass;
-            
             rstk__sycarrier__c syCarr = new rstk__sycarrier__c(
             	rstk__sycarrier_id__c = 'CPCarrier',
                 rstk__sycarrier_descr__c = 'Example Carrier',
@@ -682,6 +742,15 @@ public class RootstockTestDataFactory {
             
             insert syShipType;
             
+            rstk__socarriervia__c soCarrierVia = new rstk__socarriervia__c(
+                rstk__socarriervia_carrier__c          = syCarr.Id,
+                rstk__socarriervia_shipvia__c           = syShipType.Id,
+                rstk__socarriervia_defaultforcarr__c   = true,
+                rstk__socarriervia_defaultformeth__c   = true,
+                rstk__triggeroptions__c                = 'UT'
+            );
+            insert soCarrierVia;
+            
             rstk__syfrghtrm__c syFrght = new rstk__syfrghtrm__c(
             	rstk__syfrghtrm_id__c = 'Default',
                 rstk__syfrghtrm_descr__c = 'Default',
@@ -697,6 +766,20 @@ public class RootstockTestDataFactory {
             );
             
             insert syTerms;
+            
+            rstk__socclass__c soCClass = new rstk__socclass__c(
+            	rstk__socclass_cclass__c = syCurr.rstk__sycurr_currency__c + '-STD',
+                rstk__socclass_custcurr__c = syCurr.Id,
+                rstk__socclass_desc__c = syCurr.rstk__sycurr_currency__c + ' Invoices Standard',
+                rstk__socclass_carrier__c    = syCarr.Id,
+                rstk__socclass_fob__c        = syFob.Id,
+                rstk__socclass_frghtrm__c    = syFrght.Id,
+                rstk__socclass_shipviatype__c = syShipType.Id,
+                rstk__socclass_terms__c      = syTerms.Id,
+                rstk__triggeroptions__c = 'UT'
+            );
+            
+            insert soCClass;
             
             rstk__socust__c soCust = new rstk__socust__c(
             	rstk__socust_custno__c = '9999',

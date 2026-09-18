@@ -6,7 +6,7 @@ This component provides a customizable footer for Flow screens with action butto
 - Standardize Next/Previous button styling across Flows
 - Add custom action buttons (Save Draft, Cancel, Submit, etc.)
 - Display footer meta information (disclaimers, help text, status)
-- Control button alignment and grouping
+- Control button alignment, ordering, and grouping
 - Build multi-action workflows with conditional buttons
 
 ---
@@ -56,6 +56,12 @@ This component provides a customizable footer for Flow screens with action butto
 - Horizontal alignment of buttons
 - Options: `left`, `center`, `right`
 - Default: `right`
+
+### **Custom Actions Position**
+- Controls where buttons from **Action Links (JSON)** render relative to the Previous/Next navigation buttons
+- Options: `before` (custom actions first), `after` (custom actions last)
+- Default: `after`
+- Useful when you want a "Cancel" or "Save Draft" action to appear to the left of Previous/Next instead of to the right
 
 ### **Display Buttons as Group**
 - When enabled, buttons are displayed as a grouped set (SLDS button group)
@@ -333,6 +339,9 @@ Next Button Variant: brand
 - Ensure **Show Next/Finish Button** and **Show Previous Button** are `True`
 - Verify Flow has available actions (can't show Previous on first screen)
 
+**Problem:** Custom actions appear on the wrong side of Previous/Next
+- Set **Custom Actions Position** to `before` or `after` to control ordering relative to the standard navigation buttons
+
 ---
 
 ## Advanced Tips
@@ -397,5 +406,5 @@ This dynamically updates based on Flow variables.
 - **Component Name:** `alto_flowFooter`
 - **Navigation:** Uses Lightning Navigation mixin for `pageReference` navigation
 - **Target:** `lightning__FlowScreen`
-- **Button Variants:** Supports all SLDS button variants
+- **Button Variants:** Supports all SLDS button variants (`base`, `neutral`, `brand`, `brand-outline`, `destructive`, `destructive-text`, `inverse`, `success`)
 - **Button Group:** Uses SLDS `slds-button-group` for grouped display

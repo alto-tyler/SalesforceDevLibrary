@@ -68,6 +68,15 @@ export default class Alto_flowFooter extends NavigationMixin(LightningElement) {
     _previousVariant = 'neutral';
     @api alignment = 'right'; // left, center, or right
     @api
+    get actionsPosition() {
+        return this._actionsPosition;
+    }
+    set actionsPosition(value) {
+        this._actionsPosition = value;
+        this.parseActionLinks();
+    }
+    _actionsPosition = 'after'; // 'before' = custom actions before Previous/Next; 'after' = after (default)
+    @api
     get displayAsGroup() {
         return this._displayAsGroup;
     }
@@ -177,7 +186,7 @@ export default class Alto_flowFooter extends NavigationMixin(LightningElement) {
             }
         }
         
-        // Parse JSON for custom actions - insert between Previous and Next
+        // Parse JSON for custom actions - insert before or after navigation buttons
         let customActions = [];
         if (this.actionLinks) {
             try {
@@ -213,14 +222,16 @@ export default class Alto_flowFooter extends NavigationMixin(LightningElement) {
                                 isUrl: !!action.url
                             };
                         });
-                    actions = actions.concat(customActions);
                 }
             } catch (e) {
-                console.error('Error parsing action links:', e);
+                console.error('Error parsing action links:', JSON.stringify(e));
+                console.log('Provided actionLinks string:', this.actionLinks);
             }
         }
-        
-        this.parsedActions = actions;
+
+        this.parsedActions = this._actionsPosition === 'before'
+            ? [...customActions, ...actions]
+            : [...actions, ...customActions];
     }
 
     getButtonClass(variant) {
@@ -230,9 +241,13 @@ export default class Alto_flowFooter extends NavigationMixin(LightningElement) {
                 return `${baseClass} slds-button_brand`;
             case 'destructive':
                 return `${baseClass} slds-button_destructive`;
+            case 'destructive-text':
+                return `${baseClass} slds-button_text-destructive`;
+            case 'inverse':
+                return `${baseClass} slds-button_inverse`;
             case 'success':
                 return `${baseClass} slds-button_success`;
-            case 'outline-brand':
+            case 'brand-outline':
                 return `${baseClass} slds-button_outline-brand`;
             case 'inverse':
                 return `${baseClass} slds-button_inverse`;
