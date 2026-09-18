@@ -17,18 +17,18 @@ public class RootstockTestDataBatch implements Database.Batchable<SObject>, Data
         return Database.getQueryLocator([SELECT Id FROM User LIMIT :batchSize]);
     }
 
-    // Process each batch of data
+    // Process each batch of data. Deliberately does NOT swallow exceptions
+    // from the factory calls — this batch only exists to seed data the
+    // caller (e.g. FlowHeaderControllerTest) immediately depends on, so a
+    // failure here must fail the test loudly with its real cause instead of
+    // silently leaving that data half-created and surfacing as a confusing
+    // downstream "List has no rows for assignment to SObject".
     public void execute(Database.BatchableContext BC, List<SObject> scope) {
         for (Integer i = 0; i < batchSize; i++) {
-            try {
-                RootstockTestDataFactory.createTestSyConfig();
-                RootstockTestDataFactory.Response res = RootstockTestDataFactory.createTestData();
-                results.add(res);
-                recordCount++;
-            } catch (Exception ex) {
-                // Handle any exceptions that occur during the creation
-                System.debug('Error creating test data: ' + ex.getMessage());
-            }
+            RootstockTestDataFactory.createTestSyConfig();
+            RootstockTestDataFactory.Response res = RootstockTestDataFactory.createTestData();
+            results.add(res);
+            recordCount++;
         }
     }
 
